@@ -1,0 +1,77 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="auth-wrapper">
+
+        <div class="auth-card">
+
+            <h1>AutoNexa</h1>
+
+            <p>
+                Login to continue to your vehicle service account
+            </p>
+
+            {% if error %}
+                <div class="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    required
+                    placeholder="Enter your username"
+                >
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    required
+                    placeholder="Enter your password"
+                >
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+            <p>
+                Don't have an account?
+                <a href="{% url 'register' %}">
+                    Create an account
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="hero">
+
+        <div class="hero-content">
+
+            <h1>AutoNexa</h1>
+
+            <p>
+                A smart vehicle service and roadside assistance platform that helps customers
+                book vehicle services, track service progress, view service history, and request
+                emergency roadside assistance.
+            </p>
+
+            <div class="hero-actions">
+
+                <a href="{% url 'login' %}" class="btn">
+                    Login
+                </a>
+
+                <a href="{% url 'register' %}" class="btn btn-green">
+                    Register
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        <h1 class="page-title">
+            Vehicle Service & Roadside Assistance
+        </h1>
+
+        <p class="page-subtitle">
+            AutoNexa connects customers and service staff through a simple and organized
+            service workflow.
+        </p>
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Vehicle Service Booking</h3>
+                <p>
+                    Customers can register vehicles and book service requests easily through the platform.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Service Tracking</h3>
+                <p>
+                    Customers can view appointment details, assigned staff, service status, and current work.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Roadside Assistance</h3>
+                <p>
+                    Customers can request tow truck, repair, battery, or tyre assistance during emergencies.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Staff Dashboard</h3>
+                <p>
+                    Staff can manage assigned service jobs, update work progress, and handle assistance requests.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Service History</h3>
+                <p>
+                    Completed services are automatically saved and shown in customer service history.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Notifications</h3>
+                <p>
+                    Customers receive updates when services or roadside assistance requests are completed.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
