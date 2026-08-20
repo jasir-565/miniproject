@@ -1,0 +1,167 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Service - AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div>
+            <h1>AutoNexa</h1>
+            <p>Book Vehicle Service</p>
+        </div>
+
+        <div>
+            Welcome,
+            {% if user.first_name %}
+                {{ user.first_name }}
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h1 class="page-title">
+            Book Vehicle Service
+        </h1>
+
+        <p class="page-subtitle">
+            Submit a service request for your registered vehicle. After booking, available staff will be assigned and appointment details will be updated by the service center.
+        </p>
+
+        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+            Back to Dashboard
+        </a>
+
+        <br><br>
+
+        <div class="grid-2">
+
+            <div class="form-box">
+
+                <h2>Service Request Form</h2>
+
+                {% if error %}
+                    <div class="alert">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                {% if vehicles %}
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <label for="vehicle">
+                            Select Vehicle
+                        </label>
+
+                        <select name="vehicle" id="vehicle" required>
+                            <option value="">Select Vehicle</option>
+
+                            {% for vehicle in vehicles %}
+                                <option value="{{ vehicle.id }}">
+                                    {{ vehicle.registration_number }}
+                                    -
+                                    {{ vehicle.brand }}
+                                    {{ vehicle.model }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="service_type">
+                            Service Type
+                        </label>
+
+                        <select name="service_type" id="service_type" required>
+                            <option value="">Select Service</option>
+                            <option value="General Service">General Service</option>
+                            <option value="Oil Change">Oil Change</option>
+                            <option value="Brake Service">Brake Service</option>
+                            <option value="Engine Service">Engine Service</option>
+                            <option value="AC Service">AC Service</option>
+                            <option value="Tyre Service">Tyre Service</option>
+                            <option value="Battery Service">Battery Service</option>
+                            <option value="Other">Other</option>
+                        </select>
+
+                        <label for="issue_description">
+                            Issue Description
+                        </label>
+
+                        <textarea
+                            name="issue_description"
+                            id="issue_description"
+                            rows="5"
+                            placeholder="Describe the problem with your vehicle..."
+                            required
+                        ></textarea>
+
+                        <button type="submit" class="btn-green">
+                            Book Service
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <div class="alert">
+                        You need to register a vehicle before booking a service.
+                    </div>
+
+                    <a href="{% url 'vehicles' %}" class="btn">
+                        Add Vehicle
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+            <div class="card">
+
+                <h2>What Happens Next?</h2>
+
+                <div class="detail-box">
+                    <strong>Step 1</strong>
+                    <span>You submit your vehicle service request.</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Step 2</strong>
+                    <span>An available staff member is assigned to your booking.</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Step 3</strong>
+                    <span>Staff assigns appointment date and time based on availability.</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Step 4</strong>
+                    <span>You can track status, current work, and final service history.</span>
+                </div>
+
+                <br>
+
+                <a href="{% url 'my_bookings' %}" class="btn">
+                    View My Bookings
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

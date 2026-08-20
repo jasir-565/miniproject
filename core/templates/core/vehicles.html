@@ -1,0 +1,213 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vehicles - AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div>
+            <h1>AutoNexa</h1>
+            <p>My Vehicles</p>
+        </div>
+
+        <div>
+            Welcome,
+            {% if user.first_name %}
+                {{ user.first_name }}
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h1 class="page-title">
+            My Vehicles
+        </h1>
+
+        <p class="page-subtitle">
+            Register your vehicles here. These vehicles can be used for service booking and roadside assistance requests.
+        </p>
+
+        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+            Back to Dashboard
+        </a>
+
+        <br><br>
+
+        <div class="grid-2">
+
+            <div class="form-box">
+
+                <h2>Add Vehicle</h2>
+
+                <p class="note">
+                    Enter your vehicle details correctly. The registration number should be unique.
+                </p>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <label for="registration_number">
+                        Vehicle Registration Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="registration_number"
+                        id="registration_number"
+                        required
+                        placeholder="Example: KL33O9999"
+                    >
+
+                    <label for="brand">
+                        Vehicle Brand
+                    </label>
+
+                    <input
+                        type="text"
+                        name="brand"
+                        id="brand"
+                        required
+                        placeholder="Example: Toyota"
+                    >
+
+                    <label for="model">
+                        Vehicle Model
+                    </label>
+
+                    <input
+                        type="text"
+                        name="model"
+                        id="model"
+                        required
+                        placeholder="Example: Innova"
+                    >
+
+                    <label for="year">
+                        Vehicle Year
+                    </label>
+
+                    <input
+                        type="number"
+                        name="year"
+                        id="year"
+                        required
+                        min="1980"
+                        max="2099"
+                        placeholder="Example: 2018"
+                    >
+
+                    <button type="submit" class="btn-green">
+                        Add Vehicle
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="card">
+
+                <h2>Why Register Vehicles?</h2>
+
+                <div class="detail-box">
+                    <strong>Service Booking</strong>
+                    <span>
+                        Registered vehicles can be selected while booking a vehicle service.
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Roadside Assistance</strong>
+                    <span>
+                        You can request emergency roadside help for any registered vehicle.
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Service History</strong>
+                    <span>
+                        Completed services will be connected to the correct vehicle.
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Easy Tracking</strong>
+                    <span>
+                        You can track bookings, assigned staff, current work, and final records easily.
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <h2 class="page-title">
+            My Registered Vehicles
+        </h2>
+
+        <p class="page-subtitle">
+            View all vehicles registered under your AutoNexa account.
+        </p>
+
+        {% if vehicles %}
+
+            <div class="grid">
+
+                {% for vehicle in vehicles %}
+
+                    <div class="card">
+
+                        <h3>
+                            {{ vehicle.registration_number }}
+                        </h3>
+
+                        <div class="detail-box">
+                            <strong>Brand</strong>
+                            <span>{{ vehicle.brand }}</span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Model</strong>
+                            <span>{{ vehicle.model }}</span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Year</strong>
+                            <span>{{ vehicle.year }}</span>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                <h3>No vehicles registered</h3>
+
+                <p>
+                    You have not registered any vehicles yet. Add your first vehicle using the form above.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
