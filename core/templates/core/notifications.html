@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div>
+            <h1>AutoNexa</h1>
+            <p>My Notifications</p>
+        </div>
+
+        <div>
+            Welcome,
+            {% if user.first_name %}
+                {{ user.first_name }}
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h1 class="page-title">
+            Notifications
+        </h1>
+
+        <p class="page-subtitle">
+            View service updates, roadside assistance alerts, completion messages, and important AutoNexa notifications.
+        </p>
+
+        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+            Back to Dashboard
+        </a>
+
+        <br><br>
+
+        {% if notifications %}
+
+            {% for notification in notifications %}
+
+                <div class="card">
+
+                    <div class="job-summary">
+
+                        <div class="job-title">
+                            <h3>{{ notification.title }}</h3>
+
+                            <p>
+                                {{ notification.created_at }}
+                            </p>
+                        </div>
+
+                        <div>
+                            {% if notification.is_read %}
+                                <span class="status-badge status-completed">
+                                    Read
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-pending">
+                                    Unread
+                                </span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <br>
+
+                    <div class="detail-box full-width">
+                        <strong>Message</strong>
+                        <span>
+                            {{ notification.message }}
+                        </span>
+                    </div>
+
+                    <div class="grid-2">
+
+                        <div class="detail-box">
+                            <strong>Notification Type</strong>
+                            <span>
+                                {{ notification.get_notification_type_display }}
+                            </span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Status</strong>
+                            <span>
+                                {% if notification.is_read %}
+                                    Read
+                                {% else %}
+                                    Unread
+                                {% endif %}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    {% if not notification.is_read %}
+
+                        <br>
+
+                        <form method="POST"
+                              action="{% url 'mark_notification_read' notification.id %}">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="btn-green">
+                                Mark as Read
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-box">
+                <h3>No notifications yet</h3>
+
+                <p>
+                    Your service updates, roadside assistance alerts, and completion messages will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</body>
+</html>

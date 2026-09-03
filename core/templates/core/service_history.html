@@ -1,0 +1,464 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service History - AutoNexa</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div>
+            <h1>AutoNexa</h1>
+            <p>Customer Service History</p>
+        </div>
+
+        <div>
+            Welcome,
+            {% if user.first_name %}
+                {{ user.first_name }}
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+
+            <a href="{% url 'logout' %}">
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <h1 class="page-title">
+            Service History
+        </h1>
+
+        <p class="page-subtitle">
+            View your completed and cancelled vehicle services, along with roadside assistance history.
+        </p>
+
+        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+            Back to Dashboard
+        </a>
+
+        <br>
+        <br>
+
+        <h2 class="page-title">
+            Vehicle Service History
+        </h2>
+
+        <p class="page-subtitle">
+            Completed and cancelled vehicle service bookings are shown here.
+        </p>
+
+        {% if completed_services %}
+
+            {% for booking in completed_services %}
+
+                <div class="job-menu">
+
+                    <details>
+
+                        <summary>
+                            <div class="job-summary">
+
+                                <div class="job-title">
+                                    <h3>Vehicle Service</h3>
+
+                                    <p>
+                                        {{ booking.vehicle.registration_number }}
+                                        -
+                                        {{ booking.service_type }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    {% if booking.status == 'COMPLETED' %}
+                                        <span class="status-badge status-completed">
+                                            Completed
+                                        </span>
+                                    {% elif booking.status == 'CANCELLED' %}
+                                        <span class="status-badge status-cancelled">
+                                            Cancelled
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </summary>
+
+                        <div class="job-body">
+
+                            <div class="grid-2">
+
+                                <div class="detail-box">
+                                    <strong>History Type</strong>
+                                    <span>Vehicle Service</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Status</strong>
+                                    <span>{{ booking.get_status_display }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Vehicle Registration</strong>
+                                    <span>{{ booking.vehicle.registration_number }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Vehicle</strong>
+                                    <span>
+                                        {{ booking.vehicle.brand }}
+                                        {{ booking.vehicle.model }}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Service Type</strong>
+                                    <span>{{ booking.service_type }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Appointment Date</strong>
+                                    <span>
+                                        {% if booking.appointment_date %}
+                                            {{ booking.appointment_date }}
+                                        {% else %}
+                                            Not available
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Appointment Time</strong>
+                                    <span>
+                                        {% if booking.appointment_time %}
+                                            {{ booking.appointment_time }}
+                                        {% else %}
+                                            Not available
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Assigned Staff</strong>
+                                    <span>
+                                        {% if booking.staff %}
+                                            {% if booking.staff.user.get_full_name %}
+                                                {{ booking.staff.user.get_full_name }}
+                                            {% else %}
+                                                {{ booking.staff.user.username }}
+                                            {% endif %}
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Last Updated</strong>
+                                    <span>{{ booking.updated_at }}</span>
+                                </div>
+
+                                <div class="detail-box full-width">
+                                    <strong>Issue Description</strong>
+                                    <span>{{ booking.issue_description }}</span>
+                                </div>
+
+                                {% if booking.status == 'COMPLETED' %}
+
+                                    <div class="detail-box">
+                                        <strong>Completed On</strong>
+                                        <span>
+                                            {% if booking.service_record.completed_at %}
+                                                {{ booking.service_record.completed_at }}
+                                            {% else %}
+                                                {{ booking.updated_at }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="detail-box full-width">
+                                        <strong>Inspection Details</strong>
+                                        <span>
+                                            {% if booking.service_record.inspection_details %}
+                                                {{ booking.service_record.inspection_details }}
+                                            {% else %}
+                                                Not added
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="detail-box full-width">
+                                        <strong>Repair Details</strong>
+                                        <span>
+                                            {% if booking.service_record.repair_details %}
+                                                {{ booking.service_record.repair_details }}
+                                            {% else %}
+                                                Not added
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="detail-box full-width">
+                                        <strong>Parts Replaced</strong>
+                                        <span>
+                                            {% if booking.service_record.parts_replaced %}
+                                                {{ booking.service_record.parts_replaced }}
+                                            {% else %}
+                                                No parts replaced
+                                            {% endif %}
+                                        </span>
+                                    </div>
+
+                                    <div class="detail-box">
+                                        <strong>Service Cost</strong>
+                                        <span>
+                                            ₹ {{ booking.service_record.service_cost }}
+                                        </span>
+                                    </div>
+
+                                {% elif booking.status == 'CANCELLED' %}
+
+                                    <div class="detail-box full-width">
+                                        <strong>Cancellation Note</strong>
+                                        <span>
+                                            This vehicle service booking was cancelled.
+                                        </span>
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% if booking.status == 'COMPLETED' %}
+
+                                <div class="success-box">
+                                    This vehicle service was completed successfully.
+                                </div>
+
+                            {% elif booking.status == 'CANCELLED' %}
+
+                                <div class="alert">
+                                    This vehicle service booking was cancelled.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </details>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-box">
+                <h3>No vehicle service history</h3>
+
+                <p>
+                    Completed and cancelled vehicle services will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+        <br>
+
+        <h2 class="page-title">
+            Roadside Assistance History
+        </h2>
+
+        <p class="page-subtitle">
+            Completed and cancelled roadside assistance requests are shown here with a clear Roadside Assistance label.
+        </p>
+
+        {% if roadside_history %}
+
+            {% for assistance in roadside_history %}
+
+                <div class="job-menu">
+
+                    <details>
+
+                        <summary>
+                            <div class="job-summary">
+
+                                <div class="job-title">
+                                    <h3>Roadside Assistance</h3>
+
+                                    <p>
+                                        {{ assistance.vehicle.registration_number }}
+                                        -
+                                        {{ assistance.assistance_type }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    {% if assistance.status == 'COMPLETED' %}
+                                        <span class="status-badge status-completed">
+                                            Completed
+                                        </span>
+                                    {% elif assistance.status == 'CANCELLED' %}
+                                        <span class="status-badge status-cancelled">
+                                            Cancelled
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </summary>
+
+                        <div class="job-body">
+
+                            <div class="grid-2">
+
+                                <div class="detail-box">
+                                    <strong>History Type</strong>
+                                    <span>Roadside Assistance</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Status</strong>
+                                    <span>{{ assistance.get_status_display }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Vehicle Registration</strong>
+                                    <span>{{ assistance.vehicle.registration_number }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Vehicle</strong>
+                                    <span>
+                                        {{ assistance.vehicle.brand }}
+                                        {{ assistance.vehicle.model }}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Assistance Type</strong>
+                                    <span>{{ assistance.assistance_type }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Requested On</strong>
+                                    <span>{{ assistance.created_at }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Last Updated</strong>
+                                    <span>{{ assistance.updated_at }}</span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Completed On</strong>
+                                    <span>
+                                        {% if assistance.completed_at %}
+                                            {{ assistance.completed_at }}
+                                        {% else %}
+                                            Not completed
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box">
+                                    <strong>Assigned Staff</strong>
+                                    <span>
+                                        {% if assistance.staff %}
+                                            {% if assistance.staff.user.get_full_name %}
+                                                {{ assistance.staff.user.get_full_name }}
+                                            {% else %}
+                                                {{ assistance.staff.user.username }}
+                                            {% endif %}
+                                        {% else %}
+                                            Not assigned
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="detail-box full-width">
+                                    <strong>Problem Description</strong>
+                                    <span>{{ assistance.problem_description }}</span>
+                                </div>
+
+                                <div class="detail-box full-width">
+                                    <strong>Location Details</strong>
+                                    <span>{{ assistance.location_details }}</span>
+                                </div>
+
+                                {% if assistance.location_link %}
+
+                                    <div class="detail-box full-width">
+                                        <strong>Customer Location Link</strong>
+                                        <span>
+                                            <a href="{{ assistance.location_link }}" target="_blank">
+                                                Open Customer Location
+                                            </a>
+                                        </span>
+                                    </div>
+
+                                {% endif %}
+
+                                {% if assistance.staff_location_link %}
+
+                                    <div class="detail-box full-width">
+                                        <strong>Staff Location Link</strong>
+                                        <span>
+                                            <a href="{{ assistance.staff_location_link }}" target="_blank">
+                                                Open Staff Location
+                                            </a>
+                                        </span>
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% if assistance.status == 'COMPLETED' %}
+
+                                <div class="success-box">
+                                    This roadside assistance request was completed successfully.
+                                </div>
+
+                            {% elif assistance.status == 'CANCELLED' %}
+
+                                <div class="alert">
+                                    This roadside assistance request was cancelled.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </details>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-box">
+                <h3>No roadside assistance history</h3>
+
+                <p>
+                    Completed and cancelled roadside assistance requests will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
