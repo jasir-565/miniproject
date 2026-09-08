@@ -1,0 +1,128 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoNexa - Vehicle Service Center{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'core/style.css' %}">
+    <script src="{% static 'core/cockpit.js' %}" defer></script>
+</head>
+
+<body>
+
+    <!-- TOP INFORMATION UTILITY BAR -->
+    <div class="top-bar">
+        <div class="top-bar-item">
+            <span>📞 24/7 Roadside Emergency Dispatch:</span>
+            <strong>1800-AUTO-NEXA (1800-2886-6392)</strong>
+        </div>
+
+        <div class="top-bar-item">
+            <span>⏰ Service Hours:</span>
+            <strong>Mon – Sat: 8:00 AM – 8:00 PM</strong>
+        </div>
+
+        <div class="top-bar-item">
+            <span>📍 AutoNexa Certified Service Center Portal</span>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <header class="main-navbar">
+        <a href="{% url 'home' %}" class="brand-wrapper">
+            <div class="brand-icon">🚗</div>
+            <div class="brand-title">
+                <h1>AutoNexa</h1>
+                <p>Vehicle Service Center</p>
+            </div>
+        </a>
+
+        <!-- NAVIGATION LINKS -->
+        <nav class="nav-links">
+            {% if user.is_authenticated %}
+                {% if user.staffprofile %}
+                    <a href="{% url 'staff_dashboard' %}" class="nav-item">
+                        📊 Staff Dashboard
+                    </a>
+                    <a href="{% url 'staff_assistance_requests' %}" class="nav-item nav-sos">
+                        🚨 Roadside Requests
+                    </a>
+                    <a href="{% url 'staff_service_history' %}" class="nav-item">
+                        📜 Service Logs
+                    </a>
+                    <a href="{% url 'staff_assistance_history' %}" class="nav-item">
+                        🛡️ Assistance History
+                    </a>
+                {% else %}
+                    <a href="{% url 'customer_dashboard' %}" class="nav-item">
+                        📊 Dashboard
+                    </a>
+                    <a href="{% url 'vehicles' %}" class="nav-item">
+                        🚘 My Vehicles
+                    </a>
+                    <a href="{% url 'service_booking' %}" class="nav-item">
+                        🛠️ Book Service
+                    </a>
+                    <a href="{% url 'my_bookings' %}" class="nav-item">
+                        ⏳ My Bookings
+                    </a>
+                    <a href="{% url 'service_history' %}" class="nav-item">
+                        📜 Service History
+                    </a>
+                    <a href="{% url 'roadside_assistance' %}" class="nav-item nav-sos">
+                        🚨 Emergency Assistance
+                    </a>
+                    <a href="{% url 'notifications' %}" class="nav-item">
+                        🔔 Alerts
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'home' %}" class="nav-item">Home</a>
+                <a href="{% url 'login' %}" class="nav-item">Login</a>
+                <a href="{% url 'register' %}" class="nav-item">Register</a>
+            {% endif %}
+        </nav>
+
+        <!-- USER ACCOUNT & AUTH -->
+        <div class="user-badge">
+            {% if user.is_authenticated %}
+                <span class="user-name">
+                    👤 
+                    {% if user.first_name %}
+                        {{ user.first_name }}
+                    {% else %}
+                        {{ user.username }}
+                    {% endif %}
+                </span>
+                <a href="{% url 'logout' %}" class="btn btn-red" style="padding: 6px 14px; font-size: 12px;">
+                    Logout
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn" style="padding: 6px 16px; font-size: 12px;">
+                    Login
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- MAIN FOOTER -->
+    <footer class="main-footer">
+        <div>
+            <strong>AutoNexa Vehicle Service & Roadside Assistance Portal</strong> &copy; 2026. All Rights Reserved.
+        </div>
+        <div>
+            Certified Maintenance & Multi-Point Vehicle Diagnostics
+        </div>
+    </footer>
+
+</body>
+</html>
