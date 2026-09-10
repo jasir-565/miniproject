@@ -1,103 +1,92 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoNexa</title>
+{% block title %}AutoNexa - Professional Vehicle Service & Roadside Assistance Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<!-- HERO BANNER -->
+<div class="card" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 48px; border-radius: 16px; margin-bottom: 40px; box-shadow: var(--shadow-lg);">
+    <div style="max-width: 800px;">
+        <span class="status-badge status-confirmed" style="background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); margin-bottom: 16px;">
+            OFFICIAL SERVICE CENTER PORTAL
+        </span>
 
-    <div class="hero">
-
-        <div class="hero-content">
-
-            <h1>AutoNexa</h1>
-
-            <p>
-                A smart vehicle service and roadside assistance platform that helps customers
-                book vehicle services, track service progress, view service history, and request
-                emergency roadside assistance.
-            </p>
-
-            <div class="hero-actions">
-
-                <a href="{% url 'login' %}" class="btn">
-                    Login
-                </a>
-
-                <a href="{% url 'register' %}" class="btn btn-green">
-                    Register
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="container">
-
-        <h1 class="page-title">
-            Vehicle Service & Roadside Assistance
+        <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 16px; line-height: 1.2;">
+            Professional Vehicle Servicing & Emergency Roadside Assistance
         </h1>
 
-        <p class="page-subtitle">
-            AutoNexa connects customers and service staff through a simple and organized
-            service workflow.
+        <p style="color: #cbd5e1; font-size: 17px; line-height: 1.7; margin-bottom: 28px;">
+            AutoNexa provides comprehensive vehicle maintenance, certified multi-point inspection diagnostics, live repair status tracking, and 24/7 emergency roadside assistance.
         </p>
 
-        <div class="grid">
-
-            <div class="card">
-                <h3>Vehicle Service Booking</h3>
-                <p>
-                    Customers can register vehicles and book service requests easily through the platform.
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Service Tracking</h3>
-                <p>
-                    Customers can view appointment details, assigned staff, service status, and current work.
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Roadside Assistance</h3>
-                <p>
-                    Customers can request tow truck, repair, battery, or tyre assistance during emergencies.
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Staff Dashboard</h3>
-                <p>
-                    Staff can manage assigned service jobs, update work progress, and handle assistance requests.
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Service History</h3>
-                <p>
-                    Completed services are automatically saved and shown in customer service history.
-                </p>
-            </div>
-
-            <div class="card">
-                <h3>Notifications</h3>
-                <p>
-                    Customers receive updates when services or roadside assistance requests are completed.
-                </p>
-            </div>
-
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            {% if user.is_authenticated %}
+                {% if user.staffprofile %}
+                    <a href="{% url 'staff_dashboard' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
+                        📊 Go to Staff Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'customer_dashboard' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
+                        📊 Open Customer Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'register' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
+                    🚘 Register Account
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-gray" style="font-size: 15px; padding: 14px 28px;">
+                    🔑 Customer Login
+                </a>
+            {% endif %}
         </div>
+    </div>
+</div>
 
+<!-- SERVICES OVERVIEW -->
+<div class="page-header">
+    <h2 class="page-title">OUR SERVICE CAPABILITIES</h2>
+    <p class="page-subtitle">Streamlined service booking, live status tracking, and certified technician dispatches.</p>
+</div>
+
+<div class="grid">
+
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px;">🛠️</div>
+        <h3>Vehicle Service Booking</h3>
+        <p class="page-subtitle">Schedule routine servicing, engine diagnostics, oil changes, brake checks, and AC repair appointments.</p>
     </div>
 
-</body>
-</html>
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px; background: var(--warning-light); color: var(--warning-amber);">⏳</div>
+        <h3>Live Work Progress</h3>
+        <p class="page-subtitle">Track ongoing repair progress in real time with technician notes, estimated timelines, and status updates.</p>
+    </div>
+
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px; background: var(--danger-light); color: var(--danger-red);">🚨</div>
+        <h3>24/7 Roadside SOS Help</h3>
+        <p class="page-subtitle">Request emergency tow trucks, battery jumpstarts, flat tire assistance, or on-site breakdown support with live map links.</p>
+    </div>
+
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px;">👤</div>
+        <h3>Certified Staff Panel</h3>
+        <p class="page-subtitle">Technicians can manage service queues, assign appointment times, update repair progress, and complete records.</p>
+    </div>
+
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px; background: var(--success-light); color: var(--success-green);">📜</div>
+        <h3>Digital History & Receipts</h3>
+        <p class="page-subtitle">Access complete lifetime records for all completed services, replacement parts, inspection reports, and billing details.</p>
+    </div>
+
+    <div class="card">
+        <div class="stat-icon" style="margin-bottom: 16px;">🔔</div>
+        <h3>Instant Notifications</h3>
+        <p class="page-subtitle">Receive real-time alerts on your phone or dashboard as soon as technician assignments or service statuses change.</p>
+    </div>
+
+</div>
+
+{% endblock %}

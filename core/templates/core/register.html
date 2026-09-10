@@ -1,136 +1,125 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - AutoNexa</title>
+{% block title %}Register - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="auth-wrapper">
 
-    <div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 520px;">
 
-        <div class="auth-card">
+        <h1>Customer Registration</h1>
 
-            <h1>AutoNexa</h1>
+        <p>
+            Create your account to register vehicles, book services, and request roadside assistance.
+        </p>
 
-            <p>
-                Create your customer account to book vehicle services and request roadside assistance.
-            </p>
+        {% if error %}
+            <div class="alert">
+                ⚠️ {{ error }}
+            </div>
+        {% endif %}
 
-            {% if error %}
-                <div class="alert">
-                    {{ error }}
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="grid-2" style="gap: 0 16px;">
+                <div>
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        required
+                        placeholder="Choose a username"
+                    >
                 </div>
-            {% endif %}
 
-            <form method="POST">
+                <div>
+                    <label for="first_name">First Name</label>
+                    <input
+                        type="text"
+                        name="first_name"
+                        id="first_name"
+                        required
+                        placeholder="Enter first name"
+                    >
+                </div>
+            </div>
 
-                {% csrf_token %}
+            <div class="grid-2" style="gap: 0 16px;">
+                <div>
+                    <label for="last_name">Last Name</label>
+                    <input
+                        type="text"
+                        name="last_name"
+                        id="last_name"
+                        placeholder="Enter last name"
+                    >
+                </div>
 
-                <label for="username">
-                    Username
-                </label>
+                <div>
+                    <label for="phone">Phone Number</label>
+                    <input
+                        type="text"
+                        name="phone"
+                        id="phone"
+                        required
+                        placeholder="Enter phone number"
+                    >
+                </div>
+            </div>
 
-                <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    required
-                    placeholder="Choose a username"
-                >
+            <label for="email">Email Address</label>
+            <input
+                type="email"
+                name="email"
+                id="email"
+                required
+                placeholder="Enter email address"
+            >
 
-                <label for="first_name">
-                    First Name
-                </label>
+            <div class="grid-2" style="gap: 0 16px;">
+                <div>
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        required
+                        placeholder="Create a password"
+                    >
+                </div>
 
-                <input
-                    type="text"
-                    name="first_name"
-                    id="first_name"
-                    required
-                    placeholder="Enter your first name"
-                >
+                <div>
+                    <label for="confirm_password">Confirm Password</label>
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        id="confirm_password"
+                        required
+                        placeholder="Confirm password"
+                    >
+                </div>
+            </div>
 
-                <label for="last_name">
-                    Last Name
-                </label>
+            <button type="submit" class="btn btn-green" style="width: 100%; margin-top: 12px;">
+                Create Account
+            </button>
 
-                <input
-                    type="text"
-                    name="last_name"
-                    id="last_name"
-                    placeholder="Enter your last name"
-                >
+        </form>
 
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    required
-                    placeholder="Enter your email address"
-                >
-
-                <label for="phone">
-                    Phone
-                </label>
-
-                <input
-                    type="text"
-                    name="phone"
-                    id="phone"
-                    required
-                    placeholder="Enter your phone number"
-                >
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    required
-                    placeholder="Create a password"
-                >
-
-                <label for="confirm_password">
-                    Confirm Password
-                </label>
-
-                <input
-                    type="password"
-                    name="confirm_password"
-                    id="confirm_password"
-                    required
-                    placeholder="Confirm your password"
-                >
-
-                <button type="submit">
-                    Create Account
-                </button>
-
-            </form>
-
-            <p>
-                Already have an account?
-                <a href="{% url 'login' %}">
-                    Login here
-                </a>
-            </p>
-
-        </div>
+        <p style="margin-top: 24px; text-align: center; color: var(--text-muted);">
+            Already registered?
+            <a href="{% url 'login' %}">
+                Login here
+            </a>
+        </p>
 
     </div>
 
-</body>
-</html>
+</div>
+
+{% endblock %}

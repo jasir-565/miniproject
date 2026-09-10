@@ -1,165 +1,112 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Dashboard - AutoNexa</title>
+{% block title %}Customer Dashboard - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">Customer Dashboard</h1>
+    <p class="page-subtitle">Manage your registered vehicles, track active service appointments, request emergency roadside help, and review completed service records.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>Customer Dashboard</p>
+<!-- STAT SUMMARY GRID -->
+<div class="grid-4" style="margin-bottom: 32px;">
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <p>Registered Vehicles</p>
+            <h1>{{ vehicles_count }}</h1>
         </div>
+        <div class="stat-icon">🚘</div>
+    </div>
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
+    <div class="stat-card amber">
+        <div class="stat-info">
+            <p>Active Bookings</p>
+            <h1>{{ active_bookings_count }}</h1>
+        </div>
+        <div class="stat-icon">⏳</div>
+    </div>
+
+    <div class="stat-card green">
+        <div class="stat-info">
+            <p>Completed Services</p>
+            <h1>{{ completed_services_count }}</h1>
+        </div>
+        <div class="stat-icon">✅</div>
+    </div>
+
+    <div class="stat-card red">
+        <div class="stat-info">
+            <p>Unread Alerts</p>
+            <h1>{{ unread_notifications_count }}</h1>
+        </div>
+        <div class="stat-icon">🔔</div>
+    </div>
+
+</div>
+
+<!-- SERVICE MODULES GRID -->
+<div class="page-header" style="margin-top: 36px;">
+    <h2 class="page-title">Service Center Modules</h2>
+    <p class="page-subtitle">Select an action below to manage your vehicles and service requests.</p>
+</div>
+
+<div class="grid">
+
+    <a href="{% url 'vehicles' %}" class="menu-card">
+        <h3>
+            <span>🚘 My Vehicles</span>
+            <span class="license-plate-blue">{{ vehicles_count }} Registered</span>
+        </h3>
+        <p>Register and view personal vehicles to easily select them during service booking or roadside SOS dispatches.</p>
+    </a>
+
+    <a href="{% url 'service_booking' %}" class="menu-card">
+        <h3>
+            <span>🛠️ Book Vehicle Service</span>
+            <span class="status-badge status-confirmed">New Slot</span>
+        </h3>
+        <p>Schedule oil changes, brake servicing, engine checkups, AC repair, or general vehicle maintenance.</p>
+    </a>
+
+    <a href="{% url 'my_bookings' %}" class="menu-card">
+        <h3>
+            <span>⏳ My Service Bookings</span>
+            <span class="status-badge status-pending">{{ active_bookings_count }} Active</span>
+        </h3>
+        <p>Track scheduled appointment dates, assigned staff technicians, status badges, and current work progress.</p>
+    </a>
+
+    <a href="{% url 'service_history' %}" class="menu-card">
+        <h3>
+            <span>📜 Service History</span>
+            <span class="status-badge status-completed">Records</span>
+        </h3>
+        <p>View completed service invoices, technician inspection notes, replaced part logs, and total service costs.</p>
+    </a>
+
+    <a href="{% url 'roadside_assistance' %}" class="menu-card" style="border-top-color: var(--danger-red);">
+        <h3>
+            <span>🚨 Roadside Assistance</span>
+            <span class="status-badge status-cancelled">24/7 SOS</span>
+        </h3>
+        <p>Request tow trucks, battery jumpstarts, flat tire assistance, or on-site repair support with live location tracking.</p>
+    </a>
+
+    <a href="{% url 'notifications' %}" class="menu-card">
+        <h3>
+            <span>🔔 Notifications</span>
+            {% if unread_notifications_count > 0 %}
+                <span class="status-badge status-pending">
+                    {{ unread_notifications_count }} Unread
+                </span>
             {% endif %}
+        </h3>
+        <p>View live updates on service progress changes, technician assignments, and roadside assistance alerts.</p>
+    </a>
 
-            <a href="{% url 'logout' %}">
-                Logout
-            </a>
-        </div>
-    </div>
+</div>
 
-    <div class="container">
-
-        <h1 class="page-title">
-            Customer Dashboard
-        </h1>
-
-        <p class="page-subtitle">
-            Manage your vehicles, service bookings, roadside assistance, notifications, and service history from one place.
-        </p>
-
-        <div class="grid">
-
-            <div class="card">
-                <h3>Total Vehicles</h3>
-                <p class="page-subtitle">
-                    Vehicles registered in your account.
-                </p>
-                <h1>{{ vehicles_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Active Bookings</h3>
-                <p class="page-subtitle">
-                    Service bookings currently not completed.
-                </p>
-                <h1>{{ active_bookings_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Completed Services</h3>
-                <p class="page-subtitle">
-                    Services available in your history.
-                </p>
-                <h1>{{ completed_services_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Unread Notifications</h3>
-                <p class="page-subtitle">
-                    New updates waiting for you.
-                </p>
-                <h1>{{ unread_notifications_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Roadside Requests</h3>
-                <p class="page-subtitle">
-                    Total roadside assistance requests submitted.
-                </p>
-                <h1>{{ roadside_requests_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Quick Access</h3>
-                <p class="page-subtitle">
-                    Use the options below to manage AutoNexa services.
-                </p>
-                <a href="{% url 'notifications' %}" class="btn">
-                    View Notifications
-                </a>
-            </div>
-
-        </div>
-
-        <br>
-
-        <h2 class="page-title">
-            AutoNexa Services
-        </h2>
-
-        <p class="page-subtitle">
-            Choose a module to continue.
-        </p>
-
-        <div class="grid">
-
-            <a href="{% url 'vehicles' %}" class="menu-card">
-                <h3>My Vehicles</h3>
-                <p>
-                    Add and view your registered vehicles for service booking and roadside assistance.
-                </p>
-            </a>
-
-            <a href="{% url 'service_booking' %}" class="menu-card">
-                <h3>Book Vehicle Service</h3>
-                <p>
-                    Submit a new service request for your registered vehicle.
-                </p>
-            </a>
-
-            <a href="{% url 'my_bookings' %}" class="menu-card">
-                <h3>My Service Bookings</h3>
-                <p>
-                    Track appointment date, assigned staff, status, and current work.
-                </p>
-            </a>
-
-            <a href="{% url 'service_history' %}" class="menu-card">
-                <h3>Service History</h3>
-                <p>
-                    View completed services, final service records, repaired parts, and service cost.
-                </p>
-            </a>
-
-            <a href="{% url 'roadside_assistance' %}" class="menu-card">
-                <h3>Roadside Assistance</h3>
-                <p>
-                    Request tow truck, repair, battery help, tyre assistance, or emergency support.
-                </p>
-            </a>
-
-            <a href="{% url 'notifications' %}" class="menu-card">
-                <h3>
-                    Notifications
-
-                    {% if unread_notifications_count > 0 %}
-                        ({{ unread_notifications_count }})
-                    {% endif %}
-                </h3>
-
-                <p>
-                    View service updates, roadside assistance alerts, and completion messages.
-                </p>
-            </a>
-
-        </div>
-
-    </div>
-
-</body>
-</html>
+{% endblock %}

@@ -1,79 +1,39 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Vehicles - AutoNexa</title>
+{% block title %}My Vehicles - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">My Registered Vehicles</h1>
+    <p class="page-subtitle">Register personal vehicles for easy selection during service bookings and emergency roadside assistance dispatches.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>My Vehicles</p>
-        </div>
+<div class="grid-2">
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="container">
-
-        <h1 class="page-title">
-            My Vehicles
-        </h1>
-
-        <p class="page-subtitle">
-            Register your vehicles here. These vehicles can be used for service booking and roadside assistance requests.
+    <!-- ADD VEHICLE FORM -->
+    <div class="form-box">
+        <h2>🚘 Register New Vehicle</h2>
+        <p class="page-subtitle" style="margin-bottom: 16px;">
+            Enter your vehicle details correctly. Registration number should be unique.
         </p>
 
-        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-            Back to Dashboard
-        </a>
+        <form method="POST">
+            {% csrf_token %}
 
-        <br><br>
+            <label for="registration_number">Vehicle Registration Number</label>
+            <input
+                type="text"
+                name="registration_number"
+                id="registration_number"
+                required
+                placeholder="Example: KL33O9999"
+            >
 
-        <div class="grid-2">
-
-            <div class="form-box">
-
-                <h2>Add Vehicle</h2>
-
-                <p class="note">
-                    Enter your vehicle details correctly. The registration number should be unique.
-                </p>
-
-                <form method="POST">
-
-                    {% csrf_token %}
-
-                    <label for="registration_number">
-                        Vehicle Registration Number
-                    </label>
-
-                    <input
-                        type="text"
-                        name="registration_number"
-                        id="registration_number"
-                        required
-                        placeholder="Example: KL33O9999"
-                    >
-
-                    <label for="brand">
-                        Vehicle Brand
-                    </label>
-
+            <div class="grid-2" style="gap: 0 16px;">
+                <div>
+                    <label for="brand">Brand / Manufacturer</label>
                     <input
                         type="text"
                         name="brand"
@@ -81,11 +41,10 @@
                         required
                         placeholder="Example: Toyota"
                     >
+                </div>
 
-                    <label for="model">
-                        Vehicle Model
-                    </label>
-
+                <div>
+                    <label for="model">Model Name</label>
                     <input
                         type="text"
                         name="model"
@@ -93,121 +52,103 @@
                         required
                         placeholder="Example: Innova"
                     >
-
-                    <label for="year">
-                        Vehicle Year
-                    </label>
-
-                    <input
-                        type="number"
-                        name="year"
-                        id="year"
-                        required
-                        min="1980"
-                        max="2099"
-                        placeholder="Example: 2018"
-                    >
-
-                    <button type="submit" class="btn-green">
-                        Add Vehicle
-                    </button>
-
-                </form>
-
+                </div>
             </div>
 
-            <div class="card">
+            <label for="year">Manufacturing Year</label>
+            <input
+                type="number"
+                name="year"
+                id="year"
+                required
+                min="1980"
+                max="2099"
+                placeholder="Example: 2021"
+            >
 
-                <h2>Why Register Vehicles?</h2>
+            <button type="submit" class="btn btn-green" style="width: 100%; margin-top: 12px;">
+                ➕ Register Vehicle
+            </button>
+        </form>
+    </div>
 
-                <div class="detail-box">
-                    <strong>Service Booking</strong>
-                    <span>
-                        Registered vehicles can be selected while booking a vehicle service.
-                    </span>
-                </div>
+    <!-- WHY REGISTER VEHICLES -->
+    <div class="card">
+        <h2>Why Register Vehicles?</h2>
 
-                <div class="detail-box">
-                    <strong>Roadside Assistance</strong>
-                    <span>
-                        You can request emergency roadside help for any registered vehicle.
-                    </span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Service History</strong>
-                    <span>
-                        Completed services will be connected to the correct vehicle.
-                    </span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Easy Tracking</strong>
-                    <span>
-                        You can track bookings, assigned staff, current work, and final records easily.
-                    </span>
-                </div>
-
-            </div>
-
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Service Booking</strong>
+            <span>Registered vehicles can be selected with a single click while booking vehicle service appointments.</span>
         </div>
 
-        <br>
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Roadside Assistance</strong>
+            <span>Quickly request emergency towing or breakdown support for any registered vehicle.</span>
+        </div>
 
-        <h2 class="page-title">
-            My Registered Vehicles
-        </h2>
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Service History Records</strong>
+            <span>All completed inspection reports, replacement parts, and invoices remain connected to the vehicle.</span>
+        </div>
 
-        <p class="page-subtitle">
-            View all vehicles registered under your AutoNexa account.
-        </p>
+        <div class="detail-box">
+            <strong>Technician Accuracy</strong>
+            <span>Staff technicians get exact brand and model specs for replacement parts ordering.</span>
+        </div>
+    </div>
 
-        {% if vehicles %}
+</div>
 
-            <div class="grid">
+<br><br>
 
-                {% for vehicle in vehicles %}
+<div class="page-header">
+    <h2 class="page-title">Registered Fleet List</h2>
+    <p class="page-subtitle">Vehicles currently saved under your AutoNexa account.</p>
+</div>
 
-                    <div class="card">
+{% if vehicles %}
 
-                        <h3>
-                            {{ vehicle.registration_number }}
-                        </h3>
+    <div class="grid">
 
-                        <div class="detail-box">
-                            <strong>Brand</strong>
-                            <span>{{ vehicle.brand }}</span>
-                        </div>
+        {% for vehicle in vehicles %}
 
-                        <div class="detail-box">
-                            <strong>Model</strong>
-                            <span>{{ vehicle.model }}</span>
-                        </div>
+            <div class="card" style="border-left: 5px solid var(--primary-blue);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <span class="license-plate">
+                        {{ vehicle.registration_number }}
+                    </span>
+                    <span class="status-badge status-confirmed">Registered</span>
+                </div>
 
-                        <div class="detail-box">
-                            <strong>Year</strong>
-                            <span>{{ vehicle.year }}</span>
-                        </div>
-
+                <div class="grid-2" style="gap: 10px;">
+                    <div class="detail-box">
+                        <strong>Brand</strong>
+                        <span>{{ vehicle.brand }}</span>
                     </div>
 
-                {% endfor %}
+                    <div class="detail-box">
+                        <strong>Model</strong>
+                        <span>{{ vehicle.model }}</span>
+                    </div>
+                </div>
 
+                <div class="detail-box" style="margin-top: 10px;">
+                    <strong>Manufacturing Year</strong>
+                    <span>{{ vehicle.year }}</span>
+                </div>
             </div>
 
-        {% else %}
-
-            <div class="empty-box">
-                <h3>No vehicles registered</h3>
-
-                <p>
-                    You have not registered any vehicles yet. Add your first vehicle using the form above.
-                </p>
-            </div>
-
-        {% endif %}
+        {% endfor %}
 
     </div>
 
-</body>
-</html>
+{% else %}
+
+    <div class="empty-box">
+        <h3>No Vehicles Registered</h3>
+        <p>You have not registered any vehicles yet. Add your first vehicle using the form above.</p>
+    </div>
+
+{% endif %}
+
+{% endblock %}

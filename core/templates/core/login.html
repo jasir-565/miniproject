@@ -1,77 +1,69 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - AutoNexa</title>
+{% block title %}Login - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="auth-wrapper">
 
-    <div class="auth-wrapper">
+    <div class="auth-card">
 
-        <div class="auth-card">
+        <h1>Sign In to AutoNexa</h1>
 
-            <h1>AutoNexa</h1>
+        <p>
+            Enter your credentials to access your vehicle service account
+        </p>
 
-            <p>
-                Login to continue to your vehicle service account
-            </p>
+        {% if error %}
+            <div class="alert">
+                ⚠️ {{ error }}
+            </div>
+        {% endif %}
 
-            {% if error %}
-                <div class="alert">
-                    {{ error }}
-                </div>
-            {% endif %}
+        <form method="POST">
 
-            <form method="POST">
+            {% csrf_token %}
 
-                {% csrf_token %}
+            <label for="username">
+                Username
+            </label>
 
-                <label for="username">
-                    Username
-                </label>
+            <input
+                type="text"
+                name="username"
+                id="username"
+                required
+                placeholder="Enter your username"
+            >
 
-                <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    required
-                    placeholder="Enter your username"
-                >
+            <label for="password">
+                Password
+            </label>
 
-                <label for="password">
-                    Password
-                </label>
+            <input
+                type="password"
+                name="password"
+                id="password"
+                required
+                placeholder="Enter your password"
+            >
 
-                <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    required
-                    placeholder="Enter your password"
-                >
+            <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">
+                Sign In
+            </button>
 
-                <button type="submit">
-                    Login
-                </button>
+        </form>
 
-            </form>
-
-            <p>
-                Don't have an account?
-                <a href="{% url 'register' %}">
-                    Create an account
-                </a>
-            </p>
-
-        </div>
+        <p style="margin-top: 24px; text-align: center; color: var(--text-muted);">
+            Don't have an account yet?
+            <a href="{% url 'register' %}">
+                Create an account
+            </a>
+        </p>
 
     </div>
 
-</body>
-</html>
+</div>
+
+{% endblock %}
