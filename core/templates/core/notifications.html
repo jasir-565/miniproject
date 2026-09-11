@@ -1,144 +1,90 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications - AutoNexa</title>
+{% block title %}Notifications - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">Notifications & Alerts</h1>
+    <p class="page-subtitle">View service updates, roadside assistance alerts, technician completion messages, and system notifications.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>My Notifications</p>
-        </div>
+<div style="margin-bottom: 24px;">
+    <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+        📊 Back to Dashboard
+    </a>
+</div>
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-        </div>
-    </div>
+{% if notifications %}
 
-    <div class="container">
+    {% for notification in notifications %}
 
-        <h1 class="page-title">
-            Notifications
-        </h1>
+        <div class="card" style="border-left: 4px solid {% if notification.is_read %}var(--border-color){% else %}var(--primary-blue){% endif %};">
 
-        <p class="page-subtitle">
-            View service updates, roadside assistance alerts, completion messages, and important AutoNexa notifications.
-        </p>
-
-        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-            Back to Dashboard
-        </a>
-
-        <br><br>
-
-        {% if notifications %}
-
-            {% for notification in notifications %}
-
-                <div class="card">
-
-                    <div class="job-summary">
-
-                        <div class="job-title">
-                            <h3>{{ notification.title }}</h3>
-
-                            <p>
-                                {{ notification.created_at }}
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if notification.is_read %}
-                                <span class="status-badge status-completed">
-                                    Read
-                                </span>
-                            {% else %}
-                                <span class="status-badge status-pending">
-                                    Unread
-                                </span>
-                            {% endif %}
-                        </div>
-
-                    </div>
-
-                    <br>
-
-                    <div class="detail-box full-width">
-                        <strong>Message</strong>
-                        <span>
-                            {{ notification.message }}
-                        </span>
-                    </div>
-
-                    <div class="grid-2">
-
-                        <div class="detail-box">
-                            <strong>Notification Type</strong>
-                            <span>
-                                {{ notification.get_notification_type_display }}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Status</strong>
-                            <span>
-                                {% if notification.is_read %}
-                                    Read
-                                {% else %}
-                                    Unread
-                                {% endif %}
-                            </span>
-                        </div>
-
-                    </div>
-
-                    {% if not notification.is_read %}
-
-                        <br>
-
-                        <form method="POST"
-                              action="{% url 'mark_notification_read' notification.id %}">
-
-                            {% csrf_token %}
-
-                            <button type="submit" class="btn-green">
-                                Mark as Read
-                            </button>
-
-                        </form>
-
-                    {% endif %}
-
+            <div class="job-summary">
+                <div class="job-title">
+                    <h3>{{ notification.title }}</h3>
+                    <p style="color: var(--text-muted); font-size: 13px;">
+                        📅 {{ notification.created_at }}
+                    </p>
                 </div>
 
-            {% endfor %}
-
-        {% else %}
-
-            <div class="empty-box">
-                <h3>No notifications yet</h3>
-
-                <p>
-                    Your service updates, roadside assistance alerts, and completion messages will appear here.
-                </p>
+                <div>
+                    {% if notification.is_read %}
+                        <span class="status-badge status-completed">Read</span>
+                    {% else %}
+                        <span class="status-badge status-pending">Unread Alert</span>
+                    {% endif %}
+                </div>
             </div>
 
-        {% endif %}
+            <br>
 
+            <div class="detail-box full-width" style="margin-bottom: 12px;">
+                <strong>Message Details</strong>
+                <span>{{ notification.message }}</span>
+            </div>
+
+            <div class="grid-2">
+                <div class="detail-box">
+                    <strong>Notification Category</strong>
+                    <span>{{ notification.get_notification_type_display }}</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Status</strong>
+                    <span>
+                        {% if notification.is_read %}
+                            Read
+                        {% else %}
+                            <span style="color: var(--warning-amber); font-weight: bold;">Unread</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            {% if not notification.is_read %}
+                <br>
+                <form method="POST" action="{% url 'mark_notification_read' notification.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-green" style="padding: 8px 16px; font-size: 12px;">
+                        ✓ Mark as Read
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <div class="empty-box">
+        <h3>No Notifications Yet</h3>
+        <p>Your service updates, roadside assistance alerts, and completion messages will appear here.</p>
     </div>
 
-</body>
-</html>
+{% endif %}
+
+{% endblock %}

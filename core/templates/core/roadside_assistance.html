@@ -1,377 +1,353 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roadside Assistance - AutoNexa</title>
+{% block title %}Roadside Assistance - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">🚨 Emergency Roadside Assistance</h1>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>Roadside Assistance</p>
-        </div>
+    <p class="page-subtitle">
+        Request emergency support for tow trucks, on-site vehicle repair, battery jumpstarts, flat tire replacements, or roadside assistance.
+    </p>
+</div>
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-        </div>
+<div style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+    <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
+        📊 Back to Dashboard
+    </a>
+
+    <a href="{% url 'service_history' %}" class="btn btn-gray">
+        📜 Service History
+    </a>
+</div>
+
+{% if error %}
+    <div class="alert">
+        {{ error }}
     </div>
-
-    <div class="container">
-
-        <h1 class="page-title">
-            Roadside Assistance
-        </h1>
-
-        <p class="page-subtitle">
-            Request emergency support such as tow truck, vehicle repair, battery assistance, tyre assistance, or other roadside help.
-        </p>
-
-        <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-            Back to Dashboard
-        </a>
-
-        <br><br>
-
-        <div class="grid-2">
-
-            <div class="form-box">
-
-                <h2>Request Assistance</h2>
-
-                {% if vehicles %}
-
-                    <form method="POST">
-
-                        {% csrf_token %}
-
-                        <label for="vehicle">
-                            Select Vehicle
-                        </label>
-
-                        <select name="vehicle" id="vehicle" required>
-                            <option value="">Select Vehicle</option>
-
-                            {% for vehicle in vehicles %}
-                                <option value="{{ vehicle.id }}">
-                                    {{ vehicle.registration_number }}
-                                    -
-                                    {{ vehicle.brand }}
-                                    {{ vehicle.model }}
-                                </option>
-                            {% endfor %}
-                        </select>
-
-                        <label for="assistance_type">
-                            Assistance Type
-                        </label>
-
-                        <select name="assistance_type" id="assistance_type" required>
-                            <option value="">Select Assistance Type</option>
-                            <option value="Tow Truck">Tow Truck</option>
-                            <option value="Vehicle Repair">Vehicle Repair</option>
-                            <option value="Battery Assistance">Battery Assistance</option>
-                            <option value="Tyre Assistance">Tyre Assistance</option>
-                            <option value="Other">Other</option>
-                        </select>
-
-                        <label for="problem_description">
-                            Problem Description
-                        </label>
-
-                        <textarea
-                            name="problem_description"
-                            id="problem_description"
-                            rows="4"
-                            required
-                            placeholder="Describe the vehicle problem"
-                        ></textarea>
-
-                        <label for="location_details">
-                            Location Details
-                        </label>
-
-                        <textarea
-                            name="location_details"
-                            id="location_details"
-                            rows="3"
-                            required
-                            placeholder="Enter your current location, landmark, road name, etc."
-                        ></textarea>
-
-                        <label for="location_link">
-                            Your Location Link
-                        </label>
-
-                        <input
-                            type="url"
-                            name="location_link"
-                            id="location_link"
-                            placeholder="Paste your Google Maps location link if available"
-                        >
-
-                        <button type="submit" class="btn-green">
-                            Request Assistance
-                        </button>
-
-                    </form>
-
-                {% else %}
-
-                    <div class="alert">
-                        You need to register a vehicle before requesting roadside assistance.
-                    </div>
-
-                    <a href="{% url 'vehicles' %}" class="btn">
-                        Add Vehicle
-                    </a>
-
-                {% endif %}
-
-            </div>
-
-            <div class="card">
-                <h2>How It Works</h2>
-
-                <div class="detail-box">
-                    <strong>Step 1</strong>
-                    <span>Submit your vehicle problem and location details.</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Step 2</strong>
-                    <span>Available staff accepts your roadside assistance request.</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Step 3</strong>
-                    <span>Staff shares live location link before starting the trip.</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Step 4</strong>
-                    <span>You can track staff location and view status updates.</span>
-                </div>
-            </div>
-
-        </div>
-
-        <br>
-
-        <h2 class="page-title">
-            My Assistance Requests
-        </h2>
-
-        <p class="page-subtitle">
-            View your submitted roadside assistance requests, assigned staff, tracking link, and current status.
-        </p>
-
-        {% if assistance_requests %}
-
-            {% for assistance in assistance_requests %}
-
-                <div class="card">
-
-                    <div class="job-summary">
-
-                        <div class="job-title">
-                            <h3>{{ assistance.assistance_type }}</h3>
-                            <p>
-                                {{ assistance.vehicle.registration_number }}
-                                -
-                                {{ assistance.vehicle.brand }}
-                                {{ assistance.vehicle.model }}
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if assistance.status == 'PENDING' %}
-                                <span class="status-badge status-pending">
-                                    {{ assistance.get_status_display }}
-                                </span>
-                            {% elif assistance.status == 'ASSIGNED' %}
-                                <span class="status-badge status-confirmed">
-                                    {{ assistance.get_status_display }}
-                                </span>
-                            {% elif assistance.status == 'ON_THE_WAY' %}
-                                <span class="status-badge status-progress">
-                                    {{ assistance.get_status_display }}
-                                </span>
-                            {% elif assistance.status == 'COMPLETED' %}
-                                <span class="status-badge status-completed">
-                                    {{ assistance.get_status_display }}
-                                </span>
-                            {% elif assistance.status == 'CANCELLED' %}
-                                <span class="status-badge status-cancelled">
-                                    {{ assistance.get_status_display }}
-                                </span>
-                            {% endif %}
-                        </div>
-
-                    </div>
-
-                    <br>
-
-                    <div class="grid-2">
-
-                        <div class="detail-box">
-                            <strong>Vehicle</strong>
-                            <span>
-                                {{ assistance.vehicle.registration_number }}
-                                -
-                                {{ assistance.vehicle.brand }}
-                                {{ assistance.vehicle.model }}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Requested On</strong>
-                            <span>{{ assistance.created_at }}</span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Problem Description</strong>
-                            <span>{{ assistance.problem_description }}</span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Your Location</strong>
-                            <span>{{ assistance.location_details }}</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Your Location Link</strong>
-                            <span>
-                                {% if assistance.location_link %}
-                                    <a
-                                        href="{{ assistance.location_link }}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="btn"
-                                    >
-                                        Open My Location
-                                    </a>
-                                {% else %}
-                                    No location link added
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Assigned Staff</strong>
-                            <span>
-                                {% if assistance.staff %}
-
-                                    {% if assistance.staff.user.get_full_name %}
-                                        {{ assistance.staff.user.get_full_name }}
-                                    {% else %}
-                                        {{ assistance.staff.user.username }}
-                                    {% endif %}
-
-                                {% else %}
-
-                                    Not assigned yet
-
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Track Staff Location</strong>
-                            <span>
-                                {% if assistance.staff_location_link %}
-
-                                    <a
-                                        href="{{ assistance.staff_location_link }}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="btn btn-green"
-                                    >
-                                        Open Staff Live Location
-                                    </a>
-
-                                {% else %}
-
-                                    Staff location not shared yet
-
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Completed On</strong>
-                            <span>
-                                {% if assistance.completed_at %}
-                                    {{ assistance.completed_at }}
-                                {% else %}
-                                    Not completed yet
-                                {% endif %}
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <br>
-
-                    {% if assistance.status == 'PENDING' %}
-
-                        <div class="alert">
-                            Your roadside assistance request is waiting for staff acceptance.
-                        </div>
-
-                    {% elif assistance.status == 'ASSIGNED' %}
-
-                        <div class="success-box">
-                            A staff member has accepted your request. Staff location will be available when they start the trip.
-                        </div>
-
-                    {% elif assistance.status == 'ON_THE_WAY' %}
-
-                        <div class="success-box">
-                            Staff is on the way. You can track the staff location using the link above.
-                        </div>
-
-                    {% elif assistance.status == 'COMPLETED' %}
-
-                        <div class="success-box">
-                            Roadside assistance has been completed.
-                        </div>
-
-                    {% elif assistance.status == 'CANCELLED' %}
-
-                        <div class="alert">
-                            This roadside assistance request was cancelled.
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
+{% endif %}
+
+<div class="grid-2">
+
+    <!-- REQUEST FORM -->
+    <div class="form-box" style="border-top: 4px solid var(--danger-red);">
+        <h2>Request Roadside Help</h2>
+
+        {% if vehicles %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <label for="vehicle">Select Vehicle</label>
+
+                <select name="vehicle" id="vehicle" required>
+                    <option value="">-- Select Vehicle --</option>
+
+                    {% for vehicle in vehicles %}
+                        <option value="{{ vehicle.id }}">
+                            {{ vehicle.registration_number }} —
+                            {{ vehicle.brand }} {{ vehicle.model }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <label for="assistance_type">Assistance Type Required</label>
+
+                <select name="assistance_type" id="assistance_type" required>
+                    <option value="">-- Select Assistance Type --</option>
+                    <option value="Tow Truck">Tow Truck Service</option>
+                    <option value="Vehicle Repair">On-Site Mechanical Repair</option>
+                    <option value="Battery Assistance">Battery Jumpstart / Replacement</option>
+                    <option value="Tyre Assistance">Flat Tire Assistance</option>
+                    <option value="Fuel Assistance">Fuel Assistance</option>
+                    <option value="Other">Other Emergency Support</option>
+                </select>
+
+                <label for="problem_description">Problem Description</label>
+
+                <textarea
+                    name="problem_description"
+                    id="problem_description"
+                    rows="4"
+                    required
+                    placeholder="Describe the vehicle breakdown symptoms..."
+                ></textarea>
+
+                <label for="location_details">Current Location Details</label>
+
+                <textarea
+                    name="location_details"
+                    id="location_details"
+                    rows="3"
+                    required
+                    placeholder="Enter your location, landmark, road or street name..."
+                ></textarea>
+
+                <label for="location_link">Your Location Link Optional</label>
+
+                <input
+                    type="url"
+                    name="location_link"
+                    id="location_link"
+                    placeholder="Paste Google Maps location link if available"
+                >
+
+                <button type="submit" class="btn btn-red" style="width: 100%; margin-top: 16px;">
+                    🚨 Request Emergency Assistance
+                </button>
+            </form>
 
         {% else %}
 
-            <div class="empty-box">
-                <h3>No roadside assistance requests yet</h3>
-                <p>
-                    Your roadside assistance requests and tracking details will appear here.
-                </p>
+            <div class="alert">
+                ⚠️ You need to register a vehicle before requesting roadside assistance.
             </div>
 
-        {% endif %}
+            <a href="{% url 'vehicles' %}" class="btn">
+                🚘 Register Vehicle First
+            </a>
 
+        {% endif %}
     </div>
 
-</body>
-</html>
+    <!-- HOW IT WORKS -->
+    <div class="card">
+        <h2>How It Works</h2>
+
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Step 1: Submit Request</strong>
+            <span>Submit your breakdown issue, location details, and optional map link.</span>
+        </div>
+
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Step 2: Staff Acceptance</strong>
+            <span>Available staff technician accepts your emergency roadside request.</span>
+        </div>
+
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Step 3: Staff Location Sharing</strong>
+            <span>Staff shares a map location link before starting the trip to your location.</span>
+        </div>
+
+        <div class="detail-box">
+            <strong>Step 4: Breakdown Resolution</strong>
+            <span>Technician arrives on-site to repair or tow your vehicle safely.</span>
+        </div>
+    </div>
+
+</div>
+
+<br>
+<br>
+
+<div class="page-header">
+    <h2 class="page-title">My Active Assistance Requests</h2>
+
+    <p class="page-subtitle">
+        View your pending, accepted, and on-the-way roadside assistance requests.
+        Completed and cancelled requests are moved to Service History.
+    </p>
+</div>
+
+{% if assistance_requests %}
+
+    {% for assistance in assistance_requests %}
+
+        <div class="card" style="border-left: 5px solid var(--danger-red);">
+
+            <div class="job-summary">
+                <div class="job-title">
+                    <h3 style="color: var(--danger-red);">
+                        🚨 {{ assistance.assistance_type }}
+                    </h3>
+
+                    <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
+                        <span class="license-plate">
+                            {{ assistance.vehicle.registration_number }}
+                        </span>
+
+                        <span>
+                            {{ assistance.vehicle.brand }} {{ assistance.vehicle.model }}
+                        </span>
+                    </p>
+                </div>
+
+                <div>
+                    {% if assistance.status == 'PENDING' %}
+                        <span class="status-badge status-pending">
+                            Pending Acceptance
+                        </span>
+                    {% elif assistance.status == 'ASSIGNED' %}
+                        <span class="status-badge status-confirmed">
+                            Staff Assigned
+                        </span>
+                    {% elif assistance.status == 'ON_THE_WAY' %}
+                        <span class="status-badge status-progress">
+                            Staff On The Way
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <br>
+
+            <div class="grid-2">
+
+                <div class="detail-box">
+                    <strong>Requested On</strong>
+                    <span>{{ assistance.created_at }}</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Current Status</strong>
+                    <span>{{ assistance.get_status_display }}</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Vehicle Details</strong>
+                    <span>
+                        {{ assistance.vehicle.brand }}
+                        {{ assistance.vehicle.model }}
+                        ({{ assistance.vehicle.year }})
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Registration Number</strong>
+                    <span>{{ assistance.vehicle.registration_number }}</span>
+                </div>
+
+                <div class="detail-box full-width">
+                    <strong>Problem Description</strong>
+                    <span>{{ assistance.problem_description }}</span>
+                </div>
+
+                <div class="detail-box full-width">
+                    <strong>Breakdown Location</strong>
+                    <span>📍 {{ assistance.location_details }}</span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>My Location Link</strong>
+                    <span>
+                        {% if assistance.location_link %}
+                            <a href="{{ assistance.location_link }}"
+                               target="_blank"
+                               class="btn btn-gray"
+                               style="padding: 6px 12px; font-size: 12px;">
+                                Open My Location Map
+                            </a>
+                        {% else %}
+                            No link added
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Assigned Staff Technician</strong>
+                    <span>
+                        {% if assistance.staff %}
+                            {% if assistance.staff.user.get_full_name %}
+                                👤 {{ assistance.staff.user.get_full_name }}
+                            {% else %}
+                                👤 {{ assistance.staff.user.username }}
+                            {% endif %}
+
+                            {% if assistance.staff.phone %}
+                                <br>
+                                📞 {{ assistance.staff.phone }}
+                            {% endif %}
+                        {% else %}
+                            <span style="color: var(--warning-amber);">
+                                Not assigned yet
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="detail-box">
+                    <strong>Track Staff Location</strong>
+                    <span>
+                        {% if assistance.staff_location_link %}
+                            <a href="{{ assistance.staff_location_link }}"
+                               target="_blank"
+                               class="btn btn-green"
+                               style="padding: 6px 14px; font-size: 12px;">
+                                📍 Open Staff Location
+                            </a>
+                        {% else %}
+                            <span style="color: var(--text-muted);">
+                                Staff location not shared yet
+                            </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+            </div>
+
+            {% if assistance.status == 'PENDING' %}
+
+                <div class="alert" style="margin-top: 16px;">
+                    Your roadside assistance request is waiting for staff acceptance.
+                </div>
+
+            {% elif assistance.status == 'ASSIGNED' %}
+
+                <div class="success-box">
+                    Your request has been accepted by staff. Staff location will appear after they start travelling.
+                </div>
+
+            {% elif assistance.status == 'ON_THE_WAY' %}
+
+                <div class="success-box">
+                    Staff technician is on the way. You can track the staff location using the link above.
+                </div>
+
+            {% endif %}
+
+            <div class="form-section">
+                <h4>Cancel Roadside Assistance</h4>
+
+                <p class="note">
+                    You can cancel this request if assistance is no longer required.
+                    After cancellation, it will move to Service History.
+                </p>
+
+                <form method="POST"
+                      action="{% url 'cancel_roadside_assistance' assistance.id %}">
+
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn-red">
+                        Cancel Request
+                    </button>
+
+                </form>
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <div class="empty-box">
+        <h3>No Active Roadside Assistance Requests</h3>
+
+        <p>
+            You do not have any pending, accepted, or on-the-way roadside assistance requests.
+            Completed and cancelled requests are available in Service History.
+        </p>
+
+        <br>
+
+        <a href="{% url 'service_history' %}" class="btn btn-gray">
+            View Service History
+        </a>
+    </div>
+
+{% endif %}
+
+{% endblock %}
