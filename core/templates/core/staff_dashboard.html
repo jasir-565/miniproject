@@ -1,422 +1,302 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - AutoNexa</title>
+{% block title %}Staff Dashboard - AutoNexa Service Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">Staff Dashboard</h1>
+    <p class="page-subtitle">Manage assigned service jobs, appointments, progress updates, final service records, and roadside assistance dispatches.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>Staff Dashboard</p>
+{% if error %}
+    <div class="alert">
+        ⚠️ {{ error }}
+    </div>
+{% endif %}
+
+<!-- STAT SUMMARY GRID -->
+<div class="grid-4" style="margin-bottom: 32px;">
+
+    <div class="stat-card amber">
+        <div class="stat-info">
+            <p>Pending Slots</p>
+            <h1>{{ pending_count }}</h1>
         </div>
-
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-
-            <a href="{% url 'logout' %}">
-                Logout
-            </a>
-        </div>
+        <div class="stat-icon">⏳</div>
     </div>
 
-    <div class="container">
-
-        <h1 class="page-title">
-            Staff Dashboard
-        </h1>
-
-        <p class="page-subtitle">
-            Manage service jobs, appointments, progress updates, final service records, and roadside assistance requests.
-        </p>
-
-        {% if error %}
-            <div class="alert">
-                {{ error }}
-            </div>
-        {% endif %}
-
-        <div class="grid">
-
-            <div class="card">
-                <h3>Pending Appointments</h3>
-                <p class="page-subtitle">
-                    Jobs waiting for appointment date and time.
-                </p>
-                <h1>{{ pending_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Confirmed Jobs</h3>
-                <p class="page-subtitle">
-                    Jobs with assigned appointment details.
-                </p>
-                <h1>{{ confirmed_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>In Progress Jobs</h3>
-                <p class="page-subtitle">
-                    Services currently being worked on.
-                </p>
-                <h1>{{ in_progress_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Completed Jobs</h3>
-                <p class="page-subtitle">
-                    Jobs completed by you.
-                </p>
-                <h1>{{ completed_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>Available Assistance</h3>
-                <p class="page-subtitle">
-                    Roadside requests waiting for staff acceptance.
-                </p>
-                <h1>{{ available_assistance_count }}</h1>
-            </div>
-
-            <div class="card">
-                <h3>My Active Assistance</h3>
-                <p class="page-subtitle">
-                    Assistance requests currently assigned to you.
-                </p>
-                <h1>{{ my_active_assistance_count }}</h1>
-            </div>
-
+    <div class="stat-card">
+        <div class="stat-info">
+            <p>Confirmed Jobs</p>
+            <h1>{{ confirmed_count }}</h1>
         </div>
+        <div class="stat-icon">📅</div>
+    </div>
 
-        <br>
+    <div class="stat-card">
+        <div class="stat-info">
+            <p>In Progress</p>
+            <h1>{{ in_progress_count }}</h1>
+        </div>
+        <div class="stat-icon">⚡</div>
+    </div>
 
-        <div class="card">
-            <h3>Roadside Assistance Panel</h3>
+    <div class="stat-card green">
+        <div class="stat-info">
+            <p>Completed Jobs</p>
+            <h1>{{ completed_count }}</h1>
+        </div>
+        <div class="stat-icon">✅</div>
+    </div>
 
-            <p class="page-subtitle">
-                Accept roadside assistance requests, share your live location link, update assistance status, and view completed or cancelled assistance history.
-            </p>
+</div>
 
-            <a href="{% url 'staff_assistance_requests' %}" class="btn">
-                Open Roadside Assistance Requests
+<!-- QUICK ACCESS CARDS -->
+<div class="grid-2" style="margin-bottom: 32px;">
+
+    <div class="card" style="border-left: 5px solid var(--danger-red);">
+        <h3>🚨 Roadside Assistance Panel</h3>
+        <p class="page-subtitle">Available Requests: <strong>{{ available_assistance_count }}</strong> | My Active Dispatches: <strong>{{ my_active_assistance_count }}</strong></p>
+        <div style="margin-top: 16px; display: flex; gap: 12px;">
+            <a href="{% url 'staff_assistance_requests' %}" class="btn btn-red">
+                Open Roadside Requests
             </a>
-
             <a href="{% url 'staff_assistance_history' %}" class="btn btn-gray">
                 View Assistance History
             </a>
         </div>
+    </div>
 
-        <br>
-
-        <div class="card">
-            <h3>Service History</h3>
-
-            <p class="page-subtitle">
-                View completed and cancelled service jobs handled by you.
-            </p>
-
+    <div class="card" style="border-left: 5px solid var(--primary-blue);">
+        <h3>📜 Staff Service History</h3>
+        <p class="page-subtitle">View completed and cancelled vehicle service jobs handled by your account.</p>
+        <div style="margin-top: 16px;">
             <a href="{% url 'staff_service_history' %}" class="btn btn-gray">
                 View Staff Service History
             </a>
         </div>
+    </div>
 
-        <br>
+</div>
 
-        <h2 class="page-title">
-            My Active Service Jobs
-        </h2>
+<!-- ACTIVE SERVICE JOBS -->
+<div class="page-header">
+    <h2 class="page-title">My Active Service Jobs</h2>
+    <p class="page-subtitle">Open each job card to view customer details, assign appointment times, update progress, or complete service records.</p>
+</div>
 
-        <p class="page-subtitle">
-            Open each job card to view customer details and perform service actions.
-        </p>
+{% if bookings %}
 
-        {% if bookings %}
+    {% for booking in bookings %}
 
-            {% for booking in bookings %}
+        <div class="job-menu">
+            <details open>
+                <summary>
+                    <div class="job-summary">
+                        <div class="job-title">
+                            <h3>{{ booking.service_type }}</h3>
+                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                <span class="license-plate">{{ booking.vehicle.registration_number }}</span>
+                                <span>{{ booking.vehicle.brand }} {{ booking.vehicle.model }}</span>
+                            </p>
+                        </div>
 
-                <div class="job-menu">
-
-                    <details>
-
-                        <summary>
-                            <div class="job-summary">
-
-                                <div class="job-title">
-                                    <h3>{{ booking.service_type }}</h3>
-
-                                    <p>
-                                        {{ booking.vehicle.registration_number }}
-                                        -
-                                        {{ booking.vehicle.brand }}
-                                        {{ booking.vehicle.model }}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    {% if booking.status == 'PENDING' %}
-                                        <span class="status-badge status-pending">
-                                            {{ booking.get_status_display }}
-                                        </span>
-                                    {% elif booking.status == 'CONFIRMED' %}
-                                        <span class="status-badge status-confirmed">
-                                            {{ booking.get_status_display }}
-                                        </span>
-                                    {% elif booking.status == 'IN_PROGRESS' %}
-                                        <span class="status-badge status-progress">
-                                            {{ booking.get_status_display }}
-                                        </span>
-                                    {% endif %}
-                                </div>
-
-                            </div>
-                        </summary>
-
-                        <div class="job-body">
-
-                            <div class="grid-2">
-
-                                <div class="detail-box">
-                                    <strong>Customer</strong>
-                                    <span>
-                                        {% if booking.customer.user.get_full_name %}
-                                            {{ booking.customer.user.get_full_name }}
-                                        {% else %}
-                                            {{ booking.customer.user.username }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle Registration</strong>
-                                    <span>{{ booking.vehicle.registration_number }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle</strong>
-                                    <span>
-                                        {{ booking.vehicle.brand }}
-                                        {{ booking.vehicle.model }}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Appointment Date</strong>
-                                    <span>
-                                        {% if booking.appointment_date %}
-                                            {{ booking.appointment_date }}
-                                        {% else %}
-                                            Not assigned yet
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Appointment Time</strong>
-                                    <span>
-                                        {% if booking.appointment_time %}
-                                            {{ booking.appointment_time }}
-                                        {% else %}
-                                            Not assigned yet
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Current Work</strong>
-                                    <span>
-                                        {% if booking.current_work %}
-                                            {{ booking.current_work }}
-                                        {% else %}
-                                            Not updated yet
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box full-width">
-                                    <strong>Issue Description</strong>
-                                    <span>{{ booking.issue_description }}</span>
-                                </div>
-
-                            </div>
-
+                        <div>
                             {% if booking.status == 'PENDING' %}
+                                <span class="status-badge status-pending">Pending Appointment</span>
+                            {% elif booking.status == 'CONFIRMED' %}
+                                <span class="status-badge status-confirmed">Confirmed</span>
+                            {% elif booking.status == 'IN_PROGRESS' %}
+                                <span class="status-badge status-progress">In Progress</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </summary>
 
-                                <div class="form-section">
+                <div class="job-body">
+                    <br>
+                    <div class="grid-2">
+                        <div class="detail-box">
+                            <strong>Customer Name</strong>
+                            <span>
+                                {% if booking.customer.user.get_full_name %}
+                                    👤 {{ booking.customer.user.get_full_name }}
+                                {% else %}
+                                    👤 {{ booking.customer.user.username }}
+                                {% endif %}
+                            </span>
+                        </div>
 
-                                    <h4>Assign Appointment</h4>
+                        <div class="detail-box">
+                            <strong>Vehicle Registration</strong>
+                            <span>{{ booking.vehicle.registration_number }} ({{ booking.vehicle.brand }} {{ booking.vehicle.model }})</span>
+                        </div>
 
-                                    <p class="note">
-                                        Select appointment date and time for this customer service request.
-                                    </p>
+                        <div class="detail-box">
+                            <strong>Appointment Date</strong>
+                            <span>
+                                {% if booking.appointment_date %}
+                                    📅 {{ booking.appointment_date }}
+                                {% else %}
+                                    <span style="color: var(--warning-amber);">Not assigned yet</span>
+                                {% endif %}
+                            </span>
+                        </div>
 
-                                    <form method="POST"
-                                          action="{% url 'assign_appointment' booking.id %}">
+                        <div class="detail-box">
+                            <strong>Appointment Time</strong>
+                            <span>
+                                {% if booking.appointment_time %}
+                                    ⏰ {{ booking.appointment_time }}
+                                {% else %}
+                                    <span style="color: var(--warning-amber);">Not assigned yet</span>
+                                {% endif %}
+                            </span>
+                        </div>
 
-                                        {% csrf_token %}
+                        <div class="detail-box full-width">
+                            <strong>Issue Description</strong>
+                            <span>{{ booking.issue_description }}</span>
+                        </div>
 
-                                        <label for="appointment_date_{{ booking.id }}">
-                                            Appointment Date
-                                        </label>
+                        <div class="detail-box full-width" style="border-color: #bfdbfe;">
+                            <strong>Current Work Progress</strong>
+                            <span style="color: var(--primary-blue-dark); font-weight: 600;">
+                                {% if booking.current_work %}
+                                    ⚡ {{ booking.current_work }}
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-weight: normal;">Not updated yet</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
 
+                    <!-- ASSIGN APPOINTMENT FORM (IF PENDING) -->
+                    {% if booking.status == 'PENDING' %}
+
+                        <div class="form-section">
+                            <h4>📅 Assign Appointment Date & Time</h4>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+                                Select appointment date and time for this customer service request.
+                            </p>
+
+                            <form method="POST" action="{% url 'assign_appointment' booking.id %}">
+                                {% csrf_token %}
+
+                                <div class="grid-2" style="gap: 0 16px;">
+                                    <div>
+                                        <label for="appointment_date_{{ booking.id }}">Appointment Date</label>
                                         <input
                                             type="date"
                                             name="appointment_date"
                                             id="appointment_date_{{ booking.id }}"
                                             required
                                         >
+                                    </div>
 
-                                        <label for="appointment_time_{{ booking.id }}">
-                                            Appointment Time
-                                        </label>
-
+                                    <div>
+                                        <label for="appointment_time_{{ booking.id }}">Appointment Time</label>
                                         <input
                                             type="time"
                                             name="appointment_time"
                                             id="appointment_time_{{ booking.id }}"
                                             required
                                         >
-
-                                        <button type="submit">
-                                            Assign Appointment
-                                        </button>
-
-                                    </form>
-
+                                    </div>
                                 </div>
 
-                            {% endif %}
+                                <button type="submit" class="btn" style="margin-top: 12px;">
+                                    Assign Appointment
+                                </button>
+                            </form>
+                        </div>
 
-                            {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' %}
+                    {% endif %}
 
-                                <div class="form-section">
+                    <!-- UPDATE SERVICE PROGRESS FORM (IF CONFIRMED OR IN_PROGRESS) -->
+                    {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' %}
 
-                                    <h4>Update Service Status</h4>
+                        <div class="form-section">
+                            <h4>⚡ Update Service Status & Progress</h4>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+                                Update current repair status and work progress notes.
+                            </p>
 
-                                    <p class="note">
-                                        Update the current service progress. Final completion is handled separately using the service record form.
-                                    </p>
+                            <form method="POST" action="{% url 'update_service_status' booking.id %}">
+                                {% csrf_token %}
 
-                                    <form method="POST"
-                                          action="{% url 'update_service_status' booking.id %}">
-
-                                        {% csrf_token %}
-
-                                        <label for="status_{{ booking.id }}">
-                                            Status
-                                        </label>
-
-                                        <select
-                                            name="status"
-                                            id="status_{{ booking.id }}"
-                                            required
-                                        >
-
-                                            <option value="CONFIRMED"
-                                                {% if booking.status == 'CONFIRMED' %}
-                                                    selected
-                                                {% endif %}>
-                                                Confirmed
-                                            </option>
-
-                                            <option value="IN_PROGRESS"
-                                                {% if booking.status == 'IN_PROGRESS' %}
-                                                    selected
-                                                {% endif %}>
-                                                In Progress
-                                            </option>
-
-                                            <option value="CANCELLED">
-                                                Cancelled
-                                            </option>
-
+                                <div class="grid-2" style="gap: 0 16px;">
+                                    <div>
+                                        <label for="status_{{ booking.id }}">Status</label>
+                                        <select name="status" id="status_{{ booking.id }}" required>
+                                            <option value="CONFIRMED" {% if booking.status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
+                                            <option value="IN_PROGRESS" {% if booking.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+                                            <option value="CANCELLED">Cancelled</option>
                                         </select>
+                                    </div>
 
-                                        <label for="current_work_{{ booking.id }}">
-                                            Current Work
-                                        </label>
-
+                                    <div>
+                                        <label for="current_work_{{ booking.id }}">Current Work Note</label>
                                         <input
                                             type="text"
                                             name="current_work"
                                             id="current_work_{{ booking.id }}"
                                             value="{{ booking.current_work }}"
-                                            placeholder="Example: Brake pad replacement"
-                                            maxlength="255"
+                                            placeholder="Example: Brake pad replacement in progress"
                                             required
                                         >
-
-                                        <button type="submit">
-                                            Update Service
-                                        </button>
-
-                                    </form>
-
+                                    </div>
                                 </div>
 
-                                <div class="form-section success-box">
+                                <button type="submit" class="btn" style="margin-top: 12px;">
+                                    Update Service Progress
+                                </button>
+                            </form>
+                        </div>
 
-                                    <h4>Complete Service With Final Record</h4>
+                        <!-- COMPLETE SERVICE WITH RECORD FORM -->
+                        <div class="form-section success-box" style="margin-top: 20px;">
+                            <h4>Complete Service With Final Record</h4>
+                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
+                                Fill the final service details before completing the job. Afterwards, this job moves to Service History.
+                            </p>
 
-                                    <p class="note">
-                                        Fill the final service details before completing the job. After completion, this job will move to the customer's Service History.
-                                    </p>
+                            <form method="POST" action="{% url 'complete_service_with_record' booking.id %}">
+                                {% csrf_token %}
 
-                                    <form method="POST"
-                                          action="{% url 'complete_service_with_record' booking.id %}">
+                                <label for="inspection_details_{{ booking.id }}">Inspection Details</label>
+                                <textarea
+                                    name="inspection_details"
+                                    id="inspection_details_{{ booking.id }}"
+                                    rows="3"
+                                    placeholder="Example: Multi-point inspection completed and vehicle condition checked"
+                                    required
+                                ></textarea>
 
-                                        {% csrf_token %}
+                                <label for="repair_details_{{ booking.id }}">Repair Details</label>
+                                <textarea
+                                    name="repair_details"
+                                    id="repair_details_{{ booking.id }}"
+                                    rows="3"
+                                    placeholder="Example: Brake pads replaced and brake fluid flushed"
+                                    required
+                                ></textarea>
 
-                                        <label for="inspection_details_{{ booking.id }}">
-                                            Inspection Details
-                                        </label>
-
-                                        <textarea
-                                            name="inspection_details"
-                                            id="inspection_details_{{ booking.id }}"
-                                            rows="4"
-                                            placeholder="Example: Brake system inspected and vehicle condition checked"
-                                            required
-                                        ></textarea>
-
-                                        <label for="repair_details_{{ booking.id }}">
-                                            Repair Details
-                                        </label>
-
-                                        <textarea
-                                            name="repair_details"
-                                            id="repair_details_{{ booking.id }}"
-                                            rows="4"
-                                            placeholder="Example: Brake pads replaced and brake fluid checked"
-                                            required
-                                        ></textarea>
-
-                                        <label for="parts_replaced_{{ booking.id }}">
-                                            Parts Replaced
-                                        </label>
-
-                                        <textarea
+                                <div class="grid-2" style="gap: 0 16px;">
+                                    <div>
+                                        <label for="parts_replaced_{{ booking.id }}">Parts Replaced</label>
+                                        <input
+                                            type="text"
                                             name="parts_replaced"
                                             id="parts_replaced_{{ booking.id }}"
-                                            rows="3"
                                             placeholder="Example: Brake pads, engine oil, air filter"
-                                        ></textarea>
+                                        >
+                                    </div>
 
-                                        <label for="service_cost_{{ booking.id }}">
-                                            Service Cost
-                                        </label>
-
+                                    <div>
+                                        <label for="service_cost_{{ booking.id }}">Service Cost (₹)</label>
                                         <input
                                             type="number"
                                             name="service_cost"
@@ -426,39 +306,29 @@
                                             placeholder="Example: 2500"
                                             required
                                         >
-
-                                        <button type="submit" class="btn-green">
-                                            Complete Service
-                                        </button>
-
-                                    </form>
-
+                                    </div>
                                 </div>
 
-                            {% endif %}
-
+                                <button type="submit" class="btn btn-green" style="margin-top: 12px; width: 100%;">
+                                    Complete Service & Save Record
+                                </button>
+                            </form>
                         </div>
 
-                    </details>
-
+                    {% endif %}
                 </div>
+            </details>
+        </div>
 
-            {% endfor %}
+    {% endfor %}
 
-        {% else %}
+{% else %}
 
-            <div class="empty-box">
-                <h3>No active service jobs</h3>
-
-                <p>
-                    You currently have no pending, confirmed, or in-progress service jobs.
-                    Completed and cancelled jobs are moved to Staff Service History.
-                </p>
-            </div>
-
-        {% endif %}
-
+    <div class="empty-box">
+        <h3>No Active Service Jobs</h3>
+        <p>You currently have no pending, confirmed, or in-progress service jobs.</p>
     </div>
 
-</body>
-</html>
+{% endif %}
+
+{% endblock %}

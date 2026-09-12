@@ -1,223 +1,130 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roadside Assistance History - AutoNexa</title>
+{% block title %}Roadside Assistance History - AutoNexa Staff Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">Roadside Assistance History</h1>
+    <p class="page-subtitle">View completed and cancelled roadside assistance requests handled by your staff account.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>Roadside Assistance History</p>
-        </div>
+<div style="margin-bottom: 24px; display: flex; gap: 12px;">
+    <a href="{% url 'staff_dashboard' %}" class="btn btn-gray">
+        📊 Back to Staff Dashboard
+    </a>
+    <a href="{% url 'staff_assistance_requests' %}" class="btn">
+        🚨 Active Assistance Requests
+    </a>
+</div>
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
+{% if assistance_history %}
 
-            <a href="{% url 'logout' %}">
-                Logout
-            </a>
-        </div>
-    </div>
+    {% for assistance in assistance_history %}
 
-    <div class="container">
-
-        <h1 class="page-title">
-            Roadside Assistance History
-        </h1>
-
-        <p class="page-subtitle">
-            View completed and cancelled roadside assistance requests handled by you.
-        </p>
-
-        <a href="{% url 'staff_dashboard' %}" class="btn btn-gray">
-            Back to Staff Dashboard
-        </a>
-
-        <a href="{% url 'staff_assistance_requests' %}" class="btn">
-            Active Assistance Requests
-        </a>
-
-        <br>
-        <br>
-
-        {% if assistance_history %}
-
-            {% for assistance in assistance_history %}
-
-                <div class="job-menu">
-
-                    <details>
-
-                        <summary>
-                            <div class="job-summary">
-
-                                <div class="job-title">
-                                    <h3>{{ assistance.assistance_type }}</h3>
-
-                                    <p>
-                                        {{ assistance.vehicle.registration_number }}
-                                        -
-                                        {{ assistance.vehicle.brand }}
-                                        {{ assistance.vehicle.model }}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    {% if assistance.status == 'COMPLETED' %}
-                                        <span class="status-badge status-completed">
-                                            {{ assistance.get_status_display }}
-                                        </span>
-                                    {% elif assistance.status == 'CANCELLED' %}
-                                        <span class="status-badge status-cancelled">
-                                            {{ assistance.get_status_display }}
-                                        </span>
-                                    {% endif %}
-                                </div>
-
-                            </div>
-                        </summary>
-
-                        <div class="job-body">
-
-                            <div class="grid-2">
-
-                                <div class="detail-box">
-                                    <strong>Customer</strong>
-                                    <span>
-                                        {% if assistance.customer.user.get_full_name %}
-                                            {{ assistance.customer.user.get_full_name }}
-                                        {% else %}
-                                            {{ assistance.customer.user.username }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle Registration</strong>
-                                    <span>{{ assistance.vehicle.registration_number }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle</strong>
-                                    <span>
-                                        {{ assistance.vehicle.brand }}
-                                        {{ assistance.vehicle.model }}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Assistance Type</strong>
-                                    <span>{{ assistance.assistance_type }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Requested On</strong>
-                                    <span>{{ assistance.created_at }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Last Updated</strong>
-                                    <span>{{ assistance.updated_at }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Completed On</strong>
-                                    <span>
-                                        {% if assistance.completed_at %}
-                                            {{ assistance.completed_at }}
-                                        {% else %}
-                                            Not completed
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Status</strong>
-                                    <span>{{ assistance.get_status_display }}</span>
-                                </div>
-
-                                <div class="detail-box full-width">
-                                    <strong>Problem Description</strong>
-                                    <span>{{ assistance.problem_description }}</span>
-                                </div>
-
-                                <div class="detail-box full-width">
-                                    <strong>Customer Location Details</strong>
-                                    <span>{{ assistance.location_details }}</span>
-                                </div>
-
-                                {% if assistance.location_link %}
-                                    <div class="detail-box full-width">
-                                        <strong>Customer Location Link</strong>
-                                        <span>
-                                            <a href="{{ assistance.location_link }}" target="_blank">
-                                                Open Customer Location
-                                            </a>
-                                        </span>
-                                    </div>
-                                {% endif %}
-
-                                {% if assistance.staff_location_link %}
-                                    <div class="detail-box full-width">
-                                        <strong>Staff Location Link Shared</strong>
-                                        <span>
-                                            <a href="{{ assistance.staff_location_link }}" target="_blank">
-                                                Open Staff Location
-                                            </a>
-                                        </span>
-                                    </div>
-                                {% endif %}
-
-                            </div>
-
-                            {% if assistance.status == 'COMPLETED' %}
-
-                                <div class="success-box">
-                                    This roadside assistance request was completed successfully.
-                                </div>
-
-                            {% elif assistance.status == 'CANCELLED' %}
-
-                                <div class="alert">
-                                    This roadside assistance request was cancelled.
-                                </div>
-
-                            {% endif %}
-
+        <div class="job-menu">
+            <details>
+                <summary>
+                    <div class="job-summary">
+                        <div class="job-title">
+                            <h3>{{ assistance.assistance_type }}</h3>
+                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                <span class="license-plate">{{ assistance.vehicle.registration_number }}</span>
+                                <span>{{ assistance.vehicle.brand }} {{ assistance.vehicle.model }}</span>
+                            </p>
                         </div>
 
-                    </details>
+                        <div>
+                            {% if assistance.status == 'COMPLETED' %}
+                                <span class="status-badge status-completed">Completed</span>
+                            {% elif assistance.status == 'CANCELLED' %}
+                                <span class="status-badge status-cancelled">Cancelled</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </summary>
 
+                <div class="job-body">
+                    <br>
+                    <div class="grid-2">
+                        <div class="detail-box">
+                            <strong>Customer Name</strong>
+                            <span>
+                                {% if assistance.customer.user.get_full_name %}
+                                    👤 {{ assistance.customer.user.get_full_name }}
+                                {% else %}
+                                    👤 {{ assistance.customer.user.username }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Vehicle Registration</strong>
+                            <span>{{ assistance.vehicle.registration_number }}</span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Requested On</strong>
+                            <span>{{ assistance.created_at }}</span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Completed On</strong>
+                            <span>
+                                {% if assistance.completed_at %}
+                                    {{ assistance.completed_at }}
+                                {% else %}
+                                    Not completed
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="detail-box full-width">
+                            <strong>Problem Description</strong>
+                            <span>{{ assistance.problem_description }}</span>
+                        </div>
+
+                        <div class="detail-box full-width">
+                            <strong>Breakdown Location</strong>
+                            <span>📍 {{ assistance.location_details }}</span>
+                        </div>
+
+                        {% if assistance.location_link %}
+                            <div class="detail-box">
+                                <strong>Customer Location Link</strong>
+                                <span>
+                                    <a href="{{ assistance.location_link }}" target="_blank" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">
+                                        Open Customer Location Map
+                                    </a>
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        {% if assistance.staff_location_link %}
+                            <div class="detail-box">
+                                <strong>Staff Live Location Link</strong>
+                                <span>
+                                    <a href="{{ assistance.staff_location_link }}" target="_blank" class="btn btn-green" style="padding: 6px 12px; font-size: 12px;">
+                                        Open Shared Location Link
+                                    </a>
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
+            </details>
+        </div>
 
-            {% endfor %}
+    {% endfor %}
 
-        {% else %}
+{% else %}
 
-            <div class="empty-box">
-                <h3>No roadside assistance history</h3>
-
-                <p>
-                    Completed and cancelled roadside assistance requests handled by you will appear here.
-                </p>
-            </div>
-
-        {% endif %}
-
+    <div class="empty-box">
+        <h3>No Assistance History</h3>
+        <p>Completed and cancelled roadside assistance requests handled by you will appear here.</p>
     </div>
 
-</body>
-</html>
+{% endif %}
+
+{% endblock %}

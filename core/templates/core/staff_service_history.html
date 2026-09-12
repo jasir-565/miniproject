@@ -1,267 +1,144 @@
+{% extends 'core/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Service History - AutoNexa</title>
+{% block title %}Staff Service History - AutoNexa Staff Center{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-</head>
+{% block content %}
 
-<body>
+<div class="page-header">
+    <h1 class="page-title">Staff Completed Service History</h1>
+    <p class="page-subtitle">View completed and cancelled vehicle service jobs handled by your staff account.</p>
+</div>
 
-    <div class="navbar">
-        <div>
-            <h1>AutoNexa</h1>
-            <p>Staff Service History</p>
-        </div>
+<div style="margin-bottom: 24px;">
+    <a href="{% url 'staff_dashboard' %}" class="btn btn-gray">
+        📊 Back to Staff Dashboard
+    </a>
+</div>
 
-        <div>
-            Welcome,
-            {% if user.first_name %}
-                {{ user.first_name }}
-            {% else %}
-                {{ user.username }}
-            {% endif %}
+{% if service_history %}
 
-            <a href="{% url 'logout' %}">
-                Logout
-            </a>
-        </div>
-    </div>
+    {% for booking in service_history %}
 
-    <div class="container">
-
-        <h1 class="page-title">
-            Staff Service History
-        </h1>
-
-        <p class="page-subtitle">
-            View completed and cancelled vehicle service jobs handled by you.
-        </p>
-
-        <a href="{% url 'staff_dashboard' %}" class="btn btn-gray">
-            Back to Staff Dashboard
-        </a>
-
-        <br>
-        <br>
-
-        {% if service_history %}
-
-            {% for booking in service_history %}
-
-                <div class="job-menu">
-
-                    <details>
-
-                        <summary>
-                            <div class="job-summary">
-
-                                <div class="job-title">
-                                    <h3>{{ booking.service_type }}</h3>
-
-                                    <p>
-                                        {{ booking.vehicle.registration_number }}
-                                        -
-                                        {{ booking.vehicle.brand }}
-                                        {{ booking.vehicle.model }}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    {% if booking.status == 'COMPLETED' %}
-                                        <span class="status-badge status-completed">
-                                            Completed
-                                        </span>
-                                    {% elif booking.status == 'CANCELLED' %}
-                                        <span class="status-badge status-cancelled">
-                                            Cancelled
-                                        </span>
-                                    {% endif %}
-                                </div>
-
-                            </div>
-                        </summary>
-
-                        <div class="job-body">
-
-                            <div class="grid-2">
-
-                                <div class="detail-box">
-                                    <strong>History Type</strong>
-                                    <span>Vehicle Service</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Status</strong>
-                                    <span>{{ booking.get_status_display }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Customer</strong>
-                                    <span>
-                                        {% if booking.customer.user.get_full_name %}
-                                            {{ booking.customer.user.get_full_name }}
-                                        {% else %}
-                                            {{ booking.customer.user.username }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle Registration</strong>
-                                    <span>{{ booking.vehicle.registration_number }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Vehicle</strong>
-                                    <span>
-                                        {{ booking.vehicle.brand }}
-                                        {{ booking.vehicle.model }}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Service Type</strong>
-                                    <span>{{ booking.service_type }}</span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Appointment Date</strong>
-                                    <span>
-                                        {% if booking.appointment_date %}
-                                            {{ booking.appointment_date }}
-                                        {% else %}
-                                            Not available
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Appointment Time</strong>
-                                    <span>
-                                        {% if booking.appointment_time %}
-                                            {{ booking.appointment_time }}
-                                        {% else %}
-                                            Not available
-                                        {% endif %}
-                                    </span>
-                                </div>
-
-                                <div class="detail-box">
-                                    <strong>Last Updated</strong>
-                                    <span>{{ booking.updated_at }}</span>
-                                </div>
-
-                                <div class="detail-box full-width">
-                                    <strong>Issue Description</strong>
-                                    <span>{{ booking.issue_description }}</span>
-                                </div>
-
-                                {% if booking.status == 'COMPLETED' %}
-
-                                    <div class="detail-box">
-                                        <strong>Completed On</strong>
-                                        <span>
-                                            {% if booking.service_record.completed_at %}
-                                                {{ booking.service_record.completed_at }}
-                                            {% else %}
-                                                {{ booking.updated_at }}
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="detail-box full-width">
-                                        <strong>Inspection Details</strong>
-                                        <span>
-                                            {% if booking.service_record.inspection_details %}
-                                                {{ booking.service_record.inspection_details }}
-                                            {% else %}
-                                                Not added
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="detail-box full-width">
-                                        <strong>Repair Details</strong>
-                                        <span>
-                                            {% if booking.service_record.repair_details %}
-                                                {{ booking.service_record.repair_details }}
-                                            {% else %}
-                                                Not added
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="detail-box full-width">
-                                        <strong>Parts Replaced</strong>
-                                        <span>
-                                            {% if booking.service_record.parts_replaced %}
-                                                {{ booking.service_record.parts_replaced }}
-                                            {% else %}
-                                                No parts replaced
-                                            {% endif %}
-                                        </span>
-                                    </div>
-
-                                    <div class="detail-box">
-                                        <strong>Service Cost</strong>
-                                        <span>
-                                            ₹ {{ booking.service_record.service_cost }}
-                                        </span>
-                                    </div>
-
-                                {% elif booking.status == 'CANCELLED' %}
-
-                                    <div class="detail-box full-width">
-                                        <strong>Cancellation Note</strong>
-                                        <span>
-                                            This service booking was cancelled.
-                                        </span>
-                                    </div>
-
-                                {% endif %}
-
-                            </div>
-
-                            {% if booking.status == 'COMPLETED' %}
-
-                                <div class="success-box">
-                                    This vehicle service was completed successfully.
-                                </div>
-
-                            {% elif booking.status == 'CANCELLED' %}
-
-                                <div class="alert">
-                                    This vehicle service booking was cancelled.
-                                </div>
-
-                            {% endif %}
-
+        <div class="job-menu">
+            <details>
+                <summary>
+                    <div class="job-summary">
+                        <div class="job-title">
+                            <h3>{{ booking.service_type }}</h3>
+                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                <span class="license-plate">{{ booking.vehicle.registration_number }}</span>
+                                <span>{{ booking.vehicle.brand }} {{ booking.vehicle.model }}</span>
+                            </p>
                         </div>
 
-                    </details>
+                        <div>
+                            {% if booking.status == 'COMPLETED' %}
+                                <span class="status-badge status-completed">Completed</span>
+                            {% elif booking.status == 'CANCELLED' %}
+                                <span class="status-badge status-cancelled">Cancelled</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </summary>
 
+                <div class="job-body">
+                    <br>
+                    <div class="grid-2">
+                        <div class="detail-box">
+                            <strong>Customer Name</strong>
+                            <span>
+                                {% if booking.customer.user.get_full_name %}
+                                    👤 {{ booking.customer.user.get_full_name }}
+                                {% else %}
+                                    👤 {{ booking.customer.user.username }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Vehicle Registration</strong>
+                            <span>{{ booking.vehicle.registration_number }} ({{ booking.vehicle.brand }} {{ booking.vehicle.model }})</span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Appointment Date & Time</strong>
+                            <span>
+                                {% if booking.appointment_date %}
+                                    📅 {{ booking.appointment_date }} at {{ booking.appointment_time }}
+                                {% else %}
+                                    Not recorded
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="detail-box">
+                            <strong>Last Updated</strong>
+                            <span>{{ booking.updated_at }}</span>
+                        </div>
+
+                        <div class="detail-box full-width">
+                            <strong>Customer Issue Description</strong>
+                            <span>{{ booking.issue_description }}</span>
+                        </div>
+
+                        {% if booking.status == 'COMPLETED' %}
+
+                            <div class="detail-box full-width">
+                                <strong>Inspection Details</strong>
+                                <span>
+                                    {% if booking.service_record.inspection_details %}
+                                        {{ booking.service_record.inspection_details }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="detail-box full-width">
+                                <strong>Repair Details</strong>
+                                <span>
+                                    {% if booking.service_record.repair_details %}
+                                        {{ booking.service_record.repair_details }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="detail-box full-width">
+                                <strong>Parts Replaced</strong>
+                                <span>
+                                    {% if booking.service_record.parts_replaced %}
+                                        ⚙️ {{ booking.service_record.parts_replaced }}
+                                    {% else %}
+                                        No parts replaced
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="detail-box" style="border-color: #bbf7d0;">
+                                <strong>Service Cost</strong>
+                                <span style="font-size: 20px; font-weight: 800; color: var(--success-green);">
+                                    ₹ {{ booking.service_record.service_cost }}
+                                </span>
+                            </div>
+
+                        {% endif %}
+                    </div>
                 </div>
+            </details>
+        </div>
 
-            {% endfor %}
+    {% endfor %}
 
-        {% else %}
+{% else %}
 
-            <div class="empty-box">
-                <h3>No staff service history</h3>
-
-                <p>
-                    Completed and cancelled service jobs handled by you will appear here.
-                </p>
-            </div>
-
-        {% endif %}
-
+    <div class="empty-box">
+        <h3>No Completed Staff Service Jobs</h3>
+        <p>Completed and cancelled service jobs handled by you will appear here.</p>
     </div>
 
-</body>
-</html>
+{% endif %}
+
+{% endblock %}

@@ -79,4 +79,16 @@ path(
     views.staff_service_history,
     name='staff_service_history'
 ),
+
+path(
+    'booking/<int:booking_id>/cancel/',
+    views.cancel_service_booking,
+    name='cancel_service_booking'
+),
+
+path(
+    'roadside-assistance/<int:assistance_id>/cancel/',
+    views.cancel_roadside_assistance,
+    name='cancel_roadside_assistance'
+),
 ]

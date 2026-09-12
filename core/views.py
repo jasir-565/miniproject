@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 from .models import (
     CustomerProfile,
@@ -40,22 +42,96 @@ def register(request):
         return redirect_user_by_role(request.user)
 
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        email = request.POST.get('email', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        password = request.POST.get('password', '')
-        confirm_password = request.POST.get('confirm_password', '')
+        username = request.POST.get(
+            'username',
+            ''
+        ).strip()
 
-        if password != confirm_password:
+        first_name = request.POST.get(
+            'first_name',
+            ''
+        ).strip()
+
+        last_name = request.POST.get(
+            'last_name',
+            ''
+        ).strip()
+
+        email = request.POST.get(
+            'email',
+            ''
+        ).strip()
+
+        phone = request.POST.get(
+            'phone',
+            ''
+        ).strip()
+
+        password = request.POST.get(
+            'password',
+            ''
+        )
+
+        confirm_password = request.POST.get(
+            'confirm_password',
+            ''
+        )
+
+        if len(username) < 4:
             return render(request, 'core/register.html', {
-                'error': 'Passwords do not match.'
+                'error': 'Username must contain at least 4 characters.'
             })
 
         if User.objects.filter(username=username).exists():
             return render(request, 'core/register.html', {
                 'error': 'Username already exists.'
+            })
+
+        if not first_name:
+            return render(request, 'core/register.html', {
+                'error': 'First name is required.'
+            })
+
+        if not last_name:
+            return render(request, 'core/register.html', {
+                'error': 'Last name is required.'
+            })
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return render(request, 'core/register.html', {
+                'error': 'Please enter a valid email address.'
+            })
+
+        if User.objects.filter(email=email).exists():
+            return render(request, 'core/register.html', {
+                'error': 'Email already exists.'
+            })
+
+        cleaned_phone = phone.replace(' ', '').replace('-', '')
+
+        if cleaned_phone.startswith('+'):
+            cleaned_phone = cleaned_phone[1:]
+
+        if not cleaned_phone.isdigit():
+            return render(request, 'core/register.html', {
+                'error': 'Phone number should contain only numbers.'
+            })
+
+        if len(cleaned_phone) < 10 or len(cleaned_phone) > 15:
+            return render(request, 'core/register.html', {
+                'error': 'Phone number must contain 10 to 15 digits.'
+            })
+
+        if len(password) < 6:
+            return render(request, 'core/register.html', {
+                'error': 'Password must contain at least 6 characters.'
+            })
+
+        if password != confirm_password:
+            return render(request, 'core/register.html', {
+                'error': 'Passwords do not match.'
             })
 
         user = User.objects.create_user(
@@ -1175,3 +1251,77 @@ def staff_service_history(request):
         'staff': staff,
         'service_history': service_history
     })
+
+
+@never_cache
+@csrf_protect
+def cancel_service_booking(request, booking_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if not hasattr(request.user, 'customer_profile'):
+        return redirect_user_by_role(request.user)
+
+    customer = request.user.customer_profile
+
+    booking = get_object_or_404(
+        ServiceBooking,
+        id=booking_id,
+        customer=customer,
+        status__in=['PENDING', 'CONFIRMED']
+    )
+
+    if request.method == 'POST':
+        booking.status = 'CANCELLED'
+        booking.current_work = 'Booking cancelled by customer'
+        booking.save()
+
+        Notification.objects.create(
+            customer=customer,
+            title='Service Booking Cancelled',
+            message=(
+                f'Your service booking for '
+                f'{booking.vehicle.registration_number} '
+                f'has been cancelled.'
+            ),
+            notification_type='SERVICE'
+        )
+
+    return redirect('my_bookings')
+
+
+@never_cache
+@csrf_protect
+def cancel_roadside_assistance(request, assistance_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if not hasattr(request.user, 'customer_profile'):
+        return redirect_user_by_role(request.user)
+
+    customer = request.user.customer_profile
+
+    assistance = get_object_or_404(
+        AssistanceRequest,
+        id=assistance_id,
+        customer=customer,
+        status__in=['PENDING', 'ASSIGNED', 'ON_THE_WAY']
+    )
+
+    if request.method == 'POST':
+        assistance.status = 'CANCELLED'
+        assistance.completed_at = timezone.now()
+        assistance.save()
+
+        Notification.objects.create(
+            customer=customer,
+            title='Roadside Assistance Cancelled',
+            message=(
+                f'Your roadside assistance request for '
+                f'{assistance.vehicle.registration_number} '
+                f'has been cancelled.'
+            ),
+            notification_type='ASSISTANCE'
+        )
+
+    return redirect('roadside_assistance')
