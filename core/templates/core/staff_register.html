@@ -1,0 +1,170 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Technician Induction Portal — AutoNexa Staff{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="suite-container">
+
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Staff Enrollment Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">WORKSHOP CREW INDUCTION & VERIFICATION</span>
+        </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill is-emergency">
+                <span class="suite-pulse-dot"></span>
+                ADMIN APPROVAL MANDATE
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
+
+    <div class="suite-auth-grid">
+        <!-- Left Stage: Workshop Mission & Verification Protocols -->
+        <aside class="suite-auth-stage">
+            <span class="suite-kicker" style="border-color: rgba(236,36,68,0.4); color: #fca5a5;">✦ CERTIFIED WORKSHOP OPERATIONS</span>
+            <h2 style="font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -1px; margin: 12px 0 14px 0; line-height: 1.2;">
+                Elite Mechanical Care.<br><span style="color: #ffd24d; text-shadow: 0 0 16px rgba(255, 210, 77, 0.4);">Precision & Discipline.</span>
+            </h2>
+
+            {% include 'core/components/vehicle.html' %}
+
+            <div style="margin-top: 24px; display: grid; gap: 12px;">
+                <div class="suite-data-box">
+                    <span class="suite-data-label">Credential Verification Protocol</span>
+                    <span style="font-size: 13px; color: var(--suite-text-sub);">All technician accounts require central administrator audit and digital sign-off before dispatch access.</span>
+                </div>
+                <div class="suite-data-box">
+                    <span class="suite-data-label">Live Dispatch Telemetry Access</span>
+                    <span style="font-size: 13px; color: var(--suite-text-sub);">Upon approval, staff receive full access to real-time roadside assistance GPS routing and repair bays.</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Card: Registration Form -->
+        <div class="suite-auth-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <span class="suite-kicker" style="margin-bottom: 6px;">CREW DOSSIER · ENROLLMENT</span>
+                    <h1 style="font-size: 26px; font-weight: 800; color: #ffffff; margin: 0;">Technician Application.</h1>
+                </div>
+                <span class="suite-badge suite-badge-gold">✦ Staff Clearance</span>
+            </div>
+
+            {% if error %}
+                <div style="background: rgba(236,36,68,0.15); border: 1px solid rgba(236,36,68,0.4); color: #fca5a5; padding: 12px 16px; border-radius: var(--suite-radius-sm); margin-bottom: 20px; font-size: 13px;">
+                    ⚠️ {{ error }}
+                </div>
+            {% endif %}
+
+            <div style="background: rgba(255, 210, 77, 0.08); border-left: 3px solid #ffd24d; padding: 12px 16px; border-radius: 6px; margin-bottom: 22px; font-size: 12.5px; color: #fef08a; line-height: 1.5;">
+                <strong>Administrative Notice:</strong> New accounts are quarantined in the Central Management Queue until verified by workshop administration.
+            </div>
+
+            <form method="POST" id="staff-register-form">
+                {% csrf_token %}
+
+                <div class="grid-2" style="gap: 0 16px;">
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="username">Staff Username</label>
+                        <input class="suite-input" type="text" name="username" id="username" required value="{{ prev.username|default:'' }}" placeholder="e.g. tech_alex">
+                    </div>
+
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="phone">Official Contact Phone</label>
+                        <input class="suite-input" type="tel" name="phone" id="phone" required value="{{ prev.phone|default:'' }}" placeholder="e.g. 9876543210">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="gap: 0 16px;">
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="first_name">First Name</label>
+                        <input class="suite-input" type="text" name="first_name" id="first_name" required value="{{ prev.first_name|default:'' }}" placeholder="Enter first name">
+                    </div>
+
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="last_name">Last Name</label>
+                        <input class="suite-input" type="text" name="last_name" id="last_name" required value="{{ prev.last_name|default:'' }}" placeholder="Enter last name">
+                    </div>
+                </div>
+
+                <div class="suite-input-wrap">
+                    <label class="suite-input-label" for="email">Work Email Address</label>
+                    <input class="suite-input" type="email" name="email" id="email" required value="{{ prev.email|default:'' }}" placeholder="alex.m@autonexa.com">
+                </div>
+
+                <div class="suite-input-wrap">
+                    <label class="suite-input-label" for="designation">Workshop Designation / Discipline</label>
+                    <select class="suite-input" name="designation" id="designation" required style="cursor: pointer;">
+                        <option value="" disabled {% if not prev.designation %}selected{% endif %}>-- Select Specialty --</option>
+                        {% for role in designation_options %}
+                            <option value="{{ role }}" {% if prev.designation == role %}selected{% endif %}>{{ role }}</option>
+                        {% endfor %}
+                        <option value="OTHER" {% if prev.designation == 'OTHER' %}selected{% endif %}>Other Custom Discipline...</option>
+                    </select>
+                </div>
+
+                <div id="custom-designation-wrapper" class="suite-input-wrap" {% if prev.designation == 'OTHER' %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                    <label class="suite-input-label" for="custom_designation">Specify Custom Role Title</label>
+                    <input class="suite-input" type="text" name="custom_designation" id="custom_designation" value="{{ prev.custom_designation|default:'' }}" placeholder="Enter exact workshop role">
+                </div>
+
+                <div class="grid-2" style="gap: 0 16px;">
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="password">Password</label>
+                        <input class="suite-input" type="password" name="password" id="password" required placeholder="Minimum 8 characters">
+                    </div>
+
+                    <div class="suite-input-wrap">
+                        <label class="suite-input-label" for="confirm_password">Confirm Password</label>
+                        <input class="suite-input" type="password" name="confirm_password" id="confirm_password" required placeholder="Confirm password">
+                    </div>
+                </div>
+
+                <button type="submit" class="suite-btn suite-btn-crimson" style="width: 100%; padding: 14px; font-size: 13px; margin-top: 8px;">
+                    <span>Submit Staff Credentials for Audit</span>
+                    <span aria-hidden="true">↗</span>
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; color: var(--suite-text-sub);">
+                    Customer seeking garage services?
+                    <a href="{% url 'register' %}" style="color: #ffd24d; font-weight: 700; text-decoration: none;">Customer Registration →</a>
+                </p>
+                <p style="margin: 0; font-size: 12.5px; color: var(--suite-text-faint);">
+                    Already approved?
+                    <a href="{% url 'login' %}" style="color: var(--suite-text-main); font-weight: 700; text-decoration: none;">Sign in to Workshop ↗</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const designationSelect = document.getElementById('designation');
+        const customWrapper = document.getElementById('custom-designation-wrapper');
+        const customInput = document.getElementById('custom_designation');
+
+        if (designationSelect && customWrapper) {
+            designationSelect.addEventListener('change', function() {
+                if (this.value === 'OTHER') {
+                    customWrapper.style.display = 'block';
+                    if (customInput) customInput.focus();
+                } else {
+                    customWrapper.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Technician Verification Quarantine — AutoNexa Staff{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="suite-container" style="max-width: 860px; margin: 0 auto;">
+
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Quarantine Status Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">CREDENTIAL SECURITY QUARANTINE</span>
+        </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill is-emergency">
+                <span class="suite-pulse-dot"></span>
+                AUDIT QUEUE PENDING
+            </span>
+        </div>
+    </header>
+
+    <!-- Quarantine Hero Card -->
+    <div class="suite-card is-gold-rim" style="padding: 40px; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 24px; margin-bottom: 28px;">
+            <div>
+                <span class="suite-kicker">✦ CENTRAL MANAGEMENT REVIEW QUEUE</span>
+                <h1 style="font-size: 28px; font-weight: 800; color: #ffffff; margin: 6px 0 4px 0;">Staff Verification Pending</h1>
+                <p style="font-size: 13.5px; color: var(--suite-text-sub); margin: 0;">
+                    Submitted to the <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important;">Auto</span><span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important;">Nexa</span> Central Management Clearance Registry.
+                </p>
+            </div>
+
+            <div>
+                {% if staff.status == 'REJECTED' %}
+                    <span class="suite-badge suite-badge-crimson" style="font-size: 13px; padding: 6px 16px;">
+                        ● Application Declined
+                    </span>
+                {% else %}
+                    <span class="suite-badge suite-badge-gold" style="font-size: 13px; padding: 6px 16px;">
+                        <span class="suite-pulse-dot" style="background: #ffd24d;"></span> Awaiting Admin Sign-Off
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Application Dossier Data Grid -->
+        <div class="suite-data-grid" style="margin-bottom: 28px;">
+            <div class="suite-data-box">
+                <span class="suite-data-label">Applicant Identity</span>
+                <span class="suite-data-val">{{ staff.user.get_full_name|default:staff.user.username }}</span>
+                <small style="color: var(--suite-text-faint); display: block; margin-top: 2px;">@{{ staff.user.username }}</small>
+            </div>
+
+            <div class="suite-data-box is-highlight">
+                <span class="suite-data-label">Applied Specialty</span>
+                <span class="suite-data-val is-gold">{{ staff.designation }}</span>
+            </div>
+
+            <div class="suite-data-box">
+                <span class="suite-data-label">Official Phone</span>
+                <span class="suite-data-val">{{ staff.phone }}</span>
+            </div>
+
+            <div class="suite-data-box">
+                <span class="suite-data-label">Submission Timestamp</span>
+                <span class="suite-data-val">{{ staff.created_at|date:"d M Y · H:i" }}</span>
+            </div>
+        </div>
+
+        <!-- Security Quarantine Directive -->
+        <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,210,77,0.2); border-radius: var(--suite-radius-sm); padding: 20px 24px; margin-bottom: 28px;">
+            <h4 style="font-size: 14px; font-weight: 800; color: #ffd24d; margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px;">
+                🔒 Mandatory Security Clearance
+            </h4>
+            <p style="font-size: 13px; color: var(--suite-text-sub); line-height: 1.6; margin: 0 0 10px 0;">
+                To protect client vehicle telematics, shop equipment, and emergency dispatch tracking, all workshop accounts must be vetted and authorized by a senior workshop manager before bay operations access is granted.
+            </p>
+            <p style="font-size: 12.5px; color: #94a3b8; margin: 0;">
+                Once approved, your account will immediately unlock the <strong>Workshop Operations Console</strong>, assigned repair orders, and live customer roadside dispatch feeds.
+            </p>
+        </div>
+
+        <!-- Action Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <a href="{% url 'staff_pending_approval' %}" class="suite-btn suite-btn-gold">
+                <span>↻ Refresh Clearance Status</span>
+            </a>
+            <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="suite-btn suite-btn-ghost">
+                    <span>Sign Out</span>
+                    <span aria-hidden="true">↗</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

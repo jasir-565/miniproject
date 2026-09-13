@@ -1,0 +1,50 @@
+/* Apply the AutoNexa palette through Django's native admin color tokens. */
+html:root,html[data-theme="light"],html[data-theme="dark"] {
+    color-scheme:dark;
+    --primary:#c81d3c;
+    --secondary:#202127;
+    --accent:#ff8da2;
+    --primary-fg:#fff;
+    --body-fg:#f0f0f1;
+    --body-bg:#0b0c0e;
+    --body-quiet-color:#adb0bb;
+    --body-medium-color:#c7c9d2;
+    --body-loud-color:#fff;
+    --header-color:#f0f0f1;
+    --header-branding-color:#f0f0f1;
+    --header-bg:#101114;
+    --header-link-color:#ffc1cf;
+    --breadcrumbs-fg:#c7c9d2;
+    --breadcrumbs-link-fg:#ffadc0;
+    --breadcrumbs-bg:#202127;
+    --link-fg:#ff8da2;
+    --link-hover-color:#ffd2dc;
+    --link-selected-fg:#ffadc0;
+    --hairline-color:#303138;
+    --border-color:#454650;
+    --error-fg:#ff8d9e;
+    --message-success-bg:#142b22;
+    --message-warning-bg:#302719;
+    --message-error-bg:#321a23;
+    --darkened-bg:#141518;
+    --selected-bg:#28232b;
+    --selected-row:#301720;
+    --button-fg:#fff;
+    --button-bg:#c81d3c;
+    --button-hover-bg:#a81735;
+    --default-button-bg:#c81d3c;
+    --default-button-hover-bg:#a81735;
+    --close-button-bg:#3b3d47;
+    --close-button-hover-bg:#50535f;
+    --delete-button-bg:#a81735;
+    --delete-button-hover-bg:#821029;
+    --object-tools-fg:#fff;
+    --object-tools-bg:#3b3d47;
+    --object-tools-hover-bg:#50535f;
+}
+#header {border-bottom:1px solid #303138}
+#site-name {letter-spacing:2px;font-weight:600}
+#site-name small {font-size:10px;color:#adb0bb;letter-spacing:1px}
+.theme-toggle {display:none}
+input,select,textarea {accent-color:#c81d3c}
+:focus-visible {outline:2px solid #ff718b;outline-offset:3px}

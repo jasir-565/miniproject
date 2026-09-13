@@ -1,0 +1,6 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{{ title }} | AutoNexa administration{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'core/admin-theme.css' %}"><link rel="stylesheet" href="{% static 'core/brand.css' %}">{% endblock %}
+{% block branding %}<div id="site-name"><a href="{% url 'admin:index' %}"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span> <small> / ADMINISTRATION</small></a></div>{% endblock %}
+{% block nav-global %}{% endblock %}

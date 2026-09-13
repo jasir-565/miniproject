@@ -1,14 +1,22 @@
-from decimal import Decimal, InvalidOperation
+import json
+import math
+from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.db import transaction
 from django.db.models import Q, Count
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from .validation import coordinates, location_url, service_cost, vehicle_photo
 
 from .models import (
     CustomerProfile,
@@ -27,6 +35,8 @@ def home(request):
 
 def redirect_user_by_role(user):
     if hasattr(user, 'staff_profile'):
+        if not user.staff_profile.is_approved:
+            return redirect('staff_pending_approval')
         return redirect('staff_dashboard')
 
     if hasattr(user, 'customer_profile'):
@@ -37,6 +47,7 @@ def redirect_user_by_role(user):
 
 @never_cache
 @csrf_protect
+@transaction.atomic
 def register(request):
     if request.user.is_authenticated:
         return redirect_user_by_role(request.user)
@@ -124,9 +135,13 @@ def register(request):
                 'error': 'Phone number must contain 10 to 15 digits.'
             })
 
-        if len(password) < 6:
+        try:
+            candidate = User(username=username, first_name=first_name, last_name=last_name, email=email)
+            candidate.full_clean(exclude=['password'])
+            validate_password(password, candidate)
+        except ValidationError as exc:
             return render(request, 'core/register.html', {
-                'error': 'Password must contain at least 6 characters.'
+                'error': ' '.join(exc.messages)
             })
 
         if password != confirm_password:
@@ -144,7 +159,7 @@ def register(request):
 
         CustomerProfile.objects.create(
             user=user,
-            phone=phone
+            phone=cleaned_phone
         )
 
         login(request, user)
@@ -152,6 +167,144 @@ def register(request):
         return redirect('customer_dashboard')
 
     return render(request, 'core/register.html')
+
+
+@never_cache
+@csrf_protect
+@transaction.atomic
+def staff_register(request):
+    if request.user.is_authenticated:
+        return redirect_user_by_role(request.user)
+
+    designation_options = [
+        'Master Technician',
+        'Automotive Diagnostic Specialist',
+        'Service Advisor & Estimator',
+        'Mechanical Workshop Technician',
+        'Auto Electrical & ECU Specialist',
+        'Brake & Suspension Specialist',
+        'Quick Lube & Detailing Technician',
+    ]
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        designation = request.POST.get('designation', '').strip()
+        custom_designation = request.POST.get('custom_designation', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if designation == 'OTHER' and custom_designation:
+            final_designation = custom_designation
+        else:
+            final_designation = designation or 'Technician'
+
+        context = {
+            'designation_options': designation_options,
+            'prev': {
+                'username': username,
+                'first_name': first_name,
+                'last_name': last_name,
+                'email': email,
+                'phone': phone,
+                'designation': designation,
+                'custom_designation': custom_designation,
+            }
+        }
+
+        if len(username) < 4:
+            context['error'] = 'Username must contain at least 4 characters.'
+            return render(request, 'core/staff_register.html', context)
+
+        if User.objects.filter(username=username).exists():
+            context['error'] = 'Username already exists.'
+            return render(request, 'core/staff_register.html', context)
+
+        if not first_name:
+            context['error'] = 'First name is required.'
+            return render(request, 'core/staff_register.html', context)
+
+        if not last_name:
+            context['error'] = 'Last name is required.'
+            return render(request, 'core/staff_register.html', context)
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            context['error'] = 'Please enter a valid work email address.'
+            return render(request, 'core/staff_register.html', context)
+
+        if User.objects.filter(email=email).exists():
+            context['error'] = 'An account with this email already exists.'
+            return render(request, 'core/staff_register.html', context)
+
+        cleaned_phone = phone.replace(' ', '').replace('-', '')
+        if cleaned_phone.startswith('+'):
+            cleaned_phone = cleaned_phone[1:]
+
+        if not cleaned_phone.isdigit():
+            context['error'] = 'Phone number should contain only numbers.'
+            return render(request, 'core/staff_register.html', context)
+
+        if len(cleaned_phone) < 10 or len(cleaned_phone) > 15:
+            context['error'] = 'Phone number must contain 10 to 15 digits.'
+            return render(request, 'core/staff_register.html', context)
+
+        try:
+            candidate = User(username=username, first_name=first_name, last_name=last_name, email=email)
+            candidate.full_clean(exclude=['password'])
+            validate_password(password, candidate)
+        except ValidationError as exc:
+            context['error'] = ' '.join(exc.messages)
+            return render(request, 'core/staff_register.html', context)
+
+        if password != confirm_password:
+            context['error'] = 'Passwords do not match.'
+            return render(request, 'core/staff_register.html', context)
+
+        user = User.objects.create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password
+        )
+
+        StaffProfile.objects.create(
+            user=user,
+            phone=cleaned_phone,
+            designation=final_designation,
+            is_approved=False,
+            status='PENDING'
+        )
+
+        login(request, user)
+        messages.success(request, 'Your staff registration has been submitted and is currently pending administrator verification.')
+        return redirect('staff_pending_approval')
+
+    return render(request, 'core/staff_register.html', {
+        'designation_options': designation_options
+    })
+
+
+@never_cache
+def staff_pending_approval(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if not hasattr(request.user, 'staff_profile'):
+        return redirect_user_by_role(request.user)
+
+    staff = request.user.staff_profile
+    if staff.is_approved:
+        return redirect('staff_dashboard')
+
+    return render(request, 'core/staff_pending_approval.html', {
+        'staff': staff
+    })
 
 
 @never_cache
@@ -182,7 +335,9 @@ def user_login(request):
 
 
 @never_cache
+@require_POST
 def user_logout(request):
+    logout(request)
     logout(request)
     return redirect('login')
 
@@ -202,9 +357,8 @@ def customer_dashboard(request):
     ).count()
 
     active_bookings_count = ServiceBooking.objects.filter(
-        customer=customer
-    ).exclude(
-        status='COMPLETED'
+        customer=customer,
+        status__in=['PENDING', 'CONFIRMED', 'IN_PROGRESS']
     ).count()
 
     completed_services_count = ServiceBooking.objects.filter(
@@ -222,6 +376,10 @@ def customer_dashboard(request):
     ).count()
 
     return render(request, 'core/customer_dashboard.html', {
+        'featured_vehicle': customer.vehicles.order_by('-created_at').first(),
+        'next_booking': customer.service_bookings.filter(
+            status__in=['CONFIRMED', 'IN_PROGRESS']
+        ).select_related('vehicle').order_by('appointment_date', 'appointment_time').first(),
         'vehicles_count': vehicles_count,
         'active_bookings_count': active_bookings_count,
         'completed_services_count': completed_services_count,
@@ -237,6 +395,9 @@ def staff_dashboard(request):
 
     if not hasattr(request.user, 'staff_profile'):
         return redirect_user_by_role(request.user)
+
+    if not request.user.staff_profile.is_approved:
+        return redirect('staff_pending_approval')
 
     staff = request.user.staff_profile
 
@@ -372,14 +533,26 @@ def vehicles(request):
                 'error': 'This vehicle registration number already exists.'
             })
 
-        Vehicle.objects.create(
+        photo = request.FILES.get('photo')
+        if photo:
+            try:
+                photo = vehicle_photo(photo)
+            except ValidationError as exc:
+                return render(request, 'core/vehicles.html', {
+                    'vehicles': customer_vehicles,
+                    'error': ' '.join(exc.messages)
+                })
+
+        new_vehicle = Vehicle.objects.create(
             customer=customer,
             registration_number=registration_number,
             brand=brand,
             model=model,
-            year=year
+            year=year,
+            photo=photo if photo else None
         )
 
+        messages.success(request, f"Vehicle '{new_vehicle.registration_number}' was successfully registered!")
         return redirect('vehicles')
 
     return render(request, 'core/vehicles.html', {
@@ -389,6 +562,73 @@ def vehicles(request):
 
 @never_cache
 @csrf_protect
+@require_POST
+def update_vehicle_photo(request, vehicle_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if not hasattr(request.user, 'customer_profile'):
+        return redirect_user_by_role(request.user)
+
+    vehicle = get_object_or_404(
+        Vehicle,
+        id=vehicle_id,
+        customer=request.user.customer_profile
+    )
+
+    if request.method == 'POST':
+        photo = request.FILES.get('photo')
+        if not photo:
+            messages.error(request, 'Please select an image file to upload.')
+            return redirect('vehicles')
+
+        try:
+            photo = vehicle_photo(photo)
+        except ValidationError as exc:
+            messages.error(request, ' '.join(exc.messages))
+            return redirect('vehicles')
+
+        old_name = vehicle.photo.name
+        storage = vehicle.photo.storage
+        vehicle.photo = photo
+        vehicle.save()
+        if old_name and old_name != vehicle.photo.name:
+            transaction.on_commit(lambda: storage.delete(old_name))
+
+        messages.success(request, f"Photo for vehicle '{vehicle.registration_number}' was updated successfully!")
+
+    return redirect('vehicles')
+
+
+@never_cache
+@csrf_protect
+@require_POST
+def delete_vehicle_photo(request, vehicle_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    if not hasattr(request.user, 'customer_profile'):
+        return redirect_user_by_role(request.user)
+
+    vehicle = get_object_or_404(
+        Vehicle,
+        id=vehicle_id,
+        customer=request.user.customer_profile
+    )
+
+    if request.method == 'POST':
+        if vehicle.photo:
+            vehicle.photo.delete(save=True)
+            messages.success(request, f"Photo for vehicle '{vehicle.registration_number}' has been removed.")
+        else:
+            messages.info(request, f"Vehicle '{vehicle.registration_number}' does not have a photo.")
+
+    return redirect('vehicles')
+
+
+@never_cache
+@csrf_protect
+@transaction.atomic
 def service_booking(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -444,7 +684,10 @@ def service_booking(request):
             customer=customer
         )
 
-        available_staff = StaffProfile.objects.annotate(
+        staff_ids = list(StaffProfile.objects.select_for_update().filter(
+            user__is_active=True
+        ).order_by('pk').values_list('pk', flat=True))
+        available_staff = StaffProfile.objects.filter(pk__in=staff_ids).annotate(
             active_job_count=Count(
                 'assigned_bookings',
                 filter=Q(
@@ -515,6 +758,8 @@ def my_bookings(request):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def assign_appointment(request, booking_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -524,10 +769,14 @@ def assign_appointment(request, booking_id):
 
     staff = request.user.staff_profile
 
+    # Serialize scheduling for this technician, including different bookings.
+    StaffProfile.objects.select_for_update().get(pk=staff.pk)
+
     booking = get_object_or_404(
-        ServiceBooking,
+        ServiceBooking.objects.select_for_update(),
         id=booking_id,
-        staff=staff
+        staff=staff,
+        status='PENDING'
     )
 
     if request.method == 'POST':
@@ -649,6 +898,8 @@ def assign_appointment(request, booking_id):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def update_service_status(request, booking_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -659,7 +910,7 @@ def update_service_status(request, booking_id):
     staff = request.user.staff_profile
 
     booking = get_object_or_404(
-        ServiceBooking,
+        ServiceBooking.objects.select_for_update(),
         id=booking_id,
         staff=staff
     )
@@ -671,11 +922,15 @@ def update_service_status(request, booking_id):
             ''
         ).strip()
 
-        allowed_statuses = [
-            'CONFIRMED',
-            'IN_PROGRESS',
-            'CANCELLED',
-        ]
+        allowed_statuses = {
+            'CONFIRMED': {'CONFIRMED', 'IN_PROGRESS', 'CANCELLED'},
+            'IN_PROGRESS': {'IN_PROGRESS', 'CANCELLED'},
+        }.get(booking.status, set())
+
+        if new_status not in allowed_statuses:
+            return JsonResponse({'error': 'Invalid service status transition.'}, status=409)
+        if len(current_work) > 255:
+            return JsonResponse({'error': 'Work note must be at most 255 characters.'}, status=400)
 
         if new_status in allowed_statuses:
             old_status = booking.status
@@ -732,6 +987,7 @@ def notifications(request):
 
 @never_cache
 @csrf_protect
+@require_POST
 def mark_notification_read(request, notification_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -782,6 +1038,7 @@ def service_history(request):
 
 @never_cache
 @csrf_protect
+@transaction.atomic
 def roadside_assistance(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -883,6 +1140,15 @@ def roadside_assistance(request):
                 'error': 'Please enter proper location details.'
             })
 
+        cust_lat_raw = request.POST.get('customer_latitude', '').strip()
+        cust_lng_raw = request.POST.get('customer_longitude', '').strip()
+        try:
+            cust_lat, cust_lng = coordinates(cust_lat_raw, cust_lng_raw)
+            location_link = location_url(location_link)
+        except ValidationError as exc:
+            messages.error(request, ' '.join(exc.messages))
+            return redirect('roadside_assistance')
+
         vehicle = get_object_or_404(
             Vehicle,
             id=vehicle_id,
@@ -895,7 +1161,9 @@ def roadside_assistance(request):
             assistance_type=assistance_type,
             problem_description=problem_description,
             location_details=location_details,
-            location_link=location_link or None
+            location_link=location_link or None,
+            customer_latitude=cust_lat,
+            customer_longitude=cust_lng,
         )
 
         Notification.objects.create(
@@ -931,6 +1199,9 @@ def staff_assistance_requests(request):
     if not hasattr(request.user, 'staff_profile'):
         return redirect_user_by_role(request.user)
 
+    if not request.user.staff_profile.is_approved:
+        return redirect('staff_pending_approval')
+
     staff = request.user.staff_profile
 
     assistance_requests = AssistanceRequest.objects.filter(
@@ -952,6 +1223,9 @@ def staff_assistance_history(request):
     if not hasattr(request.user, 'staff_profile'):
         return redirect_user_by_role(request.user)
 
+    if not request.user.staff_profile.is_approved:
+        return redirect('staff_pending_approval')
+
     staff = request.user.staff_profile
 
     assistance_history = AssistanceRequest.objects.filter(
@@ -967,6 +1241,8 @@ def staff_assistance_history(request):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def accept_assistance_request(request, assistance_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -977,7 +1253,7 @@ def accept_assistance_request(request, assistance_id):
     staff = request.user.staff_profile
 
     assistance = get_object_or_404(
-        AssistanceRequest,
+        AssistanceRequest.objects.select_for_update(),
         id=assistance_id,
         staff__isnull=True,
         status='PENDING'
@@ -1004,6 +1280,8 @@ def accept_assistance_request(request, assistance_id):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def update_assistance_status(request, assistance_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -1014,7 +1292,7 @@ def update_assistance_status(request, assistance_id):
     staff = request.user.staff_profile
 
     assistance = get_object_or_404(
-        AssistanceRequest,
+        AssistanceRequest.objects.select_for_update(),
         id=assistance_id,
         staff=staff
     )
@@ -1022,11 +1300,12 @@ def update_assistance_status(request, assistance_id):
     if request.method == 'POST':
         new_status = request.POST.get('status')
 
-        allowed_statuses = [
-            'ON_THE_WAY',
-            'COMPLETED',
-            'CANCELLED',
-        ]
+        allowed_statuses = {
+            'ASSIGNED': {'ON_THE_WAY', 'COMPLETED', 'CANCELLED'},
+            'ON_THE_WAY': {'ON_THE_WAY', 'COMPLETED', 'CANCELLED'},
+        }.get(assistance.status, set())
+        if new_status not in allowed_statuses:
+            return JsonResponse({'error': 'Invalid assistance status transition.'}, status=409)
 
         if new_status in allowed_statuses:
             old_status = assistance.status
@@ -1037,10 +1316,21 @@ def update_assistance_status(request, assistance_id):
                     ''
                 ).strip()
 
-                if not staff_location_link:
+                staff_lat_raw = request.POST.get('staff_latitude', '').strip()
+                staff_lng_raw = request.POST.get('staff_longitude', '').strip()
+                try:
+                    link = location_url(staff_location_link)
+                    lat, lng = coordinates(staff_lat_raw, staff_lng_raw)
+                except ValidationError as exc:
+                    messages.error(request, ' '.join(exc.messages))
                     return redirect('staff_assistance_requests')
+                if link:
+                    assistance.staff_location_link = link
+                if lat is not None:
+                    assistance.staff_latitude = lat
+                    assistance.staff_longitude = lng
+                    assistance.staff_last_updated = timezone.now()
 
-                assistance.staff_location_link = staff_location_link
                 assistance.status = 'ON_THE_WAY'
                 assistance.save()
 
@@ -1075,6 +1365,7 @@ def update_assistance_status(request, assistance_id):
 
             elif new_status == 'CANCELLED':
                 assistance.status = 'CANCELLED'
+                assistance.completed_at = timezone.now()
                 assistance.save()
 
                 if old_status != 'CANCELLED':
@@ -1094,6 +1385,8 @@ def update_assistance_status(request, assistance_id):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def save_service_record(request, booking_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -1104,7 +1397,7 @@ def save_service_record(request, booking_id):
     staff = request.user.staff_profile
 
     booking = get_object_or_404(
-        ServiceBooking,
+        ServiceBooking.objects.select_for_update(),
         id=booking_id,
         staff=staff,
         status='COMPLETED'
@@ -1132,12 +1425,10 @@ def save_service_record(request, booking_id):
         ).strip()
 
         try:
-            service_cost = Decimal(service_cost_value)
-        except InvalidOperation:
-            service_cost = Decimal('0.00')
-
-        if service_cost < 0:
-            service_cost = Decimal('0.00')
+            validated_cost = service_cost(service_cost_value)
+        except ValidationError as exc:
+            messages.error(request, ' '.join(exc.messages))
+            return redirect('staff_dashboard')
 
         ServiceRecord.objects.update_or_create(
             booking=booking,
@@ -1145,7 +1436,7 @@ def save_service_record(request, booking_id):
                 'inspection_details': inspection_details,
                 'repair_details': repair_details,
                 'parts_replaced': parts_replaced,
-                'service_cost': service_cost,
+                'service_cost': validated_cost,
                 'completed_at': booking.updated_at,
             }
         )
@@ -1155,6 +1446,8 @@ def save_service_record(request, booking_id):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def complete_service_with_record(request, booking_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -1165,7 +1458,7 @@ def complete_service_with_record(request, booking_id):
     staff = request.user.staff_profile
 
     booking = get_object_or_404(
-        ServiceBooking,
+        ServiceBooking.objects.select_for_update(),
         id=booking_id,
         staff=staff,
         status__in=['CONFIRMED', 'IN_PROGRESS']
@@ -1193,12 +1486,10 @@ def complete_service_with_record(request, booking_id):
         ).strip()
 
         try:
-            service_cost = Decimal(service_cost_value)
-        except InvalidOperation:
-            service_cost = Decimal('0.00')
-
-        if service_cost < 0:
-            service_cost = Decimal('0.00')
+            validated_cost = service_cost(service_cost_value)
+        except ValidationError as exc:
+            messages.error(request, ' '.join(exc.messages))
+            return redirect('staff_dashboard')
 
         ServiceRecord.objects.update_or_create(
             booking=booking,
@@ -1206,7 +1497,7 @@ def complete_service_with_record(request, booking_id):
                 'inspection_details': inspection_details,
                 'repair_details': repair_details,
                 'parts_replaced': parts_replaced,
-                'service_cost': service_cost,
+                'service_cost': validated_cost,
                 'completed_at': timezone.now(),
             }
         )
@@ -1255,6 +1546,8 @@ def staff_service_history(request):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def cancel_service_booking(request, booking_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -1265,7 +1558,7 @@ def cancel_service_booking(request, booking_id):
     customer = request.user.customer_profile
 
     booking = get_object_or_404(
-        ServiceBooking,
+        ServiceBooking.objects.select_for_update(),
         id=booking_id,
         customer=customer,
         status__in=['PENDING', 'CONFIRMED']
@@ -1292,6 +1585,8 @@ def cancel_service_booking(request, booking_id):
 
 @never_cache
 @csrf_protect
+@require_POST
+@transaction.atomic
 def cancel_roadside_assistance(request, assistance_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -1302,7 +1597,7 @@ def cancel_roadside_assistance(request, assistance_id):
     customer = request.user.customer_profile
 
     assistance = get_object_or_404(
-        AssistanceRequest,
+        AssistanceRequest.objects.select_for_update(),
         id=assistance_id,
         customer=customer,
         status__in=['PENDING', 'ASSIGNED', 'ON_THE_WAY']
@@ -1325,3 +1620,155 @@ def cancel_roadside_assistance(request, assistance_id):
         )
 
     return redirect('roadside_assistance')
+
+
+def calculate_haversine_distance(lat1, lon1, lat2, lon2):
+    try:
+        r_km = 6371.0
+        dlat = math.radians(float(lat2) - float(lat1))
+        dlon = math.radians(float(lon2) - float(lon1))
+        a = (
+            math.sin(dlat / 2) ** 2 +
+            math.cos(math.radians(float(lat1))) *
+            math.cos(math.radians(float(lat2))) *
+            math.sin(dlon / 2) ** 2
+        )
+        a = min(1.0, max(0.0, a))
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return round(r_km * c, 2)
+    except (ValueError, TypeError):
+        return None
+
+
+@never_cache
+@csrf_protect
+@require_POST
+@transaction.atomic
+def update_staff_location(request, assistance_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    if not hasattr(request.user, 'staff_profile'):
+        return JsonResponse({'error': 'Staff permission required'}, status=403)
+
+    staff = request.user.staff_profile
+
+    assistance = get_object_or_404(
+        AssistanceRequest.objects.select_for_update(),
+        id=assistance_id,
+        staff=staff
+    )
+
+    if assistance.status not in {'ASSIGNED', 'ON_THE_WAY'}:
+        return JsonResponse({'error': 'Location sharing has ended.'}, status=409)
+    try:
+        data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
+        if not isinstance(data, dict):
+            raise ValidationError('Expected a location object.')
+        lat, lng = coordinates(
+            data.get('latitude', data.get('lat')),
+            data.get('longitude', data.get('lng')),
+            required=True,
+        )
+    except (ValueError, UnicodeDecodeError, ValidationError):
+        return JsonResponse({'error': 'Provide valid latitude and longitude.'}, status=400)
+
+    assistance.staff_latitude = lat
+    assistance.staff_longitude = lng
+    assistance.staff_last_updated = timezone.now()
+    assistance.save(update_fields=['staff_latitude', 'staff_longitude', 'staff_last_updated'])
+    return JsonResponse({
+        'status': 'success',
+        'assistance_id': assistance.id,
+        'staff_latitude': float(lat),
+        'staff_longitude': float(lng),
+        'staff_last_updated': assistance.staff_last_updated.isoformat(),
+    })
+
+
+@never_cache
+def assistance_tracking_data(request, assistance_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    assistance = get_object_or_404(AssistanceRequest, id=assistance_id)
+
+    is_customer = (
+        hasattr(request.user, 'customer_profile') and
+        assistance.customer == request.user.customer_profile
+    )
+    is_staff = (
+        hasattr(request.user, 'staff_profile') and
+        assistance.staff_id == request.user.staff_profile.pk
+    )
+
+    if not (is_customer or is_staff):
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+
+    cust_lat = (
+        float(assistance.customer_latitude)
+        if assistance.customer_latitude is not None else None
+    )
+    cust_lng = (
+        float(assistance.customer_longitude)
+        if assistance.customer_longitude is not None else None
+    )
+    staff_lat = (
+        float(assistance.staff_latitude)
+        if assistance.staff_latitude is not None else None
+    )
+    staff_lng = (
+        float(assistance.staff_longitude)
+        if assistance.staff_longitude is not None else None
+    )
+
+    distance_km = None
+    if (
+        cust_lat is not None and cust_lng is not None and
+        staff_lat is not None and staff_lng is not None
+    ):
+        distance_km = calculate_haversine_distance(
+            cust_lat, cust_lng, staff_lat, staff_lng
+        )
+
+    staff_name = None
+    staff_phone = None
+    if assistance.staff:
+        staff_name = (
+            assistance.staff.user.get_full_name() or
+            assistance.staff.user.username
+        )
+        staff_phone = assistance.staff.phone
+
+    customer_name = (
+        assistance.customer.user.get_full_name() or
+        assistance.customer.user.username
+    )
+    customer_phone = assistance.customer.phone
+
+    return JsonResponse({
+        'id': assistance.id,
+        'status': assistance.status,
+        'status_display': assistance.get_status_display(),
+        'assistance_type': assistance.assistance_type,
+        'problem_description': assistance.problem_description,
+        'location_details': assistance.location_details,
+        'location_link': assistance.safe_location_link,
+        'customer_name': customer_name,
+        'customer_phone': customer_phone,
+        'customer_latitude': cust_lat,
+        'customer_longitude': cust_lng,
+        'staff_name': staff_name,
+        'staff_phone': staff_phone,
+        'staff_latitude': staff_lat,
+        'staff_longitude': staff_lng,
+        'staff_last_updated': (
+            assistance.staff_last_updated.isoformat()
+            if assistance.staff_last_updated else None
+        ),
+        'distance_km': distance_km,
+        'vehicle': (
+            f"{assistance.vehicle.registration_number} "
+            f"({assistance.vehicle.brand} {assistance.vehicle.model})"
+        )
+    })

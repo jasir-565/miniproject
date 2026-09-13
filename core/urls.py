@@ -4,9 +4,13 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
+    path('staff/register/', views.staff_register, name='staff_register'),
+    path('staff/pending-approval/', views.staff_pending_approval, name='staff_pending_approval'),
     path('login/', views.user_login, name='login'),
     path('dashboard/', views.customer_dashboard, name='customer_dashboard'),
     path('vehicles/', views.vehicles, name='vehicles'),
+    path('vehicles/<int:vehicle_id>/photo/update/', views.update_vehicle_photo, name='update_vehicle_photo'),
+    path('vehicles/<int:vehicle_id>/photo/delete/', views.delete_vehicle_photo, name='delete_vehicle_photo'),
     path('service-booking/', views.service_booking, name='service_booking'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
     path('staff-dashboard/', views.staff_dashboard, name='staff_dashboard'),
@@ -52,6 +56,18 @@ path(
     'assistance/<int:assistance_id>/update-status/',
     views.update_assistance_status,
     name='update_assistance_status'
+),
+
+path(
+    'assistance/<int:assistance_id>/update-location/',
+    views.update_staff_location,
+    name='update_staff_location'
+),
+
+path(
+    'assistance/<int:assistance_id>/tracking-data/',
+    views.assistance_tracking_data,
+    name='assistance_tracking_data'
 ),
 
 path(

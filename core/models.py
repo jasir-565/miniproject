@@ -1,7 +1,4 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
 
 
@@ -20,6 +17,12 @@ class CustomerProfile(models.Model):
 
 
 class StaffProfile(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending Approval'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -27,10 +30,24 @@ class StaffProfile(models.Model):
     )
     phone = models.CharField(max_length=15)
     designation = models.CharField(max_length=100)
+    is_approved = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+    approved_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='approved_staff_profiles'
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.get_full_name() or self.user.username
+        return f"{self.user.get_full_name() or self.user.username} ({self.get_status_display()})"
 
 
 class Vehicle(models.Model):
@@ -43,6 +60,7 @@ class Vehicle(models.Model):
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
+    photo = models.ImageField(upload_to='vehicle_photos/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -168,8 +186,36 @@ class AssistanceRequest(models.Model):
         null=True
     )
     staff_location_link = models.URLField(
-    blank=True,
-    null=True
+        blank=True,
+        null=True
+    )
+    customer_latitude = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        null=True,
+        blank=True
+    )
+    customer_longitude = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        null=True,
+        blank=True
+    )
+    staff_latitude = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        null=True,
+        blank=True
+    )
+    staff_longitude = models.DecimalField(
+        max_digits=10,
+        decimal_places=7,
+        null=True,
+        blank=True
+    )
+    staff_last_updated = models.DateTimeField(
+        null=True,
+        blank=True
     )
 
     status = models.CharField(
@@ -187,6 +233,23 @@ class AssistanceRequest(models.Model):
 
     def __str__(self):
         return f"{self.vehicle.registration_number} - {self.assistance_type}"
+
+    @property
+    def safe_location_link(self):
+        return self._safe_link(self.location_link)
+
+    @property
+    def safe_staff_location_link(self):
+        return self._safe_link(self.staff_location_link)
+
+    @staticmethod
+    def _safe_link(value):
+        from django.core.exceptions import ValidationError
+        from .validation import location_url
+        try:
+            return location_url(value)
+        except ValidationError:
+            return None
 
 
 class Notification(models.Model):
