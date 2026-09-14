@@ -1,92 +1,87 @@
 {% extends 'core/base.html' %}
 {% load static %}
-
-{% block title %}AutoNexa - Professional Vehicle Service & Roadside Assistance Center{% endblock %}
-
+{% block title %}AutoNexa — Driving care forward{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/cinematic.css' %}">
+<script src="{% static 'core/cinematic.js' %}" defer></script>
+{% endblock %}
 {% block content %}
-
-<!-- HERO BANNER -->
-<div class="card" style="background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 48px; border-radius: 16px; margin-bottom: 40px; box-shadow: var(--shadow-lg);">
-    <div style="max-width: 800px;">
-        <span class="status-badge status-confirmed" style="background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4); margin-bottom: 16px;">
-            OFFICIAL SERVICE CENTER PORTAL
-        </span>
-
-        <h1 style="font-size: 38px; font-weight: 800; margin-bottom: 16px; line-height: 1.2;">
-            Professional Vehicle Servicing & Emergency Roadside Assistance
-        </h1>
-
-        <p style="color: #cbd5e1; font-size: 17px; line-height: 1.7; margin-bottom: 28px;">
-            AutoNexa provides comprehensive vehicle maintenance, certified multi-point inspection diagnostics, live repair status tracking, and 24/7 emergency roadside assistance.
-        </p>
-
-        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
-            {% if user.is_authenticated %}
-                {% if user.staffprofile %}
-                    <a href="{% url 'staff_dashboard' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
-                        📊 Go to Staff Dashboard
-                    </a>
-                {% else %}
-                    <a href="{% url 'customer_dashboard' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
-                        📊 Open Customer Dashboard
-                    </a>
-                {% endif %}
-            {% else %}
-                <a href="{% url 'register' %}" class="btn" style="font-size: 15px; padding: 14px 28px;">
-                    🚘 Register Account
-                </a>
-                <a href="{% url 'login' %}" class="btn btn-gray" style="font-size: 15px; padding: 14px 28px;">
-                    🔑 Customer Login
-                </a>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- SERVICES OVERVIEW -->
-<div class="page-header">
-    <h2 class="page-title">OUR SERVICE CAPABILITIES</h2>
-    <p class="page-subtitle">Streamlined service booking, live status tracking, and certified technician dispatches.</p>
-</div>
-
-<div class="grid">
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px;">🛠️</div>
-        <h3>Vehicle Service Booking</h3>
-        <p class="page-subtitle">Schedule routine servicing, engine diagnostics, oil changes, brake checks, and AC repair appointments.</p>
-    </div>
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px; background: var(--warning-light); color: var(--warning-amber);">⏳</div>
-        <h3>Live Work Progress</h3>
-        <p class="page-subtitle">Track ongoing repair progress in real time with technician notes, estimated timelines, and status updates.</p>
-    </div>
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px; background: var(--danger-light); color: var(--danger-red);">🚨</div>
-        <h3>24/7 Roadside SOS Help</h3>
-        <p class="page-subtitle">Request emergency tow trucks, battery jumpstarts, flat tire assistance, or on-site breakdown support with live map links.</p>
-    </div>
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px;">👤</div>
-        <h3>Certified Staff Panel</h3>
-        <p class="page-subtitle">Technicians can manage service queues, assign appointment times, update repair progress, and complete records.</p>
-    </div>
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px; background: var(--success-light); color: var(--success-green);">📜</div>
-        <h3>Digital History & Receipts</h3>
-        <p class="page-subtitle">Access complete lifetime records for all completed services, replacement parts, inspection reports, and billing details.</p>
-    </div>
-
-    <div class="card">
-        <div class="stat-icon" style="margin-bottom: 16px;">🔔</div>
-        <h3>Instant Notifications</h3>
-        <p class="page-subtitle">Receive real-time alerts on your phone or dashboard as soon as technician assignments or service statuses change.</p>
-    </div>
-
-</div>
-
+<section class="cinema-hero" aria-label="Auto Nexa cinematic car reveal">
+<div class="cinema-topline"><span><i></i> PRECISION. PASSION. PERFORMANCE.</span><span>FOR THE ROAD AHEAD</span></div>
+<div class="cinema-scene" aria-hidden="true">
+<img class="cinema-car" src="{% static 'core/media/hellcat-reference.jpg' %}" alt="" fetchpriority="high" width="3840" height="2562">
+<div class="bonnet-light"></div>
+<svg class="cinema-lights" viewBox="0 0 3840 2562" fill="none">
+<defs>
+<filter id="halo-red-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter>
+<filter id="halo-white-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<filter id="glare-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+<filter id="marker-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+<radialGradient id="projector-beam"><stop offset="0%" stop-color="#ffffff" stop-opacity="1"/><stop offset="18%" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="40%" stop-color="#eaf3ff" stop-opacity="0.8"/><stop offset="65%" stop-color="#cbe0ff" stop-opacity="0.35"/><stop offset="100%" stop-color="#9fc5ff" stop-opacity="0"/></radialGradient>
+<radialGradient id="inner-beam"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="25%" stop-color="#f0f6ff" stop-opacity="0.8"/><stop offset="55%" stop-color="#d0e4ff" stop-opacity="0.35"/><stop offset="100%" stop-color="#a0c8ff" stop-opacity="0"/></radialGradient>
+<radialGradient id="beam-cluster-glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="20%" stop-color="#f0f6ff" stop-opacity="0.65"/><stop offset="45%" stop-color="#d4e6ff" stop-opacity="0.3"/><stop offset="75%" stop-color="#a8cdff" stop-opacity="0.08"/><stop offset="100%" stop-color="#80b3ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="road-beam-left" x1="0.5" y1="0" x2="0.35" y2="1"><stop offset="0%" stop-color="#f2f7ff" stop-opacity="0.55"/><stop offset="25%" stop-color="#dbe9ff" stop-opacity="0.3"/><stop offset="60%" stop-color="#bed8ff" stop-opacity="0.12"/><stop offset="100%" stop-color="#9ec3ff" stop-opacity="0"/></linearGradient>
+<linearGradient id="road-beam-right" x1="0.5" y1="0" x2="0.65" y2="1"><stop offset="0%" stop-color="#f2f7ff" stop-opacity="0.55"/><stop offset="25%" stop-color="#dbe9ff" stop-opacity="0.3"/><stop offset="60%" stop-color="#bed8ff" stop-opacity="0.12"/><stop offset="100%" stop-color="#9ec3ff" stop-opacity="0"/></linearGradient>
+<linearGradient id="flare-left" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#a3c9ff" stop-opacity="0"/><stop offset="25%" stop-color="#dce8ff" stop-opacity="0.6"/><stop offset="50%" stop-color="#ffffff" stop-opacity="1"/><stop offset="75%" stop-color="#dce8ff" stop-opacity="0.6"/><stop offset="100%" stop-color="#a3c9ff" stop-opacity="0"/></linearGradient>
+<linearGradient id="flare-right" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#a3c9ff" stop-opacity="0"/><stop offset="25%" stop-color="#dce8ff" stop-opacity="0.6"/><stop offset="50%" stop-color="#ffffff" stop-opacity="1"/><stop offset="75%" stop-color="#dce8ff" stop-opacity="0.6"/><stop offset="100%" stop-color="#a3c9ff" stop-opacity="0"/></linearGradient>
+</defs>
+<g class="red-halos">
+<g filter="url(#halo-red-glow)" stroke="#ff123a" stroke-width="26" opacity="0.8"><ellipse cx="1195" cy="1440" rx="69.5" ry="58"/><ellipse cx="1362" cy="1435" rx="67.5" ry="58"/><ellipse cx="2475" cy="1438" rx="67.5" ry="58"/><ellipse cx="2641" cy="1440" rx="70" ry="58.5"/></g>
+<g stroke="#ff264b" stroke-width="12" opacity="0.95"><ellipse cx="1195" cy="1440" rx="69.5" ry="58"/><ellipse cx="1362" cy="1435" rx="67.5" ry="58"/><ellipse cx="2475" cy="1438" rx="67.5" ry="58"/><ellipse cx="2641" cy="1440" rx="70" ry="58.5"/></g>
+<g stroke="#ffd8df" stroke-width="4.5" opacity="0.95"><ellipse cx="1195" cy="1440" rx="69.5" ry="58"/><ellipse cx="1362" cy="1435" rx="67.5" ry="58"/><ellipse cx="2475" cy="1438" rx="67.5" ry="58"/><ellipse cx="2641" cy="1440" rx="70" ry="58.5"/></g>
+</g>
+<g class="amber-markers">
+<ellipse cx="1125" cy="1435" rx="7" ry="24" transform="rotate(-4 1125 1435)" fill="#ff991c" filter="url(#marker-glow)" opacity="0.8"/>
+<ellipse cx="1125" cy="1435" rx="3.5" ry="16" transform="rotate(-4 1125 1435)" fill="#ffdc8a" opacity="0.95"/>
+<ellipse cx="2712" cy="1440" rx="7" ry="24" transform="rotate(4 2712 1440)" fill="#ff991c" filter="url(#marker-glow)" opacity="0.8"/>
+<ellipse cx="2712" cy="1440" rx="3.5" ry="16" transform="rotate(4 2712 1440)" fill="#ffdc8a" opacity="0.95"/>
+</g>
+<g class="white-beams">
+<polygon points="1195,1440 1362,1435 1900,2562 300,2562" fill="url(#road-beam-left)"/>
+<polygon points="2475,1438 2641,1440 3540,2562 1940,2562" fill="url(#road-beam-right)"/>
+<ellipse cx="1278" cy="1440" rx="460" ry="210" fill="url(#beam-cluster-glow)" opacity="0.45"/>
+<ellipse cx="2558" cy="1440" rx="460" ry="210" fill="url(#beam-cluster-glow)" opacity="0.45"/>
+<ellipse cx="1278" cy="1440" rx="280" ry="130" fill="url(#beam-cluster-glow)" opacity="0.75"/>
+<ellipse cx="2558" cy="1440" rx="280" ry="130" fill="url(#beam-cluster-glow)" opacity="0.75"/>
+<g stroke="#ffffff" stroke-width="5" filter="url(#halo-white-glow)" opacity="0.9"><ellipse cx="1195" cy="1440" rx="69.5" ry="58"/><ellipse cx="1362" cy="1435" rx="67.5" ry="58"/><ellipse cx="2475" cy="1438" rx="67.5" ry="58"/><ellipse cx="2641" cy="1440" rx="70" ry="58.5"/></g>
+<ellipse cx="1195" cy="1440" rx="160" ry="105" fill="url(#projector-beam)"/>
+<circle cx="1195" cy="1440" r="65" fill="#ffffff" opacity="0.45" filter="url(#glare-glow)"/>
+<circle cx="1195" cy="1440" r="32" fill="#ffffff"/>
+<circle cx="1195" cy="1440" r="14" fill="#ffffff"/>
+<ellipse cx="1362" cy="1435" rx="130" ry="85" fill="url(#inner-beam)"/>
+<circle cx="1362" cy="1435" r="50" fill="#ffffff" opacity="0.4" filter="url(#glare-glow)"/>
+<circle cx="1362" cy="1435" r="26" fill="#ffffff"/>
+<ellipse cx="2475" cy="1438" rx="130" ry="85" fill="url(#inner-beam)"/>
+<circle cx="2475" cy="1438" r="50" fill="#ffffff" opacity="0.4" filter="url(#glare-glow)"/>
+<circle cx="2475" cy="1438" r="26" fill="#ffffff"/>
+<ellipse cx="2641" cy="1440" rx="160" ry="105" fill="url(#projector-beam)"/>
+<circle cx="2641" cy="1440" r="65" fill="#ffffff" opacity="0.45" filter="url(#glare-glow)"/>
+<circle cx="2641" cy="1440" r="32" fill="#ffffff"/>
+<circle cx="2641" cy="1440" r="14" fill="#ffffff"/>
+<path d="M 820 1440 H 1740" stroke="url(#flare-left)" stroke-width="4.5"/>
+<path d="M 980 1440 H 1580" stroke="#ffffff" stroke-width="2" opacity="0.95"/>
+<path d="M 2100 1440 H 3020" stroke="url(#flare-right)" stroke-width="4.5"/>
+<path d="M 2260 1440 H 2860" stroke="#ffffff" stroke-width="2" opacity="0.95"/>
+</g>
+</svg></div>
+<div class="cinema-title"><h1 class="cinema-name brand-auto"><span class="nome-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important;"><span class="nome-letter" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 34px rgba(255, 210, 77, 0.7) !important;">A</span><span class="nome-letter" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 34px rgba(255, 210, 77, 0.7) !important;">U</span><span class="nome-letter" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 34px rgba(255, 210, 77, 0.7) !important;">T</span><span class="nome-letter" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 34px rgba(255, 210, 77, 0.7) !important;">O</span></span> <span class="nome-nexa brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important;"><span class="nome-letter" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 34px rgba(236, 36, 68, 0.6) !important;">N</span><span class="nome-letter" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 34px rgba(236, 36, 68, 0.6) !important;">E</span><span class="nome-letter" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 34px rgba(236, 36, 68, 0.6) !important;">X</span><span class="nome-letter" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 34px rgba(236, 36, 68, 0.6) !important;">A</span></span><span class="nome-sheen" aria-hidden="true"></span><span class="nome-flare" aria-hidden="true"></span></h1><span class="cinema-kicker">CARE THAT MATCHES YOUR DRIVE</span><p>Command the road. We’ll take care of the rest.</p></div>
+<div class="cinema-bottom"><div class="cinema-actions"><a href="{% url 'service_booking' %}" class="btn">Book a service <span aria-hidden="true">↗</span></a><a href="{% url 'roadside_assistance' %}" class="cinema-secondary">Roadside assistance <span aria-hidden="true">↗</span></a></div><div class="cinema-controls"><button type="button" data-cinema-toggle hidden>Pause reveal</button><button type="button" data-cinema-replay hidden aria-label="Replay cinematic reveal">↺ <span>Replay</span></button><a href="#services" class="cinema-explore">EXPLORE <span aria-hidden="true">↓</span></a></div></div>
+<div class="cinema-progress" aria-hidden="true"></div>
+</section>
+<div class="cinema-service-strip"><span>BUILT AROUND YOUR DRIVE</span><span>Expert vehicle care</span><span>Service updates, in one place</span><a href="{% url 'vehicles' %}">Your personal garage ↗</a></div><ol class="mobility-process" data-reveal><li><span>01</span><div><h3>Tell us what it needs</h3><p>Request a service for your vehicle, or share your location for emergency help.</p></div></li><li><span>02</span><div><h3>We take it from there</h3><p>A technician is assigned and your appointment is scheduled by our workshop.</p></div></li><li><span>03</span><div><h3>Follow every step</h3><p>Read work notes, dispatch updates, and the finished service record.</p></div></li></ol>
+<section id="services" class="mobility-services"><div class="section-heading" data-reveal><div><span class="eyebrow">01 — WHAT YOU CAN DO</span><h2>Everything your vehicle needs.<br>In one place.</h2></div><p>From routine servicing to an emergency on the road.<br>Start wherever you are.</p></div><div class="solution-grid">
+<a class="solution-card" href="{% url 'service_booking' %}" data-reveal><div class="solution-top"><span class="solution-icon">{% include 'core/components/icon.html' with name='tool' %}</span><span class="solution-index">01</span></div><h3>Workshop servicing</h3><p>Maintenance, repairs, and inspections scheduled around your day.</p><span class="solution-link">Book a service <span aria-hidden="true">→</span></span></a>
+<a class="solution-card" href="{% url 'roadside_assistance' %}" data-reveal><div class="solution-top"><span class="solution-icon">{% include 'core/components/icon.html' with name='road' %}</span><span class="solution-index">02</span></div><h3>Roadside assistance</h3><p>Breakdowns happen. Share your live location and request help.</p><span class="solution-link">Get roadside help <span aria-hidden="true">→</span></span></a>
+<a class="solution-card" href="{% url 'vehicles' %}" data-reveal><div class="solution-top"><span class="solution-icon">{% include 'core/components/icon.html' with name='car' %}</span><span class="solution-index">03</span></div><h3>Your garage</h3><p>Every vehicle you own, with its own details and history.</p><span class="solution-link">Open your garage <span aria-hidden="true">→</span></span></a>
+<a class="solution-card" href="{% url 'service_history' %}" data-reveal><div class="solution-top"><span class="solution-icon">{% include 'core/components/icon.html' with name='record' %}</span><span class="solution-index">04</span></div><h3>Service records</h3><p>Notes, parts replaced, and costs, kept together per vehicle.</p><span class="solution-link">View history <span aria-hidden="true">→</span></span></a>
+</div></section>
+<section class="platform-band"><div class="platform-copy" data-reveal><span class="eyebrow"><span class="tiny-line"></span> <span>THE <span class="brand-auto">AUTO</span><span class="brand-nexa">NEXA</span> PLATFORM</span></span><h2>The workshop that follows through.</h2><p>One thread runs from your request to the finished record: assignment, appointment, work notes, dispatch, and history.</p><ul class="platform-list"><li>Live work notes from your technician</li><li>Roadside dispatch with location sharing</li><li>A service record for every vehicle you own</li></ul><a href="{% url 'register' %}" class="btn">Open your garage <span aria-hidden="true">↗</span></a></div>
+<div class="vehicle-showcase pajero-showroom-card" data-reveal>
+<div class="showcase-top"><span class="eyebrow"><span>THE <span class="brand-auto">AUTO</span><span class="brand-nexa">NEXA</span> SHOWROOM</span></span><span class="edition">PAJERO II · 4WD V6 OVERLAND</span></div><div class="showcase-watermark" aria-hidden="true">PAJERO</div>
+<div class="vehicle-stage pajero-stage">{% include 'core/components/vehicle.html' with mode='showroom' %}<button class="vehicle-hotspot hotspot-engine" data-inspect="engine" aria-label="Explore engine care and open hood" aria-pressed="false">+</button><button class="vehicle-hotspot hotspot-tires" data-inspect="tires" aria-label="Explore tyre and brake care" aria-pressed="false">+</button><button class="vehicle-hotspot hotspot-body" data-inspect="care" aria-label="Explore cabin and open doors" aria-pressed="false">+</button></div>
+<div class="inspection-card"><span class="inspection-number" id="inspection-number">01</span><div aria-live="polite"><small>MITSUBISHI PAJERO 4WD · INTERACTIVE STUDIO</small><h3 id="inspection-title">A healthy heart. A better drive.</h3><p id="inspection-copy">Engine diagnostics, oil changes, and the details that keep you moving. Click points or controls to inspect.</p></div><span class="inspection-arrow" aria-hidden="true">↗</span></div>
+<div class="showcase-bottom"><div class="paint-controls" aria-label="Vehicle illustration colour"><button class="paint-dot dakar is-selected" data-paint="heritage" data-pajero-livery="heritage" aria-label="Heritage Dakar Red & White (Reference)" aria-pressed="true" title="Heritage Dakar Red & White (Reference)"></button><button class="paint-dot safari" data-paint="safari" data-pajero-livery="safari" aria-label="Safari Dune & White" aria-pressed="false" title="Safari Dune & White"></button><button class="paint-dot stealth" data-paint="stealth" data-pajero-livery="stealth" aria-label="Midnight Obsidian" aria-pressed="false" title="Midnight Obsidian"></button><button class="paint-dot forest" data-paint="forest" data-pajero-livery="forest" aria-label="Highland Forest Green" aria-pressed="false" title="Highland Forest Green"></button><span>PAJERO LIVERY</span></div><span class="showcase-hint">Click doors or drag to rotate 360° <span aria-hidden="true">⊕</span></span></div>
+</div></section>
+<section class="mobility-quote" data-reveal><blockquote>“The work notes meant I knew exactly what was happening with my car — and roadside help reached me before I’d finished the call.”</blockquote><div class="quote-by"><span class="avatar">A</span><span><strong>Ananya Rao</strong><small><span class="brand-auto">Auto</span><span class="brand-nexa">Nexa</span> customer · Bengaluru</small></span></div></section>
+<section class="mobility-cta" data-reveal><div><span class="eyebrow">READY WHEN YOU ARE</span><h2>Let’s look after the miles ahead.</h2></div><div class="mobility-cta-actions"><a href="{% url 'register' %}" class="btn">Create your garage <span aria-hidden="true">↗</span></a><a href="{% url 'login' %}" class="understated-link">Sign in <span aria-hidden="true">→</span></a></div></section>
 {% endblock %}

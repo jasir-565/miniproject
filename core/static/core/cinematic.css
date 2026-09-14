@@ -1,0 +1,66 @@
+/* Homepage-only art direction. The original photo remains an unmodified asset. */
+body[data-page="home"] .site-header{background:#0b0c0ef2;border-color:#25262b;height:84px}
+body[data-page="home"] .primary-nav>a{color:#b2b3ba}body[data-page="home"] .primary-nav>a:hover,body[data-page="home"] .primary-nav>a[aria-current]{color:#fff}
+body[data-page="home"] .container{margin-top:0}body[data-page="home"] .eyebrow{color:#a7a8b0}
+.cinema-hero{height:min(820px,calc(100svh - 84px));min-height:640px;width:calc(100vw - 1px);margin-left:calc((100% - 100vw + 1px)/2);background:#000;position:relative;overflow:hidden;isolation:isolate}
+.cinema-topline{position:absolute;top:30px;left:4%;right:4%;display:flex;justify-content:space-between;z-index:3;font-size:9px;letter-spacing:2.4px;color:#898991}.cinema-topline i{display:inline-block;width:5px;height:5px;background:#ec2444;border-radius:50%;margin-right:10px}
+.cinema-scene{position:absolute;width:min(1460px,112vw);aspect-ratio:3840/2562;left:50%;top:48%;transform:translate(-50%,-50%);pointer-events:none}
+.cinema-car{width:100%;height:100%;object-fit:contain;filter:saturate(.15) brightness(.7);mask-image:radial-gradient(ellipse 31% 36% at 50% 58%,#000 55%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 31% 36% at 50% 58%,#000 55%,transparent 100%)}
+.cinema-lights{position:absolute;inset:0;width:100%;height:100%}.red-halos{opacity:.85}.amber-markers{opacity:.85}.white-beams{opacity:1;filter:drop-shadow(0 0 24px #e5f0ff70)}.bonnet-light{position:absolute;left:26%;right:26%;top:44%;height:8%;background:linear-gradient(175deg,transparent,#dfe9ff20,transparent);filter:blur(14px);mix-blend-mode:screen;opacity:0}
+.cinema-title{position:absolute;top:8%;left:-2.2%;width:100%;text-align:center;z-index:2}
+.cinema-kicker{display:inline-flex;align-items:center;gap:14px;font-size:9px;letter-spacing:4px;color:#b1b1bb;margin:0 0 10px}.cinema-kicker:before,.cinema-kicker:after{content:'';width:36px;height:1px;background:#3d3d47}
+.cinema-name{position:relative;display:inline-block;font-family:Arial,sans-serif;font-size:clamp(64px,8.7vw,132px);font-weight:500;letter-spacing:.14em;line-height:1.08;margin:15px 0 14px;padding-left:.14em;color:#f5f5f7;perspective:900px}
+.cinema-name .nome-auto,.cinema-name .nome-nexa{display:inline-block;white-space:nowrap}
+.cinema-name .nome-auto{color:#ffd24d !important;-webkit-text-fill-color:#ffd24d !important;text-shadow:0 0 34px rgba(255,210,77,0.7) !important}
+.cinema-name .nome-auto .nome-letter{color:#ffd24d !important;-webkit-text-fill-color:#ffd24d !important;text-shadow:0 0 34px rgba(255,210,77,0.7) !important}
+.cinema-name .nome-letter{display:inline-block;transform-origin:50% 90%;backface-visibility:hidden;will-change:transform,opacity,filter}
+.cinema-name .nome-nexa .nome-letter{color:var(--accent) !important;-webkit-text-fill-color:var(--accent) !important;text-shadow:0 0 30px #ec244459 !important}
+/* Crimson shine sweeps across the finished name. */
+.cinema-name .nome-sheen{position:absolute;top:-2%;bottom:-2%;left:50%;width:34%;pointer-events:none;background:linear-gradient(105deg,transparent 20%,#ffffffcc 48%,#ffd7df 52%,transparent 80%);mix-blend-mode:screen;opacity:0;filter:blur(6px)}
+/* Impact flash that fires the instant the letters lock in. */
+.cinema-name .nome-flare{position:absolute;left:50%;top:50%;width:150%;height:340%;transform:translate(-50%,-50%);pointer-events:none;background:radial-gradient(ellipse 42% 38% at 50% 50%,#ff2b4d66 0%,#ec24441f 42%,transparent 72%);opacity:0}
+.cinema-title p{font-size:12px;letter-spacing:1px;color:#a4a4ad;margin:0}
+.cinema-bottom{position:absolute;bottom:42px;left:4%;right:4%;display:flex;align-items:center;justify-content:space-between;gap:20px;z-index:4}.cinema-actions{display:flex;align-items:center;gap:28px}.cinema-actions .btn{background:#dc2340;color:white;border-radius:2px;padding:17px 25px;font-size:12px}.cinema-secondary{color:#d3d3d9;font-size:11px;text-decoration:none;display:flex;gap:20px}.cinema-secondary:hover{color:white}.cinema-controls{display:flex;align-items:center;gap:15px}.cinema-controls button{background:transparent;color:#c4c4ce;border:1px solid #34343e;border-radius:2px;font-size:10px;box-shadow:none;padding:9px 13px}.cinema-controls button:hover{border-color:#92929c}.cinema-explore{font-size:8px;letter-spacing:2px;text-decoration:none;color:#a9a9b2;margin-left:14px}.cinema-explore span{margin-left:13px;font-size:17px}.cinema-progress{position:absolute;bottom:0;left:0;width:100%;height:1px;background:#b9213b;transform-origin:left}
+.cinema-service-strip{display:flex;justify-content:space-between;gap:20px;padding:28px 0;border-bottom:1px solid var(--border-color);color:#b2b2bb;font-size:11px}.cinema-service-strip>span:first-child{font-size:8px;letter-spacing:1.8px;color:#73737e}.cinema-service-strip a{text-decoration:none;color:#eee}
+body[data-page="home"] .mobility-process{margin-top:45px}body[data-page="home"] .solution-card{background:#131417;border-color:#292a2f;color:#eee}body[data-page="home"] .solution-card:hover{background:#1c1d22;border-color:#6e303f}body[data-page="home"] .solution-card p,body[data-page="home"] .mobility-process p,body[data-page="home"] .section-heading>p,body[data-page="home"] .platform-copy>p{color:#a6a7af}body[data-page="home"] .solution-icon{background:#26171e;color:#ec4560}body[data-page="home"] .platform-band{border-color:#2a2b30}body[data-page="home"] .mobility-quote{background:#15161a;border-color:#292a30}body[data-page="home"] .mobility-quote blockquote{color:#dedee4}body[data-page="home"] .mobility-cta{border-color:#292a30}body[data-page="home"] .site-footer{background:#0b0c0e;border-color:#292a30;color:#b1b2bb}body[data-page="home"] .avatar{background:#36313b;color:#fff}
+/* One deliberate entrance; hold the finished composition until replay. */
+.cinema-hero.is-running .cinema-car{animation:car-reveal 10s both}.cinema-hero.is-running .red-halos{animation:halo-reveal 10s both}.cinema-hero.is-running .amber-markers{animation:amber-reveal 10s both}.cinema-hero.is-running .white-beams{animation:beam-reveal 10s both}.cinema-hero.is-running .cinema-title{animation:title-reveal 10s both}.cinema-hero.is-running .bonnet-light{animation:bonnet-reveal 10s both}.cinema-hero.is-running .cinema-progress{animation:film-progress 10s linear both}
+/* Each letter fades in to assemble the name; the shine and flare follow. */
+.cinema-hero.is-running .nome-letter{animation:nome-letter-in .6s cubic-bezier(.22,.9,.3,1) both}
+.cinema-hero.is-running .nome-auto .nome-letter:nth-child(1){animation-delay:4.30s}
+.cinema-hero.is-running .nome-auto .nome-letter:nth-child(2){animation-delay:4.42s}
+.cinema-hero.is-running .nome-auto .nome-letter:nth-child(3){animation-delay:4.54s}
+.cinema-hero.is-running .nome-auto .nome-letter:nth-child(4){animation-delay:4.66s}
+.cinema-hero.is-running .nome-nexa .nome-letter:nth-child(1){animation-delay:4.78s}
+.cinema-hero.is-running .nome-nexa .nome-letter:nth-child(2){animation-delay:4.90s}
+.cinema-hero.is-running .nome-nexa .nome-letter:nth-child(3){animation-delay:5.02s}
+.cinema-hero.is-running .nome-nexa .nome-letter:nth-child(4){animation-delay:5.14s}
+.cinema-hero.is-running .nome-sheen{animation:nome-sheen 10s both}
+.cinema-hero.is-running .nome-flare{animation:nome-flare 10s both}
+.cinema-hero.is-paused *{animation-play-state:paused!important}
+@keyframes car-reveal{0%,25%{opacity:0;filter:saturate(.15) brightness(0)}35%{opacity:.5;filter:saturate(.15) brightness(.2)}58%,100%{opacity:1;filter:saturate(.15) brightness(.7)}}
+@keyframes halo-reveal{0%,10%{opacity:0}22%{opacity:1}52%{opacity:1}58%,100%{opacity:.55}}
+@keyframes amber-reveal{0%,10%{opacity:0}22%,100%{opacity:.85}}
+/* Headlights blink as the last letter settles, then stay fully lit. */
+@keyframes beam-reveal{
+    0%,50%{opacity:0}
+    52%{opacity:1}
+    53.5%{opacity:.1}
+    55%{opacity:1}
+    56.5%{opacity:.2}
+    58%,100%{opacity:1}
+}
+@keyframes bonnet-reveal{0%,30%{opacity:0;transform:translateY(-30px)}45%{opacity:.9}65%,100%{opacity:0;transform:translateY(40px)}}
+@keyframes title-reveal{0%,30%{opacity:0;transform:translateY(8px)}42%,100%{opacity:1;transform:translateY(0)}}
+@keyframes nome-letter-in{
+    0%{opacity:0;filter:blur(10px);transform:translateY(.28em) scale(1.14)}
+    60%{opacity:1;filter:blur(0)}
+    100%{opacity:1;filter:blur(0);transform:translateY(0) scale(1)}
+}
+@keyframes nome-sheen{0%,56%{opacity:0;transform:translateX(-260%) skewX(-16deg)}63%{opacity:1}78%,100%{opacity:0;transform:translateX(270%) skewX(-16deg)}}
+@keyframes nome-flare{0%,54%{opacity:0;transform:translate(-50%,-50%) scale(.5)}57%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}68%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}
+@keyframes film-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(min-width:1700px){.cinema-scene{top:45%}}
+@media(max-width:900px){.cinema-hero{min-height:640px}.cinema-scene{width:155vw;top:49%}.cinema-title{top:16%}.cinema-title h1{font-size:10vw}.cinema-topline>span:last-child{display:none}.cinema-controls .cinema-explore{display:none}.cinema-service-strip{flex-wrap:wrap}.cinema-service-strip>span:first-child{width:100%}body[data-page="home"] .primary-nav.is-open{background:#15161a}}
+@media(max-width:600px){body[data-page="home"] .site-header{height:76px}.cinema-hero{height:calc(100svh - 76px);min-height:670px;max-height:850px}.cinema-scene{width:193vw;top:47%}.cinema-title{top:17%}.cinema-title h1{font-size:12vw;letter-spacing:.09em}.cinema-kicker{font-size:7px;letter-spacing:2.4px}.cinema-title p{font-size:10px;max-width:240px;margin:auto;line-height:1.8}.cinema-topline{top:25px;font-size:7px;letter-spacing:1.7px;left:6%}.cinema-bottom{bottom:26px;left:6%;right:6%;flex-direction:column;align-items:stretch;gap:20px}.cinema-actions{gap:18px}.cinema-actions .btn{padding:15px;font-size:11px}.cinema-secondary{font-size:10px;gap:8px}.cinema-controls{justify-content:space-between}.cinema-controls .cinema-explore{display:block}.cinema-service-strip{font-size:10px;gap:18px}.cinema-service-strip>span:nth-child(3){display:none}}
+@media(prefers-reduced-motion:reduce){.cinema-hero *{animation:none!important}.cinema-progress{display:none}}
