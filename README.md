@@ -5,13 +5,13 @@ A full-stack Django web application designed for managing vehicle servicing, rea
 ## 🚀 Features
 
 ### 👤 Customer Features
-- **Account Management**: Register, sign in, and manage customer profile details.
+- **Account Management**: Register and sign in with a customer profile.
 - **Vehicle Fleet Management**: Register and track multiple personal vehicles with registration numbers, brand, model, and manufacturing year.
-- **Service Booking**: Schedule vehicle repair/servicing appointments with optional date and time selection.
-- **Real-Time Work Tracking**: Track live updates (`current_work` status and technician notes) on ongoing vehicle repairs.
+- **Service Booking**: Request repairs and servicing; assigned staff schedule the appointment.
+- **Work Tracking**: View the latest `current_work` status and technician notes on page refresh.
 - **Emergency Roadside Assistance**: Request immediate roadside assistance with live location integration (Google Maps link) and breakdown category.
-- **Service History & Receipts**: Access complete record history of all completed services, replacement parts, inspection reports, and itemized billing costs.
-- **Notification System**: Instant updates on service status changes, technician assignments, and emergency dispatch tracking.
+- **Service History**: Access completed services, replacement parts, inspection reports, and total service costs.
+- **Notification System**: In-app records of status changes, assignments, and dispatch updates.
 
 ### 🛠️ Staff & Admin Features
 - **Staff Dashboard**: Overview of pending service bookings, active repairs, and emergency roadside dispatch queues.
@@ -37,7 +37,7 @@ miniproject/
 │   ├── templates/core/      # Frontend HTML templates
 │   ├── static/core/         # Custom CSS & static assets
 │   └── migrations/          # Database schema migration history
-├── db.sqlite3               # SQLite Database
+├── local_settings.json      # Local MySQL credentials (ignored by Git)
 ├── manage.py                # Django CLI management entrypoint
 └── README.md                # Project Documentation
 ```
@@ -52,7 +52,7 @@ miniproject/
 - **`ServiceBooking`**: Connects customer vehicle to service type, assigned staff, status, appointment date/time, and live `current_work` tracking.
 - **`ServiceRecord`**: One-to-One with completed `ServiceBooking` storing inspection notes, repair details, parts replaced, and total cost.
 - **`AssistanceRequest`**: Stores emergency breakdown details, customer location map links, technician dispatch links, and status.
-- **`Notification`**: Real-time alerts sent to customers regarding service and assistance status updates.
+- **`Notification`**: In-app alerts for customers regarding service and assistance status updates.
 
 ---
 
@@ -75,10 +75,14 @@ miniproject/
 
 3. **Install Dependencies**:
    ```bash
-   pip install django mysqlclient
+   pip install -r requirements.txt
    ```
 
-4. **Run Database Migrations**:
+4. **Configure MySQL and run database migrations**:
+   Create a MySQL database named `autonexa_db` and an application database user with access to it. Copy `local_settings.example.json` to `local_settings.json` in the project root and enter your database credentials and a long random development secret. The local file is ignored by Git. Existing local credentials were preserved during the security fixes.
+
+   Generate a random secret with `python -c "import secrets; print(secrets.token_urlsafe(64))"`.
+
    ```bash
    python manage.py migrate
    ```
@@ -94,6 +98,31 @@ miniproject/
    ```
    Access the web app at `http://127.0.0.1:8000/`.
 
+7. **Create service staff**:
+   In Django admin, create a user and then a `StaffProfile` linked to that user. A Django superuser or the user `is_staff` flag alone does not create a service technician profile. Booking requests need at least one active user with a staff profile.
+
+## Regression checks
+
+```bash
+python manage.py test --settings=config.test_settings
+python manage.py makemigrations --check --dry-run --settings=config.test_settings
+node --test core/static/core/cockpit.test.cjs
+```
+
+Tests use in-memory SQLite and never use the application's MySQL data. Node is optional for the Python suite; when present it also checks rendered page JavaScript. MySQL concurrency and real-device GPS behavior require separate integration testing.
+
+## Production configuration
+
+Set environment variables `DJANGO_DEBUG=false`, `DJANGO_SECRET_KEY` (a new random value of at least 50 characters), `DJANGO_ALLOWED_HOSTS` (comma-separated domain names), `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, and `DB_PORT`. Production ignores `local_settings.json`; use a restricted database account. Rotate any previously shared credentials before deployment.
+
+Production enables HTTPS redirects, secure cookies, and HSTS. Configure TLS and static/media serving, run `collectstatic`, and use a production WSGI/ASGI server. If TLS terminates at a trusted proxy, configure Django's proxy HTTPS handling for that deployment; do not blindly trust forwarded headers.
+
+`DJANGO_HSTS_INCLUDE_SUBDOMAINS=true` and `DJANGO_HSTS_PRELOAD=true` are optional. Enable only after confirming HTTPS coverage and the intended domain policy. Without these opt-ins, `check --deploy` reports W005/W021; the app does not enroll the domain in a browser preload list. Run `python manage.py check --deploy` with production environment values.
+
+## Current behavior
+
+Appointments are assigned by staff. Service work notes and notifications appear on page refresh; roadside tracking polls for updates. Map distances are straight-line distances, not driving routes or ETAs. Billing currently stores one total and free-text parts information, rather than invoice line items. Customer profile editing and downloadable receipts are future work.
+
 ---
 
 ## 🎨 UI & Design
@@ -103,4 +132,4 @@ The application features a responsive design built with custom CSS, supporting d
 ---
 
 ## 📄 License
-This project is open source and available under the [MIT License](LICENSE).
+No license file is currently included in this repository.

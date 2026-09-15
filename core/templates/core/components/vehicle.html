@@ -1,0 +1,11 @@
+{% load static %}
+<div class="pajero-3d-wrapper {% if mode == 'showroom' or request.resolver_match.url_name == 'home' and mode != 'compact' %}pajero-showroom{% else %}pajero-compact{% endif %}"
+     {% if mode == 'showroom' or request.resolver_match.url_name == 'home' and mode != 'compact' %}data-pajero-showroom{% else %}data-pajero-compact{% endif %}
+     id="pajero-vehicle-stage"
+     role="region"
+     aria-label="Interactive 3D Mitsubishi Pajero 4WD Model">
+    <div class="pajero-loader" aria-hidden="true">
+        <div class="pajero-spinner"></div>
+        <span class="pajero-loader-text">Loading 3D Pajero Studio...</span>
+    </div>
+</div>

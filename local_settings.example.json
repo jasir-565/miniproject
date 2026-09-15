@@ -1,0 +1,8 @@
+{
+  "DJANGO_SECRET_KEY": "replace-with-a-long-random-local-key",
+  "DB_NAME": "autonexa_db",
+  "DB_USER": "autonexa",
+  "DB_PASSWORD": "replace-with-your-local-database-password",
+  "DB_HOST": "127.0.0.1",
+  "DB_PORT": "3306"
+}

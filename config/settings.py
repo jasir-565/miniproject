@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import json
+import os
+import secrets
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+9t*ozj-vb=8#w@418o0kz$me@b@45#uwhfa%^xi$44oij7%45'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
+# Local credentials are deliberately ignored by Git and never used in production.
+local_config_path = BASE_DIR / 'local_settings.json'
+local_config = json.loads(local_config_path.read_text(encoding='utf-8-sig')) if DEBUG and local_config_path.exists() else {}
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+def setting(name, default=''):
+    return os.environ.get(name, local_config.get(name, default))
+
+
+SECRET_KEY = setting('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Set DJANGO_SECRET_KEY for production.')
+    SECRET_KEY = secrets.token_urlsafe(64)
+if not DEBUG and (len(SECRET_KEY) < 50 or SECRET_KEY.startswith('django-insecure-')):
+    raise ImproperlyConfigured('Use a new random DJANGO_SECRET_KEY of at least 50 characters.')
+
+ALLOWED_HOSTS = [host.strip() for host in setting(
+    'DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost' if DEBUG else ''
+).split(',') if host.strip()]
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('Set DJANGO_ALLOWED_HOSTS for production.')
+
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG and setting('DJANGO_HSTS_INCLUDE_SUBDOMAINS', 'false').lower() == 'true'
+SECURE_HSTS_PRELOAD = not DEBUG and setting('DJANGO_HSTS_PRELOAD', 'false').lower() == 'true'
 
 
 # Application definition
@@ -56,7 +84,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,11 +105,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'autonexa_db',
-        'USER': 'root',
-        'PASSWORD': 'AutoNexa@123',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': setting('DB_NAME', 'autonexa_db'),
+        'USER': setting('DB_USER', 'autonexa'),
+        'PASSWORD': setting('DB_PASSWORD'),
+        'HOST': setting('DB_HOST', '127.0.0.1'),
+        'PORT': setting('DB_PORT', '3306'),
     }
 }
 
@@ -121,13 +149,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

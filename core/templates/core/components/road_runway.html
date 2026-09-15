@@ -1,0 +1,181 @@
+<!-- KINETIC ROAD RUNWAY COMPONENT -->
+<div class="kinetic-road-stage" data-reveal>
+    <div class="road-stage-topbar">
+        <div class="road-stage-info">
+            <span class="eyebrow"><span class="pulse-beacon active"></span>{{ runway_title|default:"THE OPEN ROAD · RUNWAY TELEMETRY" }}</span>
+            <span class="road-stage-sub">{{ runway_subtitle|default:"Continuous vehicle dynamics & exhaust diagnostics" }}</span>
+        </div>
+        <div class="road-stage-controls">
+            <span class="road-telemetry-badge">
+                <span class="pill-dot green"></span> <strong class="speedometer-reading">64</strong> <span class="unit">km/h</span> · <span class="mode-label">Cruising</span>
+            </span>
+            <button type="button" class="road-rev-btn" aria-label="Accelerate tow truck">
+                Accelerate ⚡
+            </button>
+        </div>
+    </div>
+
+    <div class="road-viewport">
+        <!-- Roadside lighting posts in background -->
+        <div class="road-scenery">
+            <div class="road-light-pole p1"></div>
+            <div class="road-light-pole p2"></div>
+            <div class="road-light-pole p3"></div>
+            <div class="road-light-pole p4"></div>
+            <div class="road-light-pole p5"></div>
+        </div>
+
+        <!-- The Tarmac Road with scrolling center dashes -->
+        <div class="road-asphalt">
+            <div class="road-shoulder top"></div>
+            <div class="road-lane-divider"></div>
+            <div class="road-shoulder bottom"></div>
+        </div>
+
+        <!-- The Continuous Traversing Vehicle -->
+        <div class="road-vehicle-wrapper">
+            <!-- Exhaust Smoke System (billowing from the broken-down car's tailpipe) -->
+            <div class="exhaust-smoke-system" aria-hidden="true">
+                <span class="smoke-puff p1"></span>
+                <span class="smoke-puff p2"></span>
+                <span class="smoke-puff p3"></span>
+                <span class="smoke-puff p4"></span>
+                <span class="smoke-puff p5"></span>
+            </div>
+
+            <!-- Wheel-Lift Tow Truck: front tyres of the broken-down car ride the lift cradle, rear tyres stay on the road -->
+            <div class="road-small-car">
+                <svg class="small-car-svg" viewBox="0 0 200 65" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AutoNexa tow truck lifting a broken-down car by its front wheels">
+                    <!-- Forward Headlight Beam Cone -->
+                    <polygon points="193,24.5 250,17 250,45 193,30.5" fill="url(#headlight-beam-{{ runway_id|default:'1' }})" opacity="0.45"/>
+                    <defs>
+                        <linearGradient id="headlight-beam-{{ runway_id|default:'1' }}" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#fff6cc" stop-opacity="0.85"/>
+                            <stop offset="60%" stop-color="#fff6cc" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#fff6cc" stop-opacity="0"/>
+                        </linearGradient>
+                        <linearGradient id="tow-cab-{{ runway_id|default:'1' }}" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#55634f"/>
+                            <stop offset="45%" stop-color="#39443a"/>
+                            <stop offset="100%" stop-color="#232b22"/>
+                        </linearGradient>
+                        <linearGradient id="tow-bed-{{ runway_id|default:'1' }}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#b25a36"/>
+                            <stop offset="100%" stop-color="#7c351f"/>
+                        </linearGradient>
+                        <linearGradient id="tow-glass-{{ runway_id|default:'1' }}" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#849991"/>
+                            <stop offset="60%" stop-color="#465b53"/>
+                            <stop offset="100%" stop-color="#23322c"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Contact Shadow -->
+                    <ellipse cx="100" cy="58" rx="95" ry="5" fill="#0b0e0a" opacity="0.6"/>
+
+                    <!-- ================= AUTONEXA TOW TRUCK ================= -->
+                    <!-- Heavy-Duty Chassis Frame -->
+                    <rect x="82" y="40" width="112" height="6" rx="2" fill="#1d231b" stroke="#2c3428" stroke-width="0.8"/>
+
+                    <!-- Rear Body with Equipment Lockers -->
+                    <path d="M104 40 L104 27 L158 27 L158 40 Z" fill="url(#tow-bed-{{ runway_id|default:'1' }})" stroke="#5f2b18" stroke-width="1"/>
+                    <line x1="104" y1="27" x2="158" y2="27" stroke="#d3825d" stroke-width="1.4"/>
+                    <path d="M126 27 V40 M144 27 V40" stroke="#5f2b18" stroke-width="1" opacity="0.7"/>
+                    <text x="114" y="36" font-family="Arial, sans-serif" font-size="4" font-weight="700" letter-spacing="1.2" text-anchor="middle"><tspan fill="#ffd24d">AUTO</tspan><tspan fill="#ec2444">NEXA</tspan></text>
+
+                    <!-- Crew Cab -->
+                    <path d="M158 41 L158 14 Q158 10 162 10 L183 10 Q188 10 190.5 14 L197 26 Q199 29 199 32 L198.5 41 Z" fill="url(#tow-cab-{{ runway_id|default:'1' }})" stroke="#576352" stroke-width="1.2"/>
+                    <rect x="164" y="14.5" width="14" height="10" rx="2" fill="url(#tow-glass-{{ runway_id|default:'1' }})" stroke="#1f271e" stroke-width="1"/>
+                    <path d="M180 14.5 L184.5 17 Q186.5 18.5 187.5 20.5 L190 25.5 L180 25.5 Z" fill="url(#tow-glass-{{ runway_id|default:'1' }})" stroke="#1f271e" stroke-width="1.2"/>
+                    <path d="M176 15 L176 39.5" stroke="#232b22" stroke-width="1.2"/>
+                    <rect x="177.5" y="22" width="4.5" height="2" rx="1" fill="#8a9787"/>
+                    <path d="M188 29.5 H193 M187.5 32.5 H192" stroke="#232b22" stroke-width="1.2"/>
+                    <rect x="192" y="23" width="4.5" height="4.5" rx="1.5" fill="#ffe270" stroke="#d9a93c" stroke-width="0.6"/>
+                    <rect x="190.5" y="33" width="9" height="4.5" rx="2" fill="#6d7667" stroke="#2c3328" stroke-width="0.8"/>
+
+                    <!-- Flashing Amber Beacon -->
+                    <rect x="160" y="10.2" width="11" height="1.6" fill="#2c3428"/>
+                    <rect class="tow-beacon" x="159" y="5.8" width="13" height="4" rx="1.8" fill="#ffb43a" stroke="#c77f1f" stroke-width="0.6"/>
+
+                    <!-- Wheel Arches (truck) -->
+                    <path d="M108 46.5 A12 12 0 0 1 132 46.5 L128.5 46.5 A8.8 8.8 0 0 0 111.5 46.5 Z" fill="#1f261e"/>
+                    <path d="M160 46.5 A12 12 0 0 1 184 46.5 L180.5 46.5 A8.8 8.8 0 0 0 163.5 46.5 Z" fill="#1f261e"/>
+
+                    <!-- Truck Rear Wheel -->
+                    <g transform="translate(120, 46)">
+                        <g class="car-wheel">
+                            <circle r="10.5" fill="#10140f"/>
+                            <circle r="8.2" fill="#2c332a" stroke="#8a937f" stroke-width="1.8"/>
+                            <circle r="4" fill="#d9ded4"/>
+                            <path d="M-6 0 H6 M0 -6 V6" stroke="#d9ded4" stroke-width="1.5"/>
+                        </g>
+                    </g>
+
+                    <!-- Truck Front Wheel -->
+                    <g transform="translate(172, 46)">
+                        <g class="car-wheel">
+                            <circle r="10.5" fill="#10140f"/>
+                            <circle r="8.2" fill="#2c332a" stroke="#8a937f" stroke-width="1.8"/>
+                            <circle r="4" fill="#d9ded4"/>
+                            <path d="M-6 0 H6 M0 -6 V6" stroke="#d9ded4" stroke-width="1.5"/>
+                        </g>
+                    </g>
+
+                    <!-- Rear Wheel-Lift Assembly: hydraulic boom + cradle + wheel retainer -->
+                    <circle cx="104" cy="33" r="1.6" fill="#8a937f"/>
+                    <circle cx="84" cy="46" r="1.6" fill="#8a937f"/>
+                    <path d="M104 33 L84 46" stroke="#8a937f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M108 41 L70 51" stroke="#2c3328" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M108 41 L70 51" stroke="#55634f" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="108" cy="41" r="2.5" fill="#55634f" stroke="#2c3328" stroke-width="0.7"/>
+                    <path d="M50 52 L76 50 L78 53.5 L52 55.5 Z" fill="#6d7667" stroke="#2c3328" stroke-width="0.8"/>
+                    <path d="M49 53 L47 43" stroke="#55634f" stroke-width="2" stroke-linecap="round"/>
+
+                    <!-- ============ BROKEN-DOWN CAR (FRONT WHEELS LIFTED) ============ -->
+                    <!-- Tilted nose-up: rotate(-12) about the rear wheel contact patch -->
+                    <g transform="translate(38, 47.5) rotate(-12)">
+                        <!-- Dim Headlight (car is off) -->
+                        <rect x="36.5" y="-15" width="3.5" height="3.5" rx="1" fill="#d9d3a8" opacity="0.75"/>
+
+                        <!-- Ruby Taillight -->
+                        <rect x="-14.5" y="-14" width="3" height="4" rx="1" fill="#bd3124"/>
+                        <rect x="-13.7" y="-13" width="1.3" height="1.8" rx="0.6" fill="#ff7966"/>
+
+                        <!-- Exhaust Tailpipe (smoke source) -->
+                        <rect x="-17.5" y="-2" width="7" height="3.5" rx="1.5" fill="#6d7667" stroke="#2c3328" stroke-width="0.7"/>
+                        <circle cx="-16.2" cy="-0.3" r="1.4" fill="#e8613c" opacity="0.85"/>
+
+                        <!-- Hatchback Body -->
+                        <path d="M-12 -3.5 Q-14.5 -9.5 -13 -13.5 L-10.5 -16 Q-7 -25.5 5 -27.5 L20 -28.5 Q27.5 -28.5 32 -23.5 L37.5 -17 Q40 -16 39.5 -12.5 L38 -3.5 Z" fill="#7c8a76" stroke="#55634f" stroke-width="1"/>
+                        <path d="M7 -24.5 L19.5 -25.5 L26 -24.5 Q28.5 -24 30 -21.5 L31.5 -19 L9 -19 Q7 -19 7 -22 Z" fill="#b9c6bb" opacity="0.85" stroke="#55634f" stroke-width="0.6"/>
+                        <path d="M18 -25 V-5.5" stroke="#55634f" stroke-width="0.8" opacity="0.7"/>
+
+                        <!-- Wheel Arches -->
+                        <path d="M-9.5 0 A9.5 9.5 0 0 1 9.5 0 L6.5 0 A7 7 0 0 0 -6.5 0 Z" fill="#1f261e"/>
+                        <path d="M17.5 0 A9.5 9.5 0 0 1 36.5 0 L33.5 0 A7 7 0 0 0 20.5 0 Z" fill="#1f261e"/>
+
+                        <!-- Rear Wheel (rolling on the tarmac) -->
+                        <g transform="translate(0, 0)">
+                            <g class="car-wheel">
+                                <circle r="9" fill="#10140f"/>
+                                <circle r="6.8" fill="#2c332a" stroke="#8a937f" stroke-width="1.6"/>
+                                <circle r="3.2" fill="#d9ded4"/>
+                                <path d="M-5 0 H5 M0 -5 V5" stroke="#d9ded4" stroke-width="1.4"/>
+                            </g>
+                        </g>
+
+                        <!-- Front Wheel (seated in the lift cradle) -->
+                        <g transform="translate(27, 0)">
+                            <g class="car-wheel">
+                                <circle r="9" fill="#10140f"/>
+                                <circle r="6.8" fill="#2c332a" stroke="#8a937f" stroke-width="1.6"/>
+                                <circle r="3.2" fill="#d9ded4"/>
+                                <path d="M-5 0 H5 M0 -5 V5" stroke="#d9ded4" stroke-width="1.4"/>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
