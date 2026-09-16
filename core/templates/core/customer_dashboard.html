@@ -1,112 +1,331 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Customer Dashboard - AutoNexa Service Center{% endblock %}
+{% block title %}Owner Concierge & Garage — AutoNexa{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/overview.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="overview overview-customer">
 
-<div class="page-header">
-    <h1 class="page-title">Customer Dashboard</h1>
-    <p class="page-subtitle">Manage your registered vehicles, track active service appointments, request emergency roadside help, and review completed service records.</p>
-</div>
-
-<!-- STAT SUMMARY GRID -->
-<div class="grid-4" style="margin-bottom: 32px;">
-
-    <div class="stat-card">
-        <div class="stat-info">
-            <p>Registered Vehicles</p>
-            <h1>{{ vehicles_count }}</h1>
+    <!-- Executive Telemetry Topbar -->
+    <header class="dash-topbar" aria-label="System status">
+        <div class="dash-breadcrumbs">
+            <span class="dash-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="dash-crumb-sep">/</span>
+            <span class="dash-crumb-active">CUSTOMER GARAGE & SERVICE DESK</span>
         </div>
-        <div class="stat-icon">🚘</div>
-    </div>
-
-    <div class="stat-card amber">
-        <div class="stat-info">
-            <p>Active Bookings</p>
-            <h1>{{ active_bookings_count }}</h1>
+        <div class="dash-meta-strip">
+            <span class="dash-live-pulse"><i class="pulse-dot"></i> WORKSHOP LIVE</span>
+            <span class="dash-date">{% now "l, d F Y" %}</span>
         </div>
-        <div class="stat-icon">⏳</div>
-    </div>
+    </header>
 
-    <div class="stat-card green">
-        <div class="stat-info">
-            <p>Completed Services</p>
-            <h1>{{ completed_services_count }}</h1>
+    <!-- Welcome & Quick Command Hero -->
+    <section class="dash-hero dash-hero-with-portrait" aria-labelledby="dash-welcome-title">
+        <div class="dash-hero-portrait-bg" aria-hidden="true">
+            <img src="{% static 'core/media/hellcat-reference.jpg' %}" alt="Dodge Challenger Hellcat" class="hero-portrait-img">
+            <div class="hero-gold-texture-overlay"></div>
+            <div class="hero-portrait-scrim"></div>
         </div>
-        <div class="stat-icon">✅</div>
-    </div>
 
-    <div class="stat-card red">
-        <div class="stat-info">
-            <p>Unread Alerts</p>
-            <h1>{{ unread_notifications_count }}</h1>
+        <div class="dash-hero-content">
+            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> GOLD CONCIERGE · GARAGE ACCESS</span>
+            <h1 id="dash-welcome-title">Welcome back, <span class="text-highlight is-gold">{{ user.first_name|default:user.username }}</span>.</h1>
+            <p class="dash-hero-subtitle">
+                Your garage is connected. Track active workshop orders, review completed inspection records, and dispatch roadside assistance 24/7.
+            </p>
+            <div class="dash-hero-actions">
+                <a href="{% url 'service_booking' %}" class="dash-btn dash-btn-primary">
+                    <span>Book Workshop Service</span>
+                    <span class="btn-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a href="{% url 'vehicles' %}" class="dash-btn dash-btn-secondary">
+                    <span>Manage My Vehicles</span>
+                    <span class="btn-arrow" aria-hidden="true">→</span>
+                </a>
+                <a href="{% url 'roadside_assistance' %}" class="dash-btn dash-btn-outline-sos">
+                    <span class="sos-icon">⚡</span>
+                    <span>Roadside SOS</span>
+                </a>
+            </div>
         </div>
-        <div class="stat-icon">🔔</div>
-    </div>
+        <div class="dash-hero-stats-panel" aria-label="Operational status">
+            <div class="hero-stat-cell is-gold-accent">
+                <span class="stat-cell-label">VEHICLE HEALTH</span>
+                <strong class="stat-cell-value text-gold">VERIFIED ✦</strong>
+                <small class="stat-cell-note">All systems normal</small>
+            </div>
+            <div class="hero-stat-cell">
+                <span class="stat-cell-label">WORKSHOP STATUS</span>
+                <strong class="stat-cell-value">ONLINE</strong>
+                <small class="stat-cell-note">Ready for bookings</small>
+            </div>
+        </div>
+    </section>
 
-</div>
+    <!-- Ruled Account Register (Executive Ledger Style) -->
+    <section class="owner-register" aria-labelledby="register-title">
+        <div class="register-intro">
+            <span class="eyebrow">ACCOUNT REGISTER</span>
+            <h2 id="register-title">The details.<br>All accounted for.</h2>
+            <p>Your garage at a glance.<br>Select a line to explore.</p>
+        </div>
+        <div class="register-lines">
+            <a href="{% url 'vehicles' %}">
+                <span class="register-index">01</span>
+                <strong>Vehicles</strong>
+                <span class="register-description">Your personal garage</span>
+                <span class="register-value">{{ vehicles_count|stringformat:'02d' }}</span>
+                <span class="register-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'my_bookings' %}">
+                <span class="register-index">02</span>
+                <strong>Active bookings</strong>
+                <span class="register-description">Appointments & progress</span>
+                <span class="register-value">{{ active_bookings_count|stringformat:'02d' }}</span>
+                <span class="register-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'service_history' %}">
+                <span class="register-index">03</span>
+                <strong>Completed services</strong>
+                <span class="register-description">Your service record</span>
+                <span class="register-value">{{ completed_services_count|stringformat:'02d' }}</span>
+                <span class="register-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'notifications' %}">
+                <span class="register-index">04</span>
+                <strong>Unread updates</strong>
+                <span class="register-description">From the workshop</span>
+                <span class="register-value">{{ unread_notifications_count|stringformat:'02d' }}</span>
+                <span class="register-arrow" aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </section>
 
-<!-- SERVICE MODULES GRID -->
-<div class="page-header" style="margin-top: 36px;">
-    <h2 class="page-title">Service Center Modules</h2>
-    <p class="page-subtitle">Select an action below to manage your vehicles and service requests.</p>
-</div>
+    <!-- Main Dual-Core Operational Hub -->
+    <div class="dash-dual-grid">
 
-<div class="grid">
+        <!-- LEFT COLUMN: Featured Vehicle & Garage Telemetry -->
+        <section class="dash-panel vehicle-telemetry-panel" aria-labelledby="featured-vehicle-heading">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-kicker">01 / PRIMARY VEHICLE</span>
+                    <h2 class="panel-title" id="featured-vehicle-heading">Garage Telemetry</h2>
+                </div>
+                {% if featured_vehicle %}
+                    <a href="{% url 'vehicles' %}" class="panel-action-link">All Vehicles ({{ vehicles_count }}) ↗</a>
+                {% endif %}
+            </div>
 
-    <a href="{% url 'vehicles' %}" class="menu-card">
-        <h3>
-            <span>🚘 My Vehicles</span>
-            <span class="license-plate-blue">{{ vehicles_count }} Registered</span>
-        </h3>
-        <p>Register and view personal vehicles to easily select them during service booking or roadside SOS dispatches.</p>
-    </a>
+            {% if featured_vehicle %}
+                <div class="featured-vehicle-card">
+                    <div class="vehicle-card-top">
+                        <div class="vehicle-title-block">
+                            <span class="vehicle-make-tag">{{ featured_vehicle.brand|upper }}</span>
+                            <h3 class="vehicle-model-name">{{ featured_vehicle.model }}</h3>
+                        </div>
+                        <span class="license-plate-badge">{{ featured_vehicle.registration_number }}</span>
+                    </div>
 
-    <a href="{% url 'service_booking' %}" class="menu-card">
-        <h3>
-            <span>🛠️ Book Vehicle Service</span>
-            <span class="status-badge status-confirmed">New Slot</span>
-        </h3>
-        <p>Schedule oil changes, brake servicing, engine checkups, AC repair, or general vehicle maintenance.</p>
-    </a>
+                    <!-- Vehicle Visual Viewport -->
+                    <div class="vehicle-visual-mount">
+                        {% if featured_vehicle.photo %}
+                            <div class="vehicle-photo-frame">
+                                <img src="{{ featured_vehicle.photo.url }}" alt="{{ featured_vehicle.brand }} {{ featured_vehicle.model }}" class="vehicle-cover-photo">
+                            </div>
+                        {% else %}
+                            <div class="vehicle-3d-compact-frame">
+                                {% include 'core/components/vehicle.html' with mode='compact' %}
+                            </div>
+                        {% endif %}
+                    </div>
 
-    <a href="{% url 'my_bookings' %}" class="menu-card">
-        <h3>
-            <span>⏳ My Service Bookings</span>
-            <span class="status-badge status-pending">{{ active_bookings_count }} Active</span>
-        </h3>
-        <p>Track scheduled appointment dates, assigned staff technicians, status badges, and current work progress.</p>
-    </a>
+                    <!-- Specifications Data Matrix -->
+                    <div class="vehicle-specs-grid">
+                        <div class="spec-cell">
+                            <span class="spec-label">MODEL YEAR</span>
+                            <strong class="spec-val">{{ featured_vehicle.year }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">REGISTRATION</span>
+                            <strong class="spec-val">{{ featured_vehicle.registration_number }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">PROFILE CREATED</span>
+                            <strong class="spec-val">{{ featured_vehicle.created_at|date:'M Y' }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">RECORD STATUS</span>
+                            <strong class="spec-val text-emerald">SYNCHRONIZED</strong>
+                        </div>
+                    </div>
 
-    <a href="{% url 'service_history' %}" class="menu-card">
-        <h3>
-            <span>📜 Service History</span>
-            <span class="status-badge status-completed">Records</span>
-        </h3>
-        <p>View completed service invoices, technician inspection notes, replaced part logs, and total service costs.</p>
-    </a>
-
-    <a href="{% url 'roadside_assistance' %}" class="menu-card" style="border-top-color: var(--danger-red);">
-        <h3>
-            <span>🚨 Roadside Assistance</span>
-            <span class="status-badge status-cancelled">24/7 SOS</span>
-        </h3>
-        <p>Request tow trucks, battery jumpstarts, flat tire assistance, or on-site repair support with live location tracking.</p>
-    </a>
-
-    <a href="{% url 'notifications' %}" class="menu-card">
-        <h3>
-            <span>🔔 Notifications</span>
-            {% if unread_notifications_count > 0 %}
-                <span class="status-badge status-pending">
-                    {{ unread_notifications_count }} Unread
-                </span>
+                    <!-- Card Actions Footer -->
+                    <div class="vehicle-card-actions">
+                        <a href="{% url 'service_booking' %}" class="dash-btn dash-btn-sm dash-btn-primary">Book Service For This Car ↗</a>
+                        <a href="{% url 'vehicles' %}" class="dash-btn dash-btn-sm dash-btn-secondary">Manage Garage Profile →</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-telemetry-card">
+                    <div class="empty-icon-wrap">🚙</div>
+                    <h3>Your garage is waiting</h3>
+                    <p>Register your first vehicle to unlock real-time service tracking, workshop notes, and permanent maintenance records.</p>
+                    <a href="{% url 'vehicles' %}" class="dash-btn dash-btn-primary" style="margin-top: 14px;">Register Your First Vehicle ↗</a>
+                </div>
             {% endif %}
-        </h3>
-        <p>View live updates on service progress changes, technician assignments, and roadside assistance alerts.</p>
-    </a>
+        </section>
+
+        <!-- RIGHT COLUMN: Active Workshop Journey & Appointment Desk -->
+        <section class="dash-panel workshop-journey-panel" aria-labelledby="journey-heading">
+            <div class="panel-header">
+                <div>
+                    <span class="panel-kicker">02 / SERVICE PIPELINE</span>
+                    <h2 class="panel-title" id="journey-heading">Active Workshop Journey</h2>
+                </div>
+                <a href="{% url 'my_bookings' %}" class="panel-action-link">View All Bookings ↗</a>
+            </div>
+
+            {% if next_booking %}
+                <div class="journey-card">
+                    <!-- Status Header & Reference -->
+                    <div class="journey-header">
+                        <div>
+                            <span class="journey-ref">ORDER #BK-{{ next_booking.id|stringformat:'04d' }}</span>
+                            <h3 class="journey-service-name">{{ next_booking.service_type }}</h3>
+                        </div>
+                        <span class="status-pill status-{{ next_booking.status|lower }}">
+                            <span class="status-dot"></span>
+                            {{ next_booking.get_status_display }}
+                        </span>
+                    </div>
+
+                    <!-- 4-Stage Systematic Visual Stepper -->
+                    <div class="journey-stepper" aria-label="Service progress pipeline">
+                        <div class="step-node is-complete">
+                            <div class="step-circle">✓</div>
+                            <span class="step-title">Intake</span>
+                            <small class="step-desc">Received</small>
+                        </div>
+                        <div class="step-connector {% if next_booking.status != 'PENDING' %}is-complete{% endif %}"></div>
+
+                        <div class="step-node {% if next_booking.status == 'CONFIRMED' or next_booking.status == 'IN_PROGRESS' or next_booking.status == 'COMPLETED' %}is-complete{% else %}is-active{% endif %}">
+                            <div class="step-circle">{% if next_booking.status != 'PENDING' %}✓{% else %}2{% endif %}</div>
+                            <span class="step-title">Scheduled</span>
+                            <small class="step-desc">Time Slot</small>
+                        </div>
+                        <div class="step-connector {% if next_booking.status == 'IN_PROGRESS' or next_booking.status == 'COMPLETED' %}is-complete{% endif %}"></div>
+
+                        <div class="step-node {% if next_booking.status == 'IN_PROGRESS' %}is-active is-pulsing{% elif next_booking.status == 'COMPLETED' %}is-complete{% else %}is-pending{% endif %}">
+                            <div class="step-circle">{% if next_booking.status == 'COMPLETED' %}✓{% else %}3{% endif %}</div>
+                            <span class="step-title">Workshop</span>
+                            <small class="step-desc">On Lift</small>
+                        </div>
+                        <div class="step-connector {% if next_booking.status == 'COMPLETED' %}is-complete{% endif %}"></div>
+
+                        <div class="step-node {% if next_booking.status == 'COMPLETED' %}is-complete{% else %}is-pending{% endif %}">
+                            <div class="step-circle">4</div>
+                            <span class="step-title">Ready</span>
+                            <small class="step-desc">Handover</small>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Schedule Slate -->
+                    <div class="journey-schedule-slate">
+                        <div class="schedule-calendar-box">
+                            {% if next_booking.appointment_date %}
+                                <span class="cal-month">{{ next_booking.appointment_date|date:'M'|upper }}</span>
+                                <strong class="cal-day">{{ next_booking.appointment_date|date:'d' }}</strong>
+                            {% else %}
+                                <span class="cal-month">DATE</span>
+                                <strong class="cal-day">--</strong>
+                            {% endif %}
+                        </div>
+                        <div class="schedule-details">
+                            <span class="schedule-timing-tag">CONFIRMED APPOINTMENT</span>
+                            <strong class="schedule-datetime">
+                                {% if next_booking.appointment_date %}
+                                    {{ next_booking.appointment_date|date:'l, F j, Y' }}
+                                    {% if next_booking.appointment_time %}
+                                        · {{ next_booking.appointment_time|time:'g:i A' }}
+                                    {% endif %}
+                                {% else %}
+                                    Awaiting workshop schedule confirmation
+                                {% endif %}
+                            </strong>
+                            <p class="schedule-vehicle-sub">
+                                Assigned to: <strong>{{ next_booking.vehicle.brand }} {{ next_booking.vehicle.model }}</strong>
+                                ({{ next_booking.vehicle.registration_number }})
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Live Workshop Note (If Present) -->
+                    {% if next_booking.current_work %}
+                        <div class="journey-technician-docket">
+                            <div class="docket-header">
+                                <span class="docket-badge">👨‍🔧 LIVE TECHNICIAN DISPATCH</span>
+                                <span class="docket-time">Updated recently</span>
+                            </div>
+                            <p class="docket-body">"{{ next_booking.current_work }}"</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Footer Action -->
+                    <div class="journey-footer">
+                        <span class="journey-vehicle-pill">
+                            <span>Vehicle:</span> {{ next_booking.vehicle.registration_number }}
+                        </span>
+                        <a href="{% url 'my_bookings' %}" class="dash-btn dash-btn-sm dash-btn-secondary">
+                            <span>Manage Booking Details</span>
+                            <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-journey-card">
+                    <div class="empty-icon-wrap">🛠️</div>
+                    <h3>No service orders currently active</h3>
+                    <p>All your vehicles are in top order. When you're ready for routine fluid changes, seasonal diagnostics, or mechanical tune-ups, book an appointment in seconds.</p>
+                    <div class="empty-actions-row">
+                        <a href="{% url 'service_booking' %}" class="dash-btn dash-btn-primary">Schedule A Workshop Visit ↗</a>
+                        <a href="{% url 'service_history' %}" class="dash-btn dash-btn-secondary">Review Past Records →</a>
+                    </div>
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
+
+    <!-- 24/7 Roadside Recovery Fleet & Highway Runway Telemetry -->
+    <section class="roadside-runway-wrap" style="margin-bottom: 24px;" aria-label="Highway Rescue Patrol Telemetry">
+        {% include 'core/components/road_runway.html' with runway_id='customer' runway_title='24/7 HIGHWAY RESCUE PATROL · LIVE DISPATCH TELEMETRY' runway_subtitle='Active mobile recovery & tow units cruising metro quadrants with 25-minute response SLA' %}
+    </section>
+
+    <!-- Rapid Roadside Concierge SOS Dock -->
+    <section class="dash-roadside-dock" aria-label="24/7 Roadside Assistance">
+        <div class="roadside-dock-copy">
+            <div class="roadside-badge-row">
+                <span class="roadside-live-badge"><i class="pulse-dot-crimson"></i> 24/7 LIVE EMERGENCY DESK</span>
+                <span class="roadside-sla-tag">Average dispatch: Under 25 mins</span>
+            </div>
+            <h3>Encountered a breakdown, flat tyre, or dead battery?</h3>
+            <p>Our rapid-response mobile service vans are equipped with GPS dispatch. Share your live coordinates for immediate on-site roadside rescue.</p>
+        </div>
+        <div class="roadside-dock-actions">
+            <a href="{% url 'roadside_assistance' %}" class="dash-btn dash-btn-crimson">
+                <span class="sos-icon">⚡</span>
+                <span>Request Roadside Assistance</span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            {% if roadside_requests_count %}
+                <span class="roadside-history-count">{{ roadside_requests_count }} past assistance request{{ roadside_requests_count|pluralize }} recorded</span>
+            {% endif %}
+        </div>
+    </section>
 
 </div>
-
 {% endblock %}

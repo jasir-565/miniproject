@@ -1,111 +1,390 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Book Vehicle Service - AutoNexa Service Center{% endblock %}
+{% block title %}Book Vehicle Service - AutoNexa Workshop Concierge{% endblock %}
 
 {% block content %}
 
-<div class="page-header">
-    <h1 class="page-title">Book Vehicle Service</h1>
-    <p class="page-subtitle">Submit a service request for your registered vehicle. Service staff will assign an appointment slot and technician to handle your repair.</p>
+<!-- Executive Telemetry Topbar -->
+<div class="dash-topbar" role="navigation" aria-label="Breadcrumb and telemetry">
+    <div class="dash-breadcrumbs">
+        <span class="crumb-root"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+        <span class="crumb-separator" aria-hidden="true">/</span>
+        <span class="crumb-active">WORKSHOP INTAKE CONCIERGE</span>
+    </div>
+    <div class="dash-telemetry">
+        <span class="telemetry-pill live-pill">
+            <span class="pulse-beacon" aria-hidden="true"></span>
+            <span class="telemetry-label">INTAKE DESK ONLINE</span>
+        </span>
+        <span class="telemetry-date">{{ now|date:"d M Y"|upper }}</span>
+    </div>
 </div>
 
-<div class="grid-2">
+<div class="page-header" style="margin-bottom: 28px;">
+    <span class="eyebrow">STEP-BY-STEP INTAKE PROTOCOL</span>
+    <h1 class="page-title" style="margin: 6px 0 8px;">Precision Workshop Intake</h1>
+    <p class="page-subtitle">Schedule certified technical diagnostics, maintenance, and repairs for your registered vehicles.</p>
+</div>
 
-    <!-- SERVICE FORM -->
-    <div class="form-box">
-        <h2>🛠️ Service Booking Form</h2>
-
-        {% if error %}
-            <div class="alert">
-                ⚠️ {{ error }}
-            </div>
-        {% endif %}
-
-        {% if vehicles %}
-
-            <form method="POST">
-                {% csrf_token %}
-
-                <label for="vehicle">Select Registered Vehicle</label>
-                <select name="vehicle" id="vehicle" required>
-                    <option value="">-- Select Vehicle --</option>
-                    {% for vehicle in vehicles %}
-                        <option value="{{ vehicle.id }}">
-                            {{ vehicle.registration_number }} — {{ vehicle.brand }} {{ vehicle.model }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <label for="service_type">Select Service Category</label>
-                <select name="service_type" id="service_type" required>
-                    <option value="">-- Select Service Type --</option>
-                    <option value="General Service">General Service & Maintenance</option>
-                    <option value="Oil Change">Engine Oil & Filter Change</option>
-                    <option value="Brake Service">Brake Inspection & Replacement</option>
-                    <option value="Engine Service">Engine Diagnostic & Tuning</option>
-                    <option value="AC Service">Climate Control / AC Repair</option>
-                    <option value="Tyre Service">Tire Alignment & Balancing</option>
-                    <option value="Battery Service">Battery Diagnostic & Replacement</option>
-                    <option value="Other">Other Repairs & Custom Work</option>
-                </select>
-
-                <label for="issue_description">Issue Description & Notes</label>
-                <textarea
-                    name="issue_description"
-                    id="issue_description"
-                    rows="5"
-                    placeholder="Describe any symptoms, warning lamps, unusual noise, or specific requests..."
-                    required
-                ></textarea>
-
-                <button type="submit" class="btn btn-green" style="width: 100%; margin-top: 16px;">
-                    Submit Service Booking
-                </button>
-            </form>
-
-        {% else %}
-
-            <div class="alert">
-                ⚠️ You need to register a vehicle before booking a service request.
-            </div>
-
-            <a href="{% url 'vehicles' %}" class="btn">
-                🚘 Register Vehicle Now
-            </a>
-
-        {% endif %}
+{% if error %}
+    <div class="alert alert-danger" style="margin-bottom: 24px;">
+         {{ error }}
     </div>
+{% endif %}
 
-    <!-- WORKFLOW INFORMATION -->
-    <div class="card">
-        <h2>What Happens Next?</h2>
+{% if vehicles %}
 
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 1: Booking Submission</strong>
-            <span>You submit your vehicle service request and problem notes.</span>
+    <form method="POST" id="service-booking-form">
+        {% csrf_token %}
+
+        <div class="booking-concierge-container">
+
+            <!-- LEFT COLUMN: Guided Multi-Step Selection -->
+            <div class="booking-steps-column">
+
+                <!-- STEP 1: Select Registered Vehicle -->
+                <section class="booking-step-block" aria-labelledby="step-1-heading">
+                    <div class="step-block-header">
+                        <span class="step-number-badge">01</span>
+                        <h2 class="step-block-title" id="step-1-heading">Select Registered Vehicle</h2>
+                        <span class="step-block-desc">Which vehicle requires service?</span>
+                    </div>
+
+                    <!-- Hidden native select for standard browser validation and POST data -->
+                    <select name="vehicle" id="vehicle" class="visually-hidden" required>
+                        <option value="">-- Select Vehicle --</option>
+                        {% for vehicle in vehicles %}
+                            <option value="{{ vehicle.id }}"
+                                    data-brand="{{ vehicle.brand }}"
+                                    data-model="{{ vehicle.model }}"
+                                    data-reg="{{ vehicle.registration_number }}"
+                                    data-year="{{ vehicle.year }}"
+                                    {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}selected{% endif %}>
+                                {{ vehicle.registration_number }} — {{ vehicle.brand }} {{ vehicle.model }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Interactive Vehicle Choice Chips -->
+                    <div class="vehicle-selector-chips" role="radiogroup" aria-label="Select a vehicle">
+                        {% for vehicle in vehicles %}
+                            <div class="vehicle-choice-chip {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}is-selected{% endif %}"
+                                 data-vehicle-chip="{{ vehicle.id }}"
+                                 role="radio"
+                                 tabindex="0"
+                                 aria-checked="{% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}true{% else %}false{% endif %}">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="vehicle-chip-reg">{{ vehicle.registration_number }}</span>
+                                    <span class="status-badge status-confirmed" style="font-size: 9.5px; padding: 2px 7px;">{{ vehicle.year }}</span>
+                                </div>
+                                <span class="vehicle-chip-name">{{ vehicle.brand }} {{ vehicle.model }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- STEP 2: Choose Service Discipline -->
+                <section class="booking-step-block" aria-labelledby="step-2-heading">
+                    <div class="step-block-header">
+                        <span class="step-number-badge">02</span>
+                        <h2 class="step-block-title" id="step-2-heading">Service Discipline & Scope</h2>
+                        <span class="step-block-desc">Select scheduled maintenance or repair tier</span>
+                    </div>
+
+                    <!-- Hidden native select for standard browser validation and POST data -->
+                    <select name="service_type" id="service_type" class="visually-hidden" required>
+                        <option value="">-- Select Service Type --</option>
+                        <option value="General Service" selected>General Service & Maintenance</option>
+                        <option value="Oil Change">Engine Oil & Filter Change</option>
+                        <option value="Brake Service">Brake Inspection & Replacement</option>
+                        <option value="Engine Service">Engine Diagnostic & Tuning</option>
+                        <option value="AC Service">Climate Control / AC Repair</option>
+                        <option value="Tyre Service">Tire Alignment & Balancing</option>
+                        <option value="Battery Service">Battery Diagnostic & Replacement</option>
+                        <option value="Other">Other Repairs & Custom Work</option>
+                    </select>
+
+                    <!-- Interactive Service Category Grid -->
+                    <div class="service-type-grid" role="radiogroup" aria-label="Select a service category">
+                        <div class="service-type-card is-selected" data-service-card="General Service" role="radio" tabindex="0" aria-checked="true">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🛠️</span>
+                                <span class="service-card-time">4–6 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">General Service</h3>
+                                <p class="service-card-desc">Comprehensive 40-point inspection, fluids, filters, and safety certification.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Oil Change" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🛢️</span>
+                                <span class="service-card-time">1–2 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Oil & Filter</h3>
+                                <p class="service-card-desc">High-performance synthetic oil flush, OEM filter, and seal inspection.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Brake Service" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🛑</span>
+                                <span class="service-card-time">2–3 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Brake Systems</h3>
+                                <p class="service-card-desc">Brake disc wear telemetry, ceramic pad renewal, and fluid bleed.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Engine Service" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">⚡</span>
+                                <span class="service-card-time">3–5 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Engine Diagnostics</h3>
+                                <p class="service-card-desc">OBD-II clinical scan, timing calibration, spark plugs, and sensor testing.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="AC Service" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">❄️</span>
+                                <span class="service-card-time">2–3 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Climate / AC</h3>
+                                <p class="service-card-desc">Refrigerant recharge, compressor leak check, and cabin cabin filter.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Tyre Service" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🛞</span>
+                                <span class="service-card-time">1–2 HRS</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Tires & Alignment</h3>
+                                <p class="service-card-desc">Laser wheel alignment, digital tread depth scan, and high-speed balancing.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Battery Service" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🔋</span>
+                                <span class="service-card-time">1 HR</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Battery & Electrical</h3>
+                                <p class="service-card-desc">Cold cranking amp test, alternator output check, and terminal service.</p>
+                            </div>
+                        </div>
+
+                        <div class="service-type-card" data-service-card="Other" role="radio" tabindex="0" aria-checked="false">
+                            <div class="service-card-top">
+                                <span class="service-card-icon">🔧</span>
+                                <span class="service-card-time">CUSTOM</span>
+                            </div>
+                            <div>
+                                <h3 class="service-card-title">Custom / Other</h3>
+                                <p class="service-card-desc">Custom mechanical repairs, body panel adjustments, or bespoke work.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 3: Issue Description & Clinical Symptoms -->
+                <section class="booking-step-block" aria-labelledby="step-3-heading">
+                    <div class="step-block-header">
+                        <span class="step-number-badge">03</span>
+                        <h2 class="step-block-title" id="step-3-heading">Symptoms & Problem Description</h2>
+                        <span class="step-block-desc">Minimum 10 characters</span>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--dash-text-muted); margin: 0 0 10px;">
+                        Tap any symptom to add it to your intake notes, or write your own specific diagnosis:
+                    </p>
+
+                    <!-- Quick-tap symptom chips -->
+                    <div class="symptom-chips-wrap" aria-label="Symptom quick tags">
+                        <button type="button" class="symptom-chip" data-symptom="Scheduled Periodic 10,000 KM Maintenance">+ Scheduled 10K Maintenance</button>
+                        <button type="button" class="symptom-chip" data-symptom="Brake squeaking / soft brake pedal">+ Brake Squeak / Soft Pedal</button>
+                        <button type="button" class="symptom-chip" data-symptom="Engine warning lamp illuminated on cluster">+ Engine Warning Lamp</button>
+                        <button type="button" class="symptom-chip" data-symptom="Steering vibration noticeable at highway speeds">+ Steering Vibration</button>
+                        <button type="button" class="symptom-chip" data-symptom="Air conditioning blowing warm air">+ AC Warm Air</button>
+                        <button type="button" class="symptom-chip" data-symptom="Unusual fluid leak detected under engine bay">+ Fluid Leak Detected</button>
+                        <button type="button" class="symptom-chip" data-symptom="Hard engine starting / battery voltage dropping">+ Hard Engine Start</button>
+                    </div>
+
+                    <label for="issue_description" class="visually-hidden">Issue Description</label>
+                    <textarea
+                        name="issue_description"
+                        id="issue_description"
+                        rows="4"
+                        placeholder="Detail symptoms, warning lights, strange vibrations, noises, or custom instructions for the technician..."
+                        required
+                        style="width: 100%; font-size: 13px; line-height: 1.6;"
+                    ></textarea>
+                </section>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Real-Time Booking Summary Slate -->
+            <aside class="booking-summary-slate" aria-labelledby="summary-heading">
+                <div class="summary-slate-header">
+                    <span class="dash-kicker is-gold" style="font-size: 9px; padding: 2px 9px;">✦ INTAKE SPECIFICATION</span>
+                    <h3 id="summary-heading">Booking Docket</h3>
+                </div>
+
+                <div class="summary-item-row">
+                    <span class="summary-item-label">VEHICLE</span>
+                    <strong class="summary-item-val" id="summary-vehicle-name">Loading...</strong>
+                </div>
+
+                <div class="summary-item-row">
+                    <span class="summary-item-label">REGISTRATION</span>
+                    <strong class="summary-item-val" id="summary-vehicle-reg" style="font-family: monospace; color: #fbf5b7;">--</strong>
+                </div>
+
+                <div class="summary-item-row">
+                    <span class="summary-item-label">SERVICE CATEGORY</span>
+                    <strong class="summary-item-val text-emerald" id="summary-service-type">General Service</strong>
+                </div>
+
+                <div class="summary-item-row">
+                    <span class="summary-item-label">ESTIMATED DURATION</span>
+                    <strong class="summary-item-val" id="summary-service-time">4–6 Hours</strong>
+                </div>
+
+                <div class="summary-item-row">
+                    <span class="summary-item-label">ROUTING</span>
+                    <strong class="summary-item-val" style="font-size: 11.5px; color: var(--dash-text-sub);">Auto-routed to Master Technician</strong>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <button type="submit" class="dash-btn dash-btn-primary" style="width: 100%; justify-content: center; padding: 13px 20px; font-size: 14px;">
+                        <span>Confirm Service Request</span>
+                        <span class="btn-arrow" aria-hidden="true">↗</span>
+                    </button>
+                    <p style="font-size: 11px; color: var(--dash-text-muted); text-align: center; margin: 12px 0 0; line-height: 1.4;">
+                        Our workshop team will review the request and allocate an appointment slot promptly.
+                    </p>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--dash-border); text-align: center;">
+                    <a href="{% url 'my_bookings' %}" style="font-size: 12px; color: var(--dash-text-sub); text-decoration: none;">
+                        View My Active Bookings →
+                    </a>
+                </div>
+            </aside>
+
         </div>
+    </form>
 
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 2: Technician Assignment</strong>
-            <span>An available staff technician is assigned to inspect your booking.</span>
-        </div>
+{% else %}
 
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 3: Appointment Scheduling</strong>
-            <span>Staff assigns an appointment date and time slot based on availability.</span>
-        </div>
-
-        <div class="detail-box" style="margin-bottom: 16px;">
-            <strong>Step 4: Real-Time Work Updates</strong>
-            <span>You can track status updates, current repair notes, and final service invoices.</span>
-        </div>
-
-        <a href="{% url 'my_bookings' %}" class="btn btn-gray" style="width: 100%;">
-            View My Bookings
+    <div class="empty-box" style="padding: 48px 36px; text-align: center; background: var(--dash-surface); border: 1px solid var(--dash-border); border-radius: var(--dash-radius-lg);">
+        <div style="font-size: 40px; margin-bottom: 12px;">🚗</div>
+        <h3 style="font-size: 20px; font-weight: 600; color: #ffffff; margin: 0 0 8px;">No Vehicles Registered Yet</h3>
+        <p style="font-size: 13.5px; color: var(--dash-text-sub); max-width: 480px; margin: 0 auto 24px; line-height: 1.6;">
+            Before booking a service request, please register at least one vehicle in your personal <span class="brand-auto">Auto</span><span class="brand-nexa">Nexa</span> garage.
+        </p>
+        <a href="{% url 'vehicles' %}" class="dash-btn dash-btn-primary" style="display: inline-flex;">
+            <span>Register Vehicle Now</span>
+            <span class="btn-arrow" aria-hidden="true">↗</span>
         </a>
     </div>
 
-</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const vehicleSelect = document.getElementById('vehicle');
+    const serviceSelect = document.getElementById('service_type');
+    const issueTextarea = document.getElementById('issue_description');
+
+    const summaryVehicleName = document.getElementById('summary-vehicle-name');
+    const summaryVehicleReg = document.getElementById('summary-vehicle-reg');
+    const summaryServiceType = document.getElementById('summary-service-type');
+    const summaryServiceTime = document.getElementById('summary-service-time');
+
+    const durationMap = {
+        'General Service': '4–6 Hours',
+        'Oil Change': '1–2 Hours',
+        'Brake Service': '2–3 Hours',
+        'Engine Service': '3–5 Hours',
+        'AC Service': '2–3 Hours',
+        'Tyre Service': '1–2 Hours',
+        'Battery Service': '1 Hour',
+        'Other': 'Custom Estimate'
+    };
+
+    function updateSummary() {
+        if (!vehicleSelect) return;
+        const selectedOpt = vehicleSelect.options[vehicleSelect.selectedIndex];
+        if (selectedOpt && selectedOpt.value) {
+            summaryVehicleName.textContent = `${selectedOpt.dataset.brand} ${selectedOpt.dataset.model}`;
+            summaryVehicleReg.textContent = selectedOpt.dataset.reg;
+        } else {
+            summaryVehicleName.textContent = 'None Selected';
+            summaryVehicleReg.textContent = '--';
+        }
+
+        if (serviceSelect) {
+            const servVal = serviceSelect.value;
+            summaryServiceType.textContent = servVal || 'General Service';
+            summaryServiceTime.textContent = durationMap[servVal] || '2–4 Hours';
+        }
+    }
+
+    // Vehicle Chip Clicks
+    document.querySelectorAll('[data-vehicle-chip]').forEach(chip => {
+        chip.addEventListener('click', function() {
+            const vehicleId = this.dataset.vehicleChip;
+            vehicleSelect.value = vehicleId;
+            document.querySelectorAll('[data-vehicle-chip]').forEach(c => {
+                const active = c === chip;
+                c.classList.toggle('is-selected', active);
+                c.setAttribute('aria-checked', active);
+            });
+            updateSummary();
+        });
+    });
+
+    // Service Card Clicks
+    document.querySelectorAll('[data-service-card]').forEach(card => {
+        card.addEventListener('click', function() {
+            const serviceKey = this.dataset.serviceCard;
+            serviceSelect.value = serviceKey;
+            document.querySelectorAll('[data-service-card]').forEach(c => {
+                const active = c === card;
+                c.classList.toggle('is-selected', active);
+                c.setAttribute('aria-checked', active);
+            });
+            updateSummary();
+        });
+    });
+
+    // Symptom Chip Clicks
+    document.querySelectorAll('[data-symptom]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const text = this.dataset.symptom;
+            const current = issueTextarea.value.trim();
+            if (!current) {
+                issueTextarea.value = text;
+            } else if (!current.includes(text)) {
+                issueTextarea.value = `${current}\n• ${text}`;
+            }
+            issueTextarea.focus();
+        });
+    });
+
+    updateSummary();
+});
+</script>
 
 {% endblock %}

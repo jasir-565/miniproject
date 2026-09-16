@@ -1,334 +1,526 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Staff Dashboard - AutoNexa Service Center{% endblock %}
+{% block title %}Workshop Operations Console — AutoNexa{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/overview.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="overview overview-staff">
 
-<div class="page-header">
-    <h1 class="page-title">Staff Dashboard</h1>
-    <p class="page-subtitle">Manage assigned service jobs, appointments, progress updates, final service records, and roadside assistance dispatches.</p>
-</div>
-
-{% if error %}
-    <div class="alert">
-        ⚠️ {{ error }}
-    </div>
-{% endif %}
-
-<!-- STAT SUMMARY GRID -->
-<div class="grid-4" style="margin-bottom: 32px;">
-
-    <div class="stat-card amber">
-        <div class="stat-info">
-            <p>Pending Slots</p>
-            <h1>{{ pending_count }}</h1>
+    <!-- Workshop Telemetry Topbar -->
+    <header class="dash-topbar" aria-label="Workshop telemetry">
+        <div class="dash-breadcrumbs">
+            <span class="dash-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> WORKSHOP</span>
+            <span class="dash-crumb-sep">/</span>
+            <span class="dash-crumb-active">SERVICE PIPELINE & JOB DISPATCH</span>
         </div>
-        <div class="stat-icon">⏳</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-info">
-            <p>Confirmed Jobs</p>
-            <h1>{{ confirmed_count }}</h1>
+        <div class="dash-meta-strip">
+            <span class="dash-live-pulse"><i class="pulse-dot"></i> STATION ACTIVE</span>
+            <span class="dash-station-tech">Technician: <strong>{{ staff.user.get_full_name|default:staff.user.username }}</strong></span>
+            <span class="dash-date">{% now "l, d F Y" %}</span>
         </div>
-        <div class="stat-icon">📅</div>
-    </div>
+    </header>
 
-    <div class="stat-card">
-        <div class="stat-info">
-            <p>In Progress</p>
-            <h1>{{ in_progress_count }}</h1>
+    <!-- Workshop Operations Command Hero with Service Bay Operations Vehicle Portrait -->
+    <section class="dash-hero staff-hero dash-hero-with-portrait" aria-labelledby="staff-hero-title">
+        <div class="dash-hero-portrait-bg" aria-hidden="true">
+            <img src="{% static 'core/media/service-bay-portrait.jpg' %}" alt="Service Bay Operations Vehicle Portrait" class="hero-portrait-img staff-portrait-img">
+            <div class="hero-gold-texture-overlay"></div>
+            <div class="hero-portrait-scrim"></div>
         </div>
-        <div class="stat-icon">⚡</div>
-    </div>
 
-    <div class="stat-card green">
-        <div class="stat-info">
-            <p>Completed Jobs</p>
-            <h1>{{ completed_count }}</h1>
+        <div class="dash-hero-content">
+            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> MASTER WORKSHOP · ACTIVE BAY TELEMETRY</span>
+            <h1 id="staff-hero-title">Service Bay <span class="text-highlight is-gold">Operations</span>.</h1>
+            <p class="dash-hero-subtitle">
+                Manage assigned repair orders, assign customer appointment slots, broadcast live repair progress notes, and certify completed records.
+            </p>
+            <div class="dash-hero-actions">
+                <a href="#active-jobs" class="dash-btn dash-btn-primary">
+                    <span>Jump to Active Orders ({{ bookings|length }})</span>
+                    <span class="btn-arrow" aria-hidden="true">↓</span>
+                </a>
+                <a href="{% url 'staff_assistance_requests' %}" class="dash-btn dash-btn-crimson">
+                    <span class="sos-icon">⚡</span>
+                    <span>Roadside Emergency Queue ({% if available_assistance_count %}{{ available_assistance_count }}{% else %}0{% endif %})</span>
+                    <span class="btn-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a href="{% url 'staff_service_history' %}" class="dash-btn dash-btn-secondary">
+                    <span>Completed Service Archive ↗</span>
+                </a>
+            </div>
         </div>
-        <div class="stat-icon">✅</div>
-    </div>
-
-</div>
-
-<!-- QUICK ACCESS CARDS -->
-<div class="grid-2" style="margin-bottom: 32px;">
-
-    <div class="card" style="border-left: 5px solid var(--danger-red);">
-        <h3>🚨 Roadside Assistance Panel</h3>
-        <p class="page-subtitle">Available Requests: <strong>{{ available_assistance_count }}</strong> | My Active Dispatches: <strong>{{ my_active_assistance_count }}</strong></p>
-        <div style="margin-top: 16px; display: flex; gap: 12px;">
-            <a href="{% url 'staff_assistance_requests' %}" class="btn btn-red">
-                Open Roadside Requests
-            </a>
-            <a href="{% url 'staff_assistance_history' %}" class="btn btn-gray">
-                View Assistance History
-            </a>
+        <div class="dash-hero-stats-panel" aria-label="Bay occupancy">
+            <div class="hero-stat-cell is-gold-accent">
+                <span class="stat-cell-label">BAY EFFICIENCY</span>
+                <strong class="stat-cell-value text-gold">100% ✦</strong>
+                <small class="stat-cell-note">Zero dispatch bottlenecks</small>
+            </div>
+            <div class="hero-stat-cell">
+                <span class="stat-cell-label">EMERGENCY SOS</span>
+                <strong class="stat-cell-value {% if available_assistance_count %}text-crimson{% else %}text-emerald{% endif %}">
+                    {{ available_assistance_count|stringformat:'02d' }} QUEUED
+                </strong>
+                <small class="stat-cell-note">{{ my_active_assistance_count }} under your dispatch</small>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <div class="card" style="border-left: 5px solid var(--primary-blue);">
-        <h3>📜 Staff Service History</h3>
-        <p class="page-subtitle">View completed and cancelled vehicle service jobs handled by your account.</p>
-        <div style="margin-top: 16px;">
-            <a href="{% url 'staff_service_history' %}" class="btn btn-gray">
-                View Staff Service History
-            </a>
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
         </div>
-    </div>
+    {% endif %}
 
-</div>
-
-<!-- ACTIVE SERVICE JOBS -->
-<div class="page-header">
-    <h2 class="page-title">My Active Service Jobs</h2>
-    <p class="page-subtitle">Open each job card to view customer details, assign appointment times, update progress, or complete service records.</p>
-</div>
-
-{% if bookings %}
-
-    {% for booking in bookings %}
-
-        <div class="job-menu">
-            <details open>
-                <summary>
-                    <div class="job-summary">
-                        <div class="job-title">
-                            <h3>{{ booking.service_type }}</h3>
-                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                <span class="license-plate">{{ booking.vehicle.registration_number }}</span>
-                                <span>{{ booking.vehicle.brand }} {{ booking.vehicle.model }}</span>
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if booking.status == 'PENDING' %}
-                                <span class="status-badge status-pending">Pending Appointment</span>
-                            {% elif booking.status == 'CONFIRMED' %}
-                                <span class="status-badge status-confirmed">Confirmed</span>
-                            {% elif booking.status == 'IN_PROGRESS' %}
-                                <span class="status-badge status-progress">In Progress</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </summary>
-
-                <div class="job-body">
-                    <br>
-                    <div class="grid-2">
-                        <div class="detail-box">
-                            <strong>Customer Name</strong>
-                            <span>
-                                {% if booking.customer.user.get_full_name %}
-                                    👤 {{ booking.customer.user.get_full_name }}
-                                {% else %}
-                                    👤 {{ booking.customer.user.username }}
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Vehicle Registration</strong>
-                            <span>{{ booking.vehicle.registration_number }} ({{ booking.vehicle.brand }} {{ booking.vehicle.model }})</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Appointment Date</strong>
-                            <span>
-                                {% if booking.appointment_date %}
-                                    📅 {{ booking.appointment_date }}
-                                {% else %}
-                                    <span style="color: var(--warning-amber);">Not assigned yet</span>
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Appointment Time</strong>
-                            <span>
-                                {% if booking.appointment_time %}
-                                    ⏰ {{ booking.appointment_time }}
-                                {% else %}
-                                    <span style="color: var(--warning-amber);">Not assigned yet</span>
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Issue Description</strong>
-                            <span>{{ booking.issue_description }}</span>
-                        </div>
-
-                        <div class="detail-box full-width" style="border-color: #bfdbfe;">
-                            <strong>Current Work Progress</strong>
-                            <span style="color: var(--primary-blue-dark); font-weight: 600;">
-                                {% if booking.current_work %}
-                                    ⚡ {{ booking.current_work }}
-                                {% else %}
-                                    <span style="color: var(--text-muted); font-weight: normal;">Not updated yet</span>
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- ASSIGN APPOINTMENT FORM (IF PENDING) -->
-                    {% if booking.status == 'PENDING' %}
-
-                        <div class="form-section">
-                            <h4>📅 Assign Appointment Date & Time</h4>
-                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
-                                Select appointment date and time for this customer service request.
-                            </p>
-
-                            <form method="POST" action="{% url 'assign_appointment' booking.id %}">
-                                {% csrf_token %}
-
-                                <div class="grid-2" style="gap: 0 16px;">
-                                    <div>
-                                        <label for="appointment_date_{{ booking.id }}">Appointment Date</label>
-                                        <input
-                                            type="date"
-                                            name="appointment_date"
-                                            id="appointment_date_{{ booking.id }}"
-                                            required
-                                        >
-                                    </div>
-
-                                    <div>
-                                        <label for="appointment_time_{{ booking.id }}">Appointment Time</label>
-                                        <input
-                                            type="time"
-                                            name="appointment_time"
-                                            id="appointment_time_{{ booking.id }}"
-                                            required
-                                        >
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn" style="margin-top: 12px;">
-                                    Assign Appointment
-                                </button>
-                            </form>
-                        </div>
-
-                    {% endif %}
-
-                    <!-- UPDATE SERVICE PROGRESS FORM (IF CONFIRMED OR IN_PROGRESS) -->
-                    {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' %}
-
-                        <div class="form-section">
-                            <h4>⚡ Update Service Status & Progress</h4>
-                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
-                                Update current repair status and work progress notes.
-                            </p>
-
-                            <form method="POST" action="{% url 'update_service_status' booking.id %}">
-                                {% csrf_token %}
-
-                                <div class="grid-2" style="gap: 0 16px;">
-                                    <div>
-                                        <label for="status_{{ booking.id }}">Status</label>
-                                        <select name="status" id="status_{{ booking.id }}" required>
-                                            <option value="CONFIRMED" {% if booking.status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
-                                            <option value="IN_PROGRESS" {% if booking.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
-                                            <option value="CANCELLED">Cancelled</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="current_work_{{ booking.id }}">Current Work Note</label>
-                                        <input
-                                            type="text"
-                                            name="current_work"
-                                            id="current_work_{{ booking.id }}"
-                                            value="{{ booking.current_work }}"
-                                            placeholder="Example: Brake pad replacement in progress"
-                                            required
-                                        >
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn" style="margin-top: 12px;">
-                                    Update Service Progress
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- COMPLETE SERVICE WITH RECORD FORM -->
-                        <div class="form-section success-box" style="margin-top: 20px;">
-                            <h4>Complete Service With Final Record</h4>
-                            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 12px;">
-                                Fill the final service details before completing the job. Afterwards, this job moves to Service History.
-                            </p>
-
-                            <form method="POST" action="{% url 'complete_service_with_record' booking.id %}">
-                                {% csrf_token %}
-
-                                <label for="inspection_details_{{ booking.id }}">Inspection Details</label>
-                                <textarea
-                                    name="inspection_details"
-                                    id="inspection_details_{{ booking.id }}"
-                                    rows="3"
-                                    placeholder="Example: Multi-point inspection completed and vehicle condition checked"
-                                    required
-                                ></textarea>
-
-                                <label for="repair_details_{{ booking.id }}">Repair Details</label>
-                                <textarea
-                                    name="repair_details"
-                                    id="repair_details_{{ booking.id }}"
-                                    rows="3"
-                                    placeholder="Example: Brake pads replaced and brake fluid flushed"
-                                    required
-                                ></textarea>
-
-                                <div class="grid-2" style="gap: 0 16px;">
-                                    <div>
-                                        <label for="parts_replaced_{{ booking.id }}">Parts Replaced</label>
-                                        <input
-                                            type="text"
-                                            name="parts_replaced"
-                                            id="parts_replaced_{{ booking.id }}"
-                                            placeholder="Example: Brake pads, engine oil, air filter"
-                                        >
-                                    </div>
-
-                                    <div>
-                                        <label for="service_cost_{{ booking.id }}">Service Cost (₹)</label>
-                                        <input
-                                            type="number"
-                                            name="service_cost"
-                                            id="service_cost_{{ booking.id }}"
-                                            min="0"
-                                            step="0.01"
-                                            placeholder="Example: 2500"
-                                            required
-                                        >
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-green" style="margin-top: 12px; width: 100%;">
-                                    Complete Service & Save Record
-                                </button>
-                            </form>
-                        </div>
-
-                    {% endif %}
+    <!-- Operational KPI Operations Ribbon (5 Metrics) -->
+    <section class="dash-kpi-grid staff-kpi-grid" aria-label="Work order metrics summary">
+        <div class="kpi-card is-static is-gold-kpi">
+            <div class="kpi-icon-wrap is-gold">
+                <span class="kpi-glyph">📑</span>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-label">Assigned Work Orders</span>
+                <div class="kpi-number-row">
+                    <strong class="kpi-value text-gold">{{ bookings|length|stringformat:'02d' }}</strong>
+                    <span class="kpi-trend" style="color: #fbf5b7;">Total Assigned</span>
                 </div>
-            </details>
+            </div>
         </div>
 
-    {% endfor %}
+        <button type="button" class="kpi-card is-interactive" data-pipeline-trigger="PENDING">
+            <div class="kpi-icon-wrap {% if pending_count %}is-amber{% endif %}">
+                <span class="kpi-glyph">⏳</span>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-label">Awaiting Appointment</span>
+                <div class="kpi-number-row">
+                    <strong class="kpi-value">{{ pending_count|stringformat:'02d' }}</strong>
+                    <span class="kpi-trend {% if pending_count %}text-amber{% endif %}">
+                        {% if pending_count %}Needs Date/Time{% else %}All Scheduled{% endif %}
+                    </span>
+                </div>
+            </div>
+            <span class="kpi-chevron" aria-hidden="true">→</span>
+        </button>
 
-{% else %}
+        <button type="button" class="kpi-card is-interactive" data-pipeline-trigger="CONFIRMED">
+            <div class="kpi-icon-wrap is-blue">
+                <span class="kpi-glyph">📅</span>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-label">Scheduled & Confirmed</span>
+                <div class="kpi-number-row">
+                    <strong class="kpi-value">{{ confirmed_count|stringformat:'02d' }}</strong>
+                    <span class="kpi-trend text-blue">Booked on Calendar</span>
+                </div>
+            </div>
+            <span class="kpi-chevron" aria-hidden="true">→</span>
+        </button>
 
-    <div class="empty-box">
-        <h3>No Active Service Jobs</h3>
-        <p>You currently have no pending, confirmed, or in-progress service jobs.</p>
+        <button type="button" class="kpi-card is-interactive" data-pipeline-trigger="IN_PROGRESS">
+            <div class="kpi-icon-wrap is-emerald">
+                <span class="kpi-glyph">🔧</span>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-label">Active on Lift</span>
+                <div class="kpi-number-row">
+                    <strong class="kpi-value">{{ in_progress_count|stringformat:'02d' }}</strong>
+                    <span class="kpi-trend text-emerald">In Repair / Diagnostics</span>
+                </div>
+            </div>
+            <span class="kpi-chevron" aria-hidden="true">→</span>
+        </button>
+
+        <a class="kpi-card" href="{% url 'staff_assistance_requests' %}">
+            <div class="kpi-icon-wrap {% if available_assistance_count %}is-crimson{% endif %}">
+                <span class="kpi-glyph">⚡</span>
+            </div>
+            <div class="kpi-body">
+                <span class="kpi-label">Roadside SOS Desk</span>
+                <div class="kpi-number-row">
+                    <strong class="kpi-value">{{ available_assistance_count|stringformat:'02d' }}</strong>
+                    <span class="kpi-trend {% if available_assistance_count %}text-crimson{% endif %}">
+                        {% if available_assistance_count %}Needs Response{% else %}Queue Clear{% endif %}
+                    </span>
+                </div>
+            </div>
+            <span class="kpi-chevron" aria-hidden="true">↗</span>
+        </a>
+    </section>
+
+    <!-- Operational Filter & Search Console -->
+    <section class="staff-control-bar" id="active-jobs" aria-label="Job board controls">
+        <div class="control-bar-search">
+            <span class="search-lens" aria-hidden="true">🔍</span>
+            <input
+                type="text"
+                id="staff-search-input"
+                class="staff-search-box"
+                placeholder="Filter by WO#, registration plate (e.g. KL33), customer name, or service type..."
+                aria-label="Filter active work orders"
+            >
+            <span class="search-counter" id="staff-search-count">{{ bookings|length }} orders</span>
+        </div>
+
+        <div class="control-bar-filters" role="tablist" aria-label="Filter by service stage">
+            <button type="button" class="stage-tab is-selected" id="pipeline-filter-all" data-filter="ALL" role="tab" aria-selected="true">
+                <span>All Orders</span>
+                <span class="tab-badge">{{ bookings|length }}</span>
+            </button>
+            <button type="button" class="stage-tab" data-filter="PENDING" role="tab" aria-selected="false">
+                <span>Awaiting Intake</span>
+                <span class="tab-badge {% if pending_count %}is-amber{% endif %}">{{ pending_count }}</span>
+            </button>
+            <button type="button" class="stage-tab" data-filter="CONFIRMED" role="tab" aria-selected="false">
+                <span>Scheduled</span>
+                <span class="tab-badge is-blue">{{ confirmed_count }}</span>
+            </button>
+            <button type="button" class="stage-tab" data-filter="IN_PROGRESS" role="tab" aria-selected="false">
+                <span>In Progress</span>
+                <span class="tab-badge is-emerald">{{ in_progress_count }}</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Filter Banner Active State Notice -->
+    <div class="pipeline-filter-banner" id="pipeline-filter-banner" style="display:none" role="status">
+        <span>Filtering by stage: <strong id="pipeline-current-filter">All</strong></span>
+        <button type="button" class="pipeline-clear-link" id="pipeline-clear-filter">Reset Stage Filter ✕</button>
     </div>
 
-{% endif %}
+    <!-- Empty Search / Filter Notice -->
+    <div class="job-filtered-empty" id="job-filtered-empty" style="display: none;">
+        <div class="empty-icon-wrap">🔍</div>
+        <h4>No matching workshop orders found</h4>
+        <p>No active service jobs match your current search query or stage filter.</p>
+        <button type="button" class="dash-btn dash-btn-sm dash-btn-secondary" id="reset-all-filters-btn">Clear All Filters</button>
+    </div>
 
+    <!-- Work Orders List -->
+    <section class="work-orders-container" aria-label="Assigned work orders list">
+        {% if bookings %}
+            {% for booking in bookings %}
+                <article class="work-order-card job-menu" data-job-status="{{ booking.status }}" data-order-ref="{{ booking.id|stringformat:'04d' }}" data-search-haystack="{{ booking.id }} {{ booking.service_type }} {{ booking.vehicle.registration_number }} {{ booking.vehicle.brand }} {{ booking.vehicle.model }} {{ booking.customer.user.get_full_name }} {{ booking.customer.user.username }}">
+                    <details open>
+                        <summary class="order-card-summary">
+                            <div class="order-summary-left">
+                                <div class="order-meta-row">
+                                    <span class="order-tag">#WO-{{ booking.id|stringformat:'04d' }}</span>
+                                    <span class="order-date">Intake: {{ booking.created_at|date:'M d, Y · g:i A'|default:'Active' }}</span>
+                                </div>
+                                <h3 class="order-service-title">{{ booking.service_type }}</h3>
+                                <div class="order-vehicle-strip">
+                                    <span class="license-plate-badge">{{ booking.vehicle.registration_number }}</span>
+                                    <span class="vehicle-name-label">{{ booking.vehicle.brand }} {{ booking.vehicle.model }} ({{ booking.vehicle.year }})</span>
+                                    <span class="customer-name-pill">
+                                        👤 {% if booking.customer.user.get_full_name %}{{ booking.customer.user.get_full_name }}{% else %}{{ booking.customer.user.username }}{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="order-summary-right">
+                                <span class="status-pill status-{{ booking.status|lower }}">
+                                    <span class="status-dot"></span>
+                                    {{ booking.get_status_display }}
+                                </span>
+                                <span class="summary-expand-indicator" aria-hidden="true">
+                                    <span class="expand-text">Manage</span>
+                                    <span class="expand-icon">⌄</span>
+                                </span>
+                            </div>
+                        </summary>
+
+                        <!-- Visual 4-Stage Operational Progress Stepper -->
+                        <div class="order-stepper-bar" aria-label="Order workflow status">
+                            <div class="stepper-stage is-done">
+                                <span class="stage-step-num">1</span>
+                                <span class="stage-step-label">Intake Logged</span>
+                            </div>
+                            <div class="stepper-line {% if booking.status != 'PENDING' %}is-done{% endif %}"></div>
+
+                            <div class="stepper-stage {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' %}is-done{% elif booking.status == 'PENDING' %}is-active{% endif %}">
+                                <span class="stage-step-num">{% if booking.status != 'PENDING' %}✓{% else %}2{% endif %}</span>
+                                <span class="stage-step-label">Appointment Set</span>
+                            </div>
+                            <div class="stepper-line {% if booking.status == 'IN_PROGRESS' %}is-done{% endif %}"></div>
+
+                            <div class="stepper-stage {% if booking.status == 'IN_PROGRESS' %}is-active is-pulsing{% else %}is-waiting{% endif %}">
+                                <span class="stage-step-num">3</span>
+                                <span class="stage-step-label">In Workshop</span>
+                            </div>
+                            <div class="stepper-line"></div>
+
+                            <div class="stepper-stage is-waiting">
+                                <span class="stage-step-num">4</span>
+                                <span class="stage-step-label">Quality Handover</span>
+                            </div>
+                        </div>
+
+                        <!-- Expandable Management & Execution Console -->
+                        <div class="order-expanded-console">
+
+                            <!-- Structured Telemetry Grid -->
+                            <div class="order-telemetry-grid">
+                                <div class="telemetry-cell">
+                                    <span class="cell-label">CUSTOMER NAME</span>
+                                    <strong class="cell-value">
+                                        {% if booking.customer.user.get_full_name %}
+                                            {{ booking.customer.user.get_full_name }}
+                                        {% else %}
+                                            {{ booking.customer.user.username }}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div class="telemetry-cell">
+                                    <span class="cell-label">VEHICLE TELEMETRY</span>
+                                    <strong class="cell-value">{{ booking.vehicle.registration_number }} · {{ booking.vehicle.brand }} {{ booking.vehicle.model }}</strong>
+                                </div>
+
+                                <div class="telemetry-cell">
+                                    <span class="cell-label">SCHEDULED APPOINTMENT</span>
+                                    <strong class="cell-value {% if not booking.appointment_date %}text-amber{% endif %}">
+                                        {% if booking.appointment_date %}
+                                            {{ booking.appointment_date|date:'l, F j, Y' }}
+                                            {% if booking.appointment_time %}· {{ booking.appointment_time|time:'g:i A' }}{% endif %}
+                                        {% else %}
+                                            ⚠️ Not Assigned Yet (Intake Pending)
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div class="telemetry-cell">
+                                    <span class="cell-label">TECHNICIAN IN CHARGE</span>
+                                    <strong class="cell-value">{{ staff.user.get_full_name|default:staff.user.username }} (You)</strong>
+                                </div>
+
+                                <div class="telemetry-cell full-width">
+                                    <span class="cell-label">CUSTOMER STATED ISSUE / REQUEST</span>
+                                    <p class="issue-quote-box">"{{ booking.issue_description }}"</p>
+                                </div>
+
+                                <div class="telemetry-cell full-width">
+                                    <span class="cell-label">LIVE BROADCAST WORK NOTE</span>
+                                    <div class="live-work-display">
+                                        {% if booking.current_work %}
+                                            <span class="work-pulse-dot"></span>
+                                            <strong>{{ booking.current_work }}</strong>
+                                        {% else %}
+                                            <span class="text-muted">No repair progress note posted yet.</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACTION CONSOLE 1: Assign Appointment Slot (If Pending) -->
+                            {% if booking.status == 'PENDING' %}
+                                <div class="action-console-box is-pending-box">
+                                    <div class="action-console-header">
+                                        <div class="console-title-wrap">
+                                            <span class="console-icon">📅</span>
+                                            <div>
+                                                <h4>Assign Appointment Date & Time</h4>
+                                                <p>Select the scheduled slot for this vehicle to enter the workshop bay.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{% url 'assign_appointment' booking.id %}" class="console-form">
+                                        {% csrf_token %}
+                                        <div class="console-form-row">
+                                            <div class="form-field-group">
+                                                <label for="appointment_date_{{ booking.id }}">Appointment Date</label>
+                                                <input
+                                                    type="date"
+                                                    name="appointment_date"
+                                                    id="appointment_date_{{ booking.id }}"
+                                                    class="form-control-input"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="form-field-group">
+                                                <label for="appointment_time_{{ booking.id }}">Appointment Time</label>
+                                                <input
+                                                    type="time"
+                                                    name="appointment_time"
+                                                    id="appointment_time_{{ booking.id }}"
+                                                    class="form-control-input"
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="form-field-btn-wrap">
+                                                <button type="submit" class="dash-btn dash-btn-primary">
+                                                    <span>Confirm Appointment Slot</span>
+                                                    <span aria-hidden="true">✓</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                            <!-- ACTION CONSOLE 2: Update Progress & Broadcast Note (If Confirmed / In Progress) -->
+                            {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' %}
+                                <div class="action-console-box">
+                                    <div class="action-console-header">
+                                        <div class="console-title-wrap">
+                                            <span class="console-icon">⚙️</span>
+                                            <div>
+                                                <h4>Update Workshop Status & Broadcast Note</h4>
+                                                <p>Broadcast updates to customer's live dashboard while vehicle is being serviced.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{% url 'update_service_status' booking.id %}" class="console-form">
+                                        {% csrf_token %}
+                                        <div class="console-form-row">
+                                            <div class="form-field-group" style="flex: 1 1 200px;">
+                                                <label for="status_{{ booking.id }}">Workflow Status</label>
+                                                <select name="status" id="status_{{ booking.id }}" class="form-control-select" required>
+                                                    <option value="CONFIRMED" {% if booking.status == 'CONFIRMED' %}selected{% endif %}>Confirmed / Scheduled</option>
+                                                    <option value="IN_PROGRESS" {% if booking.status == 'IN_PROGRESS' %}selected{% endif %}>In Progress (Active on Lift)</option>
+                                                    <option value="CANCELLED">Cancelled</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-field-group" style="flex: 2 1 350px;">
+                                                <label for="current_work_{{ booking.id }}">Technician Progress Note</label>
+                                                <input
+                                                    type="text"
+                                                    name="current_work"
+                                                    id="current_work_{{ booking.id }}"
+                                                    class="form-control-input"
+                                                    value="{{ booking.current_work }}"
+                                                    placeholder="Example: Brake disc skimming complete. Flushing synthetic brake fluid..."
+                                                    required
+                                                >
+                                            </div>
+
+                                            <div class="form-field-btn-wrap">
+                                                <button type="submit" class="dash-btn dash-btn-secondary">
+                                                    <span>Broadcast Work Note</span>
+                                                    <span aria-hidden="true">📡</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- ACTION CONSOLE 3: Certify Completion & Save Final Service Record -->
+                                <div class="action-console-box is-complete-box">
+                                    <div class="action-console-header">
+                                        <div class="console-title-wrap">
+                                            <span class="console-icon">🏁</span>
+                                            <div>
+                                                <h4>Final Quality Inspection & Handover Certification</h4>
+                                                <p>Enter diagnostic findings, parts replaced, and billing cost to finalize the permanent record.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" action="{% url 'complete_service_with_record' booking.id %}" class="console-form">
+                                        {% csrf_token %}
+                                        <div class="form-fields-stack">
+                                            <div class="form-fields-grid-2">
+                                                <div class="form-field-group">
+                                                    <label for="inspection_details_{{ booking.id }}">Inspection & Diagnostics Findings</label>
+                                                    <textarea
+                                                        name="inspection_details"
+                                                        id="inspection_details_{{ booking.id }}"
+                                                        class="form-control-textarea"
+                                                        rows="3"
+                                                        placeholder="e.g. 40-point vehicle health check performed. Suspension bushings, battery voltage (12.6V), and tyre wear inspected."
+                                                        required
+                                                    ></textarea>
+                                                </div>
+
+                                                <div class="form-field-group">
+                                                    <label for="repair_details_{{ booking.id }}">Repair & Maintenance Executed</label>
+                                                    <textarea
+                                                        name="repair_details"
+                                                        id="repair_details_{{ booking.id }}"
+                                                        class="form-control-textarea"
+                                                        rows="3"
+                                                        placeholder="e.g. Replaced engine oil with 5W-40 Synthetic. Installed new OEM oil filter and air cleaner element."
+                                                        required
+                                                    ></textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-fields-grid-2">
+                                                <div class="form-field-group">
+                                                    <label for="parts_replaced_{{ booking.id }}">Parts Replaced (OEM / Aftermarket)</label>
+                                                    <input
+                                                        type="text"
+                                                        name="parts_replaced"
+                                                        id="parts_replaced_{{ booking.id }}"
+                                                        class="form-control-input"
+                                                        placeholder="e.g. Oil Filter, Air Filter, Front Brake Pads"
+                                                    >
+                                                </div>
+
+                                                <div class="form-field-group">
+                                                    <label for="service_cost_{{ booking.id }}">Total Final Service Cost (₹ INR)</label>
+                                                    <div class="currency-input-wrap">
+                                                        <span class="currency-prefix">₹</span>
+                                                        <input
+                                                            type="number"
+                                                            name="service_cost"
+                                                            id="service_cost_{{ booking.id }}"
+                                                            class="form-control-input has-prefix"
+                                                            min="0"
+                                                            step="0.01"
+                                                            placeholder="e.g. 3850.00"
+                                                            required
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-submit-row">
+                                                <button type="submit" class="dash-btn dash-btn-emerald full-width">
+                                                    <span>Complete Service & Certify Maintenance Record</span>
+                                                    <span aria-hidden="true">✓</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </details>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-orders-slate">
+                <div class="empty-icon-wrap">🛠️</div>
+                <h3>Workshop Dispatch Queue is Clear</h3>
+                <p>You currently have no pending, confirmed, or in-progress service jobs assigned to your station.</p>
+                <div class="empty-actions-row">
+                    <a href="{% url 'staff_assistance_requests' %}" class="dash-btn dash-btn-crimson">
+                        <span>Check Roadside SOS Queue</span>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                    <a href="{% url 'staff_service_history' %}" class="dash-btn dash-btn-secondary">
+                        <span>Browse Past Service Archive</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- 24/7 Fleet Highway Patrol & Roadside Telemetry Monitor -->
+    <section class="staff-runway-wrap" style="margin-top: 32px;" aria-label="Highway Patrol & Tow Fleet Telemetry">
+        {% include 'core/components/road_runway.html' with runway_id='staff' runway_title='HIGHWAY PATROL & RAPID TOW FLEET TELEMETRY' runway_subtitle='Real-time mobile recovery units on 24/7 standby across all workshop dispatch zones' %}
+    </section>
+
+</div>
 {% endblock %}

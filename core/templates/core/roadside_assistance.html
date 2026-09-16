@@ -1,153 +1,300 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Roadside Assistance - AutoNexa Service Center{% endblock %}
+{% block title %}Roadside Assistance & Real-time Live Tracking - AutoNexa{% endblock %}
 
 {% block content %}
 
-<div class="page-header">
-    <h1 class="page-title">🚨 Emergency Roadside Assistance</h1>
+<!-- Leaflet.js Maps CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<!-- Executive Telemetry Topbar -->
+<div class="dash-topbar" role="navigation" aria-label="Breadcrumb and telemetry">
+    <div class="dash-breadcrumbs">
+        <span class="crumb-root"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+        <span class="crumb-separator" aria-hidden="true">/</span>
+        <span class="crumb-active">ROADSIDE RESCUE & TACTICAL DISPATCH</span>
+    </div>
+    <div class="dash-telemetry">
+        <span class="telemetry-pill emergency-pill">
+            <span class="radar-ping" aria-hidden="true"></span>
+            <span class="telemetry-label" style="color: #fca5a5;">24/7 RAPID RESPONSE ACTIVE</span>
+        </span>
+        <span class="telemetry-date">{{ now|date:"d M Y"|upper }}</span>
+    </div>
+</div>
+
+<div class="page-header" style="margin-bottom: 24px;">
+    <span class="eyebrow" style="color: #fca5a5;">TACTICAL BREAKDOWN RESPONSE</span>
+    <h1 class="page-title" style="margin: 6px 0 8px;">Emergency Roadside Assistance</h1>
     <p class="page-subtitle">
-        Request emergency support for tow trucks, on-site vehicle repair, battery jumpstarts, flat tire replacements, or roadside assistance.
+        Request immediate mechanical recovery, towing, or tire rescue. Live GPS telemetry tracks assigned staff directly to your breakdown coordinates.
     </p>
 </div>
 
-<div style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
-    <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-        📊 Back to Dashboard
+<div style="margin-bottom: 28px; display: flex; gap: 12px; flex-wrap: wrap;">
+    <a href="{% url 'customer_dashboard' %}" class="dash-btn dash-btn-secondary" style="padding: 7px 16px; font-size: 12.5px;">
+        <span>← Garage Overview</span>
     </a>
-
-    <a href="{% url 'service_history' %}" class="btn btn-gray">
-        📜 Service History
+    <a href="{% url 'service_history' %}" class="dash-btn dash-btn-secondary" style="padding: 7px 16px; font-size: 12.5px;">
+        <span>Service & SOS Records</span>
     </a>
 </div>
 
 {% if error %}
-    <div class="alert">
+    <div class="alert alert-danger" style="margin-bottom: 24px;">
         {{ error }}
     </div>
 {% endif %}
 
-<div class="grid-2">
+<div class="booking-concierge-container">
 
-    <!-- REQUEST FORM -->
-    <div class="form-box" style="border-top: 4px solid var(--danger-red);">
-        <h2>Request Roadside Help</h2>
+    <!-- REQUEST FORM IN TACTICAL SOS CARD -->
+    <div class="sos-hero-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(239, 68, 68, 0.25);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="radar-ping"></span>
+                <h2 style="font-size: 18px; font-weight: 600; color: #ffffff; margin: 0;">Dispatch Emergency Unit</h2>
+            </div>
+            <span class="dash-kicker is-gold" style="font-size: 8.5px; padding: 2px 8px;">PRIORITY 1 DISPATCH</span>
+        </div>
 
         {% if vehicles %}
 
-            <form method="POST">
+            <form method="POST" id="assistance-form">
                 {% csrf_token %}
 
-                <label for="vehicle">Select Vehicle</label>
+                <input type="hidden" name="customer_latitude" id="customer_latitude">
+                <input type="hidden" name="customer_longitude" id="customer_longitude">
 
-                <select name="vehicle" id="vehicle" required>
-                    <option value="">-- Select Vehicle --</option>
+                <!-- STEP 1: SELECT VEHICLE -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--dash-text-muted); margin-bottom: 8px;">
+                        01 / STRANDED VEHICLE
+                    </label>
 
-                    {% for vehicle in vehicles %}
-                        <option value="{{ vehicle.id }}">
-                            {{ vehicle.registration_number }} —
-                            {{ vehicle.brand }} {{ vehicle.model }}
-                        </option>
-                    {% endfor %}
-                </select>
+                    <select name="vehicle" id="vehicle" class="visually-hidden" required>
+                        <option value="">-- Select Vehicle --</option>
+                        {% for vehicle in vehicles %}
+                            <option value="{{ vehicle.id }}"
+                                    data-brand="{{ vehicle.brand }}"
+                                    data-model="{{ vehicle.model }}"
+                                    data-reg="{{ vehicle.registration_number }}"
+                                    {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}selected{% endif %}>
+                                {{ vehicle.registration_number }} — {{ vehicle.brand }} {{ vehicle.model }}
+                            </option>
+                        {% endfor %}
+                    </select>
 
-                <label for="assistance_type">Assistance Type Required</label>
+                    <div class="vehicle-selector-chips" role="radiogroup" aria-label="Select stranded vehicle">
+                        {% for vehicle in vehicles %}
+                            <div class="vehicle-choice-chip {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}is-selected{% endif %}"
+                                 data-sos-vehicle-chip="{{ vehicle.id }}"
+                                 role="radio"
+                                 tabindex="0"
+                                 aria-checked="{% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}true{% else %}false{% endif %}">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="vehicle-chip-reg">{{ vehicle.registration_number }}</span>
+                                    <span class="status-badge status-confirmed" style="font-size: 9px; padding: 2px 6px;">{{ vehicle.year }}</span>
+                                </div>
+                                <span class="vehicle-chip-name">{{ vehicle.brand }} {{ vehicle.model }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-                <select name="assistance_type" id="assistance_type" required>
-                    <option value="">-- Select Assistance Type --</option>
-                    <option value="Tow Truck">Tow Truck Service</option>
-                    <option value="Vehicle Repair">On-Site Mechanical Repair</option>
-                    <option value="Battery Assistance">Battery Jumpstart / Replacement</option>
-                    <option value="Tyre Assistance">Flat Tire Assistance</option>
-                    <option value="Fuel Assistance">Fuel Assistance</option>
-                    <option value="Other">Other Emergency Support</option>
-                </select>
+                <!-- STEP 2: ASSISTANCE TYPE TILES -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--dash-text-muted); margin-bottom: 8px;">
+                        02 / ASSISTANCE TYPE REQUIRED
+                    </label>
 
-                <label for="problem_description">Problem Description</label>
+                    <select name="assistance_type" id="assistance_type" class="visually-hidden" required>
+                        <option value="">-- Select Assistance Type --</option>
+                        <option value="Tow Truck" selected>Tow Truck Service</option>
+                        <option value="Vehicle Repair">On-Site Mechanical Repair</option>
+                        <option value="Battery Assistance">Battery Jumpstart / Replacement</option>
+                        <option value="Tyre Assistance">Flat Tire Assistance</option>
+                        <option value="Fuel Assistance">Fuel Assistance</option>
+                        <option value="Other">Other Emergency Support</option>
+                    </select>
 
-                <textarea
-                    name="problem_description"
-                    id="problem_description"
-                    rows="4"
-                    required
-                    placeholder="Describe the vehicle breakdown symptoms..."
-                ></textarea>
+                    <div class="sos-type-grid" role="radiogroup" aria-label="Assistance types">
+                        <div class="sos-type-card is-selected" data-sos-type="Tow Truck" role="radio" tabindex="0" aria-checked="true">
+                            <span class="sos-type-glyph">🚛</span>
+                            <span class="sos-type-title">Tow Truck</span>
+                            <span class="sos-type-eta">ETA ~20-30 MIN</span>
+                        </div>
+                        <div class="sos-type-card" data-sos-type="Vehicle Repair" role="radio" tabindex="0" aria-checked="false">
+                            <span class="sos-type-glyph">🧰</span>
+                            <span class="sos-type-title">Mobile Mechanic</span>
+                            <span class="sos-type-eta">ETA ~25-35 MIN</span>
+                        </div>
+                        <div class="sos-type-card" data-sos-type="Battery Assistance" role="radio" tabindex="0" aria-checked="false">
+                            <span class="sos-type-glyph">🔋</span>
+                            <span class="sos-type-title">Jumpstart</span>
+                            <span class="sos-type-eta">ETA ~15-25 MIN</span>
+                        </div>
+                        <div class="sos-type-card" data-sos-type="Tyre Assistance" role="radio" tabindex="0" aria-checked="false">
+                            <span class="sos-type-glyph">🛞</span>
+                            <span class="sos-type-title">Flat Tire</span>
+                            <span class="sos-type-eta">ETA ~20-30 MIN</span>
+                        </div>
+                        <div class="sos-type-card" data-sos-type="Fuel Assistance" role="radio" tabindex="0" aria-checked="false">
+                            <span class="sos-type-glyph">⛽</span>
+                            <span class="sos-type-title">Fuel Rescue</span>
+                            <span class="sos-type-eta">ETA ~15-20 MIN</span>
+                        </div>
+                        <div class="sos-type-card" data-sos-type="Other" role="radio" tabindex="0" aria-checked="false">
+                            <span class="sos-type-glyph">🚨</span>
+                            <span class="sos-type-title">Other SOS</span>
+                            <span class="sos-type-eta">PRIORITY</span>
+                        </div>
+                    </div>
+                </div>
 
-                <label for="location_details">Current Location Details</label>
+                <!-- STEP 3: PROBLEM DESCRIPTION -->
+                <div style="margin-bottom: 20px;">
+                    <label for="problem_description" style="display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--dash-text-muted); margin-bottom: 8px;">
+                        03 / BREAKDOWN PROBLEM SYMPTOMS
+                    </label>
+                    <textarea
+                        name="problem_description"
+                        id="problem_description"
+                        rows="3"
+                        required
+                        placeholder="State what occurred (e.g., Engine overheated on highway, completely dead battery, blown rear right tire)..."
+                        style="width: 100%; font-size: 13px; line-height: 1.6;"
+                    ></textarea>
+                </div>
 
-                <textarea
-                    name="location_details"
-                    id="location_details"
-                    rows="3"
-                    required
-                    placeholder="Enter your location, landmark, road or street name..."
-                ></textarea>
+                <!-- STEP 4: BREAKDOWN LOCATION & GPS RADAR -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                        <label for="location_details" style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--dash-text-muted); margin: 0;">
+                            04 / BREAKDOWN LOCATION DETAILS
+                        </label>
+                        <button type="button" class="gps-radar-beacon" id="detect-gps-btn" onclick="detectCustomerGPS()">
+                            <span class="radar-ping"></span>
+                            <span>Auto-Detect GPS Beacon</span>
+                        </button>
+                    </div>
 
-                <label for="location_link">Your Location Link Optional</label>
+                    <div id="gps-status-box" style="display: none; margin-bottom: 10px; font-size: 12.5px; padding: 10px 14px; border-radius: 6px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #a7f3d0;" class="success-box"></div>
 
-                <input
-                    type="url"
-                    name="location_link"
-                    id="location_link"
-                    placeholder="Paste Google Maps location link if available"
-                >
+                    <textarea
+                        name="location_details"
+                        id="location_details"
+                        rows="3"
+                        required
+                        placeholder="Enter highway mile marker, landmark, building name, or cross street..."
+                        style="width: 100%; font-size: 13px; line-height: 1.6;"
+                    ></textarea>
+                </div>
 
-                <button type="submit" class="btn btn-red" style="width: 100%; margin-top: 16px;">
-                    🚨 Request Emergency Assistance
+                <div style="margin-bottom: 24px;">
+                    <label for="location_link" style="display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--dash-text-muted); margin-bottom: 6px;">
+                        GOOGLE MAPS / PIN LINK (OPTIONAL)
+                    </label>
+                    <input
+                        type="url"
+                        name="location_link"
+                        id="location_link"
+                        placeholder="https://maps.google.com/?q=..."
+                        style="width: 100%; font-size: 13px;"
+                    >
+                </div>
+
+                <button type="submit" class="dash-btn dash-btn-danger-sos" style="width: 100%; justify-content: center; padding: 14px 24px; font-size: 15px; font-weight: 700; letter-spacing: 0.5px;">
+                    <span class="radar-ping"></span>
+                    <span>BROADCAST EMERGENCY SOS DISPATCH</span>
                 </button>
             </form>
 
         {% else %}
 
-            <div class="alert">
-                ⚠️ You need to register a vehicle before requesting roadside assistance.
+            <div class="empty-box" style="text-align: center; padding: 32px 20px;">
+                <p style="color: var(--dash-text-sub); margin-bottom: 16px;">
+                    You need to register a vehicle in your garage before requesting emergency roadside assistance.
+                </p>
+                <a href="{% url 'vehicles' %}" class="dash-btn dash-btn-primary">
+                    <span>Register Vehicle First</span>
+                    <span class="btn-arrow" aria-hidden="true">↗</span>
+                </a>
             </div>
-
-            <a href="{% url 'vehicles' %}" class="btn">
-                🚘 Register Vehicle First
-            </a>
 
         {% endif %}
     </div>
 
-    <!-- HOW IT WORKS -->
-    <div class="card">
-        <h2>How It Works</h2>
-
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 1: Submit Request</strong>
-            <span>Submit your breakdown issue, location details, and optional map link.</span>
+    <!-- TACTICAL INFORMATION & SLA PANEL -->
+    <aside class="booking-summary-slate">
+        <div class="summary-slate-header">
+            <span class="dash-kicker is-gold" style="font-size: 9px; padding: 2px 9px;">✦ 24/7 ROADSIDE PROTOCOL</span>
+            <h3>Response Guarantee</h3>
         </div>
 
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 2: Staff Acceptance</strong>
-            <span>Available staff technician accepts your emergency roadside request.</span>
+        <div class="detail-box" style="margin-bottom: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--dash-border); border-radius: 8px; padding: 14px;">
+            <strong style="color: #fca5a5; font-size: 13px; display: block; margin-bottom: 4px;">⚡ 25-Minute SLA Guarantee</strong>
+            <span style="font-size: 12px; color: var(--dash-text-sub); line-height: 1.5;">Emergency recovery vehicles deployed within your metro quadrant are routed immediately upon dispatch.</span>
         </div>
 
-        <div class="detail-box" style="margin-bottom: 12px;">
-            <strong>Step 3: Staff Location Sharing</strong>
-            <span>Staff shares a map location link before starting the trip to your location.</span>
+        <div class="detail-box" style="margin-bottom: 14px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--dash-border); border-radius: 8px; padding: 14px;">
+            <strong style="color: #ffffff; font-size: 13px; display: block; margin-bottom: 4px;">🛰️ Live GPS Telemetry</strong>
+            <span style="font-size: 12px; color: var(--dash-text-sub); line-height: 1.5;">Track the responding technician's exact real-time coordinates, distance in kilometers, and signal timestamp.</span>
         </div>
 
-        <div class="detail-box">
-            <strong>Step 4: Breakdown Resolution</strong>
-            <span>Technician arrives on-site to repair or tow your vehicle safely.</span>
+        <div class="detail-box" style="margin-bottom: 18px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--dash-border); border-radius: 8px; padding: 14px;">
+            <strong style="color: #ffffff; font-size: 13px; display: block; margin-bottom: 4px;">🛡️ Safe Flatbed Towing</strong>
+            <span style="font-size: 12px; color: var(--dash-text-sub); line-height: 1.5;">All recovery jobs utilize hydraulic low-angle tilt flatbeds suitable for performance cars, SUVs, and luxury sedans.</span>
         </div>
-    </div>
+
+        <div style="padding-top: 14px; border-top: 1px solid var(--dash-border); text-align: center;">
+            <small style="color: var(--dash-text-muted); font-size: 11px;">Direct Dispatch Desk Hotline:</small>
+            <strong style="display: block; font-size: 15px; color: #fca5a5; margin-top: 2px;">1800-NEXA-SOS</strong>
+        </div>
+    </aside>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sosVehicleSelect = document.getElementById('vehicle');
+    const sosTypeSelect = document.getElementById('assistance_type');
+
+    document.querySelectorAll('[data-sos-vehicle-chip]').forEach(chip => {
+        chip.addEventListener('click', function() {
+            const vId = this.dataset.sosVehicleChip;
+            if (sosVehicleSelect) sosVehicleSelect.value = vId;
+            document.querySelectorAll('[data-sos-vehicle-chip]').forEach(c => {
+                const active = c === chip;
+                c.classList.toggle('is-selected', active);
+                c.setAttribute('aria-checked', active);
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-sos-type]').forEach(card => {
+        card.addEventListener('click', function() {
+            const typeKey = this.dataset.sosType;
+            if (sosTypeSelect) sosTypeSelect.value = typeKey;
+            document.querySelectorAll('[data-sos-type]').forEach(c => {
+                const active = c === card;
+                c.classList.toggle('is-selected', active);
+                c.setAttribute('aria-checked', active);
+            });
+        });
+    });
+});
+</script>
 
 <br>
 <br>
 
 <div class="page-header">
     <h2 class="page-title">My Active Assistance Requests</h2>
-
     <p class="page-subtitle">
-        View your pending, accepted, and on-the-way roadside assistance requests.
-        Completed and cancelled requests are moved to Service History.
+        Track your assigned staff technician live on the map. Tracking activates as soon as staff is assigned.
     </p>
 </div>
 
@@ -155,19 +302,18 @@
 
     {% for assistance in assistance_requests %}
 
-        <div class="card" style="border-left: 5px solid var(--danger-red);">
+        <div class="card" style="border-left: 5px solid var(--danger-red); margin-bottom: 24px;">
 
             <div class="job-summary">
                 <div class="job-title">
                     <h3 style="color: var(--danger-red);">
-                        🚨 {{ assistance.assistance_type }}
+                         {{ assistance.assistance_type }}
                     </h3>
 
                     <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
                         <span class="license-plate">
                             {{ assistance.vehicle.registration_number }}
                         </span>
-
                         <span>
                             {{ assistance.vehicle.brand }} {{ assistance.vehicle.model }}
                         </span>
@@ -176,20 +322,64 @@
 
                 <div>
                     {% if assistance.status == 'PENDING' %}
-                        <span class="status-badge status-pending">
+                        <span class="status-badge status-pending" id="status-badge-{{ assistance.id }}">
                             Pending Acceptance
                         </span>
                     {% elif assistance.status == 'ASSIGNED' %}
-                        <span class="status-badge status-confirmed">
-                            Staff Assigned
+                        <span class="status-badge status-confirmed" id="status-badge-{{ assistance.id }}">
+                            Technician Assigned
                         </span>
                     {% elif assistance.status == 'ON_THE_WAY' %}
-                        <span class="status-badge status-progress">
+                        <span class="status-badge status-progress" id="status-badge-{{ assistance.id }}">
                             Staff On The Way
                         </span>
                     {% endif %}
                 </div>
             </div>
+
+            <br>
+
+            <!-- LIVE TRACKING STATUS BAR -->
+            {% if assistance.staff %}
+                <div class="tracking-status-bar">
+                    <div class="tracking-pill">
+                        <span class="pulse-dot"></span>
+                        <strong id="tracking-text-{{ assistance.id }}">Waiting for a recent GPS update</strong>
+                    </div>
+
+                    <div class="tracking-pill">
+                        <span> Straight-line distance:</span>
+                        <strong id="distance-val-{{ assistance.id }}">
+                            {% if assistance.customer_latitude and assistance.staff_latitude %}
+                                Calculating...
+                            {% else %}
+                                Staff assigned - waiting for GPS coordinates...
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="tracking-pill">
+                        <span> Last Signal:</span>
+                        <strong id="signal-time-{{ assistance.id }}">
+                            {% if assistance.staff_last_updated %}
+                                {{ assistance.staff_last_updated|time:"H:i:s" }}
+                            {% else %}
+                                Not received
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+            {% else %}
+                <div class="tracking-status-bar warning">
+                    <div class="tracking-pill">
+                        <span class="pulse-dot amber"></span>
+                        <strong>Waiting for Available Staff Technician...</strong>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- INTERACTIVE MAP CONTAINER -->
+            <div id="customer-map-{{ assistance.id }}" class="map-container"></div>
 
             <br>
 
@@ -202,21 +392,7 @@
 
                 <div class="detail-box">
                     <strong>Current Status</strong>
-                    <span>{{ assistance.get_status_display }}</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Vehicle Details</strong>
-                    <span>
-                        {{ assistance.vehicle.brand }}
-                        {{ assistance.vehicle.model }}
-                        ({{ assistance.vehicle.year }})
-                    </span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Registration Number</strong>
-                    <span>{{ assistance.vehicle.registration_number }}</span>
+                    <span id="status-display-{{ assistance.id }}">{{ assistance.get_status_display }}</span>
                 </div>
 
                 <div class="detail-box full-width">
@@ -226,108 +402,230 @@
 
                 <div class="detail-box full-width">
                     <strong>Breakdown Location</strong>
-                    <span>📍 {{ assistance.location_details }}</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>My Location Link</strong>
-                    <span>
-                        {% if assistance.location_link %}
-                            <a href="{{ assistance.location_link }}"
-                               target="_blank"
-                               class="btn btn-gray"
-                               style="padding: 6px 12px; font-size: 12px;">
-                                Open My Location Map
-                            </a>
-                        {% else %}
-                            No link added
-                        {% endif %}
-                    </span>
+                    <span> {{ assistance.location_details }}</span>
                 </div>
 
                 <div class="detail-box">
                     <strong>Assigned Staff Technician</strong>
                     <span>
                         {% if assistance.staff %}
-                            {% if assistance.staff.user.get_full_name %}
-                                👤 {{ assistance.staff.user.get_full_name }}
-                            {% else %}
-                                👤 {{ assistance.staff.user.username }}
-                            {% endif %}
-
+                             <strong>
+                                {% if assistance.staff.user.get_full_name %}
+                                    {{ assistance.staff.user.get_full_name }}
+                                {% else %}
+                                    {{ assistance.staff.user.username }}
+                                {% endif %}
+                            </strong>
                             {% if assistance.staff.phone %}
                                 <br>
-                                📞 {{ assistance.staff.phone }}
+                                 <a href="tel:{{ assistance.staff.phone }}" style="color: var(--primary-blue); text-decoration: underline;">
+                                    {{ assistance.staff.phone }}
+                                </a>
                             {% endif %}
                         {% else %}
-                            <span style="color: var(--warning-amber);">
-                                Not assigned yet
-                            </span>
+                            <span style="color: var(--warning-amber);">Not assigned yet</span>
                         {% endif %}
                     </span>
                 </div>
 
                 <div class="detail-box">
-                    <strong>Track Staff Location</strong>
+                    <strong>Location Links</strong>
                     <span>
-                        {% if assistance.staff_location_link %}
-                            <a href="{{ assistance.staff_location_link }}"
-                               target="_blank"
-                               class="btn btn-green"
-                               style="padding: 6px 14px; font-size: 12px;">
-                                📍 Open Staff Location
+                        {% if assistance.safe_location_link %}
+                            <a href="{{ assistance.safe_location_link }}" target="_blank" class="btn btn-gray" style="padding: 4px 10px; font-size: 11px;">
+                                Breakdown Map Link
                             </a>
-                        {% else %}
-                            <span style="color: var(--text-muted);">
-                                Staff location not shared yet
-                            </span>
+                        {% endif %}
+                        {% if assistance.safe_staff_location_link %}
+                            <a href="{{ assistance.safe_staff_location_link }}" target="_blank" class="btn btn-green" style="padding: 4px 10px; font-size: 11px;">
+                                Staff Map Link
+                            </a>
+                        {% endif %}
+                        {% if not assistance.safe_location_link and not assistance.safe_staff_location_link %}
+                            <span style="color: var(--text-muted); font-size: 12px;">Interactive GPS tracking active on map above</span>
                         {% endif %}
                     </span>
                 </div>
 
             </div>
 
-            {% if assistance.status == 'PENDING' %}
-
-                <div class="alert" style="margin-top: 16px;">
-                    Your roadside assistance request is waiting for staff acceptance.
-                </div>
-
-            {% elif assistance.status == 'ASSIGNED' %}
-
-                <div class="success-box">
-                    Your request has been accepted by staff. Staff location will appear after they start travelling.
-                </div>
-
-            {% elif assistance.status == 'ON_THE_WAY' %}
-
-                <div class="success-box">
-                    Staff technician is on the way. You can track the staff location using the link above.
-                </div>
-
-            {% endif %}
-
-            <div class="form-section">
+            <div class="form-section" style="margin-top: 16px;">
                 <h4>Cancel Roadside Assistance</h4>
-
-                <p class="note">
-                    You can cancel this request if assistance is no longer required.
-                    After cancellation, it will move to Service History.
-                </p>
-
-                <form method="POST"
-                      action="{% url 'cancel_roadside_assistance' assistance.id %}">
-
+                <p class="note">You can cancel this request if assistance is no longer required.</p>
+                <form method="POST" action="{% url 'cancel_roadside_assistance' assistance.id %}">
                     {% csrf_token %}
-
                     <button type="submit" class="btn-red">
                         Cancel Request
                     </button>
-
                 </form>
             </div>
 
         </div>
+
+        <!-- REAL-TIME MAP SCRIPT FOR THIS REQUEST -->
+        <script>
+            (function() {
+                const assistanceId = "{{ assistance.id }}";
+                const mapContainerId = "customer-map-" + assistanceId;
+
+                // Initial coordinates fallback (e.g. Service center default lat/lng or breakdown lat/lng)
+                let custLat = parseFloat("{{ assistance.customer_latitude|default_if_none:'' }}");
+                let custLng = parseFloat("{{ assistance.customer_longitude|default_if_none:'' }}");
+                let staffLat = parseFloat("{{ assistance.staff_latitude|default_if_none:'' }}");
+                let staffLng = parseFloat("{{ assistance.staff_longitude|default_if_none:'' }}");
+
+                let hasCustCoords = AutoNexa.hasCoordinates(custLat, custLng);
+                let hasStaffCoords = AutoNexa.hasCoordinates(staffLat, staffLng);
+
+                // Initialize Leaflet Map
+                const map = L.map(mapContainerId).setView(
+                    hasCustCoords ? [custLat, custLng] : [12.9716, 77.5946],
+                    13
+                );
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Custom Pins
+                const customerIcon = L.divIcon({
+                    html: '<div class="custom-map-icon"></div>',
+                    className: '',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                const staffIcon = L.divIcon({
+                    html: '<div class="custom-map-icon"></div>',
+                    className: '',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                let customerMarker = null;
+                let staffMarker = null;
+                let routeLine = null;
+
+                if (hasCustCoords) {
+                    customerMarker = L.marker([custLat, custLng], { icon: customerIcon })
+                        .addTo(map)
+                        .bindPopup(AutoNexa.popup('Customer Breakdown Location', '{{ assistance.location_details|escapejs }}'));
+                }
+
+                if (hasStaffCoords) {
+                    staffMarker = L.marker([staffLat, staffLng], { icon: staffIcon })
+                        .addTo(map)
+                        .bindPopup(AutoNexa.popup('Assigned Technician', '{{ assistance.staff.user.get_full_name|escapejs }}'));
+                }
+
+                function updateMapBounds() {
+                    const points = [];
+                    if (customerMarker) points.push(customerMarker.getLatLng());
+                    if (staffMarker) points.push(staffMarker.getLatLng());
+
+                    if (points.length === 2) {
+                        const bounds = L.latLngBounds(points);
+                        map.fitBounds(bounds, { padding: [40, 40] });
+
+                        if (routeLine) map.removeLayer(routeLine);
+                        routeLine = L.polyline(points, {
+                            color: '#ec2444',
+                            weight: 4,
+                            opacity: 0.7,
+                            dashArray: '8, 8'
+                        }).addTo(map);
+                    } else if (points.length === 1) {
+                        map.setView(points[0], 14);
+                    }
+                }
+
+                updateMapBounds();
+
+                // Real-time Polling every 4 seconds
+                let stopped = false;
+                let timer;
+                function pollTrackingData() {
+                    if (stopped) return;
+                    fetch("{% url 'assistance_tracking_data' assistance.id %}")
+                        .then(response => {
+                            if (!response.ok) throw new Error('Tracking unavailable');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) throw new Error(data.error);
+                            const terminal = ['COMPLETED', 'CANCELLED'].includes(data.status);
+                            if (terminal) stopped = true;
+                            const trackingText = document.getElementById('tracking-text-' + assistanceId);
+                            if (trackingText) {
+                                const age = data.staff_last_updated ? Date.now() - Date.parse(data.staff_last_updated) : Infinity;
+                                trackingText.textContent = terminal ? 'Tracking ended' : age < 30000 ? 'GPS updated recently' : 'GPS unavailable or out of date';
+                            }
+                            const badge = document.getElementById('status-badge-' + assistanceId);
+                            if (badge) {
+                                badge.textContent = data.status_display;
+                                badge.className = 'status-badge status-' + ({ON_THE_WAY:'progress', ASSIGNED:'confirmed'}[data.status] || data.status.toLowerCase());
+                            }
+
+                            // Update Status display
+                            const statusDisplayEl = document.getElementById("status-display-" + assistanceId);
+                            if (statusDisplayEl) statusDisplayEl.innerText = data.status_display;
+
+                            // Update Customer Marker
+                            if (AutoNexa.hasCoordinates(data.customer_latitude, data.customer_longitude)) {
+                                const cLat = parseFloat(data.customer_latitude);
+                                const cLng = parseFloat(data.customer_longitude);
+                                if (!customerMarker) {
+                                    customerMarker = L.marker([cLat, cLng], { icon: customerIcon })
+                                        .addTo(map)
+                                        .bindPopup(AutoNexa.popup('Breakdown Location', data.location_details));
+                                } else {
+                                    customerMarker.setLatLng([cLat, cLng]);
+                                }
+                            }
+
+                            // Update Staff Marker
+                            if (AutoNexa.hasCoordinates(data.staff_latitude, data.staff_longitude)) {
+                                const sLat = parseFloat(data.staff_latitude);
+                                const sLng = parseFloat(data.staff_longitude);
+                                const staffPopup = AutoNexa.popup('Technician: ' + (data.staff_name || 'Staff'), 'Phone: ' + (data.staff_phone || 'N/A'));
+
+                                if (!staffMarker) {
+                                    staffMarker = L.marker([sLat, sLng], { icon: staffIcon })
+                                        .addTo(map)
+                                        .bindPopup(staffPopup);
+                                } else {
+                                    staffMarker.setLatLng([sLat, sLng]);
+                                }
+
+                                // Update signal time
+                                const signalTimeEl = document.getElementById("signal-time-" + assistanceId);
+                                if (signalTimeEl && data.staff_last_updated) {
+                                    const timeStr = new Date(data.staff_last_updated).toLocaleTimeString();
+                                    signalTimeEl.innerText = timeStr;
+                                }
+
+                                // Update distance
+                                const distEl = document.getElementById("distance-val-" + assistanceId);
+                                if (distEl && data.distance_km !== null) {
+                                    distEl.innerText = data.distance_km + " km away";
+                                }
+                            }
+
+                            updateMapBounds();
+                        })
+                        .catch(() => {
+                            const label = document.getElementById('tracking-text-' + assistanceId);
+                            if (label) label.textContent = 'Connection lost; retrying…';
+                        })
+                        .finally(() => { if (!stopped) timer = setTimeout(pollTrackingData, 4000); });
+                }
+
+                // Poll every 4 seconds
+                pollTrackingData();
+                window.addEventListener('pagehide', () => { stopped = true; clearTimeout(timer); });
+            })();
+        </script>
 
     {% endfor %}
 
@@ -335,19 +633,59 @@
 
     <div class="empty-box">
         <h3>No Active Roadside Assistance Requests</h3>
-
-        <p>
-            You do not have any pending, accepted, or on-the-way roadside assistance requests.
-            Completed and cancelled requests are available in Service History.
-        </p>
-
+        <p>You do not have any pending, accepted, or on-the-way roadside assistance requests.</p>
         <br>
-
         <a href="{% url 'service_history' %}" class="btn btn-gray">
             View Service History
         </a>
     </div>
 
 {% endif %}
+
+<script>
+    function detectCustomerGPS() {
+        const statusBox = document.getElementById('gps-status-box');
+        const btn = document.getElementById('detect-gps-btn');
+        const latInput = document.getElementById('customer_latitude');
+        const lngInput = document.getElementById('customer_longitude');
+        const locDetails = document.getElementById('location_details');
+
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        btn.innerText = " Detecting GPS Coordinates...";
+        btn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                latInput.value = lat;
+                lngInput.value = lng;
+
+                statusBox.style.display = 'block';
+                statusBox.innerHTML = ` Breakdown GPS captured! (Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)})`;
+                btn.innerText = " GPS Location Attached";
+                btn.style.background = "var(--success-light)";
+                btn.style.color = "var(--success-green)";
+                btn.style.borderColor = "var(--success-green)";
+                btn.disabled = false;
+
+                if (!locDetails.value.trim()) {
+                    locDetails.value = `Breakdown GPS Coordinates: Lat ${lat.toFixed(6)}, Lng ${lng.toFixed(6)}`;
+                }
+            },
+            function(error) {
+                btn.innerText = " Auto-Detect Breakdown GPS Location";
+                btn.disabled = false;
+                alert('Could not acquire location: ' + error.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+</script>
 
 {% endblock %}
