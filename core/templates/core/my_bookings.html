@@ -1,266 +1,205 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}My Service Bookings - AutoNexa Service Center{% endblock %}
+{% block title %}Active Service Bookings — AutoNexa{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="suite-container">
 
-<div class="page-header">
-    <h1 class="page-title">My Service Bookings</h1>
-    <p class="page-subtitle">
-        Track your active vehicle service requests, appointment dates, assigned staff technicians, status badges, and ongoing work progress.
-    </p>
-</div>
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Bookings Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">WORKSHOP ORDERS & REPAIR PIPELINE</span>
+        </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill">
+                <span class="suite-pulse-dot"></span>
+                ACTIVE PIPELINE TELEMETRY
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
 
-<div style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
-    <a href="{% url 'service_booking' %}" class="btn">
-        ➕ Book New Service
-    </a>
+    <!-- Luxury Hero Section -->
+    <section class="suite-hero" aria-labelledby="bookings-hero-title">
+        <span class="suite-kicker">✦ EXECUTIVE SERVICE DESK · LIVE JOB TRACKING</span>
+        <h1 id="bookings-hero-title" class="suite-hero-title">Your Workshop Orders.</h1>
+        <p class="suite-hero-subtitle">
+            Follow the clinical progress of your vehicles through our workshop bays. Review assigned technician credentials, scheduled lift times, and live inspection notes in real-time.
+        </p>
+        <div class="suite-hero-actions">
+            <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
+                <span>Book New Service</span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'service_history' %}" class="suite-btn suite-btn-ghost">
+                <span>Completed Records Archive</span>
+                <span aria-hidden="true">→</span>
+            </a>
+            <a href="{% url 'customer_dashboard' %}" class="suite-btn suite-btn-ghost">
+                <span>Back to Concierge</span>
+                <span aria-hidden="true">←</span>
+            </a>
+        </div>
+    </section>
 
-    <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-        📊 Back to Dashboard
-    </a>
+    <!-- Active Orders Deck -->
+    {% if bookings %}
+        <div class="suite-bookings-deck">
+            {% for booking in bookings %}
+                <article class="suite-card is-gold-rim" style="margin-bottom: 30px;">
+                    
+                    <!-- Card Top Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 18px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <span class="suite-plate">
+                                    <span class="suite-plate-country">IND</span>
+                                    <span>{{ booking.vehicle.registration_number }}</span>
+                                </span>
+                                <h2 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0;">{{ booking.service_type }}</h2>
+                            </div>
+                            <p style="font-size: 13px; color: var(--suite-text-sub); margin: 0;">
+                                {{ booking.vehicle.brand }} {{ booking.vehicle.model }} ({{ booking.vehicle.year }}) · Docket #ORD-{{ booking.id }}
+                            </p>
+                        </div>
 
-    <a href="{% url 'service_history' %}" class="btn btn-gray">
-        📜 Service History
-    </a>
-</div>
+                        <div>
+                            {% if booking.status == 'PENDING' %}
+                                <span class="suite-badge suite-badge-gold">
+                                    <span class="suite-pulse-dot" style="background: #ffd24d;"></span> Pending Intake Confirmation
+                                </span>
+                            {% elif booking.status == 'CONFIRMED' %}
+                                <span class="suite-badge suite-badge-emerald">
+                                    <span class="suite-pulse-dot" style="background: #34d399;"></span> Confirmed · Bay Scheduled
+                                </span>
+                            {% elif booking.status == 'IN_PROGRESS' %}
+                                <span class="suite-badge suite-badge-crimson">
+                                    <span class="suite-pulse-dot" style="background: #ec2444;"></span> Active In Service Bay
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
 
-{% if bookings %}
+                    <!-- 4-Stage Repair Pipeline Visualizer -->
+                    <div class="suite-pipeline">
+                        <div class="suite-pipeline-track">
+                            <div class="suite-step {% if booking.status %}is-done{% endif %}">
+                                <div class="suite-step-bullet">✓</div>
+                                <div class="suite-step-label">1. Intake Submitted</div>
+                            </div>
 
-    {% for booking in bookings %}
+                            <div class="suite-step {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}is-done{% elif booking.status == 'PENDING' %}is-active{% endif %}">
+                                <div class="suite-step-bullet">{% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}✓{% else %}2{% endif %}</div>
+                                <div class="suite-step-label">2. Tech Assignment</div>
+                            </div>
 
-        <div class="card" style="border-left: 5px solid var(--primary-blue);">
+                            <div class="suite-step {% if booking.status == 'IN_PROGRESS' %}is-active{% elif booking.status == 'COMPLETED' %}is-done{% endif %}">
+                                <div class="suite-step-bullet">{% if booking.status == 'COMPLETED' %}✓{% else %}3{% endif %}</div>
+                                <div class="suite-step-label">3. Bay Operations</div>
+                            </div>
 
-            <div class="job-summary">
-                <div class="job-title">
-                    <h3>{{ booking.service_type }}</h3>
+                            <div class="suite-step {% if booking.status == 'COMPLETED' %}is-done{% endif %}">
+                                <div class="suite-step-bullet">4</div>
+                                <div class="suite-step-label">4. Certified Release</div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <p style="display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
-                        <span class="license-plate">
-                            {{ booking.vehicle.registration_number }}
-                        </span>
-
-                        <span>
-                            {{ booking.vehicle.brand }} {{ booking.vehicle.model }}
-                        </span>
-                    </p>
-                </div>
-
-                <div>
-                    {% if booking.status == 'PENDING' %}
-                        <span class="status-badge status-pending">
-                            Pending Appointment
-                        </span>
-                    {% elif booking.status == 'CONFIRMED' %}
-                        <span class="status-badge status-confirmed">
-                            Confirmed
-                        </span>
-                    {% elif booking.status == 'IN_PROGRESS' %}
-                        <span class="status-badge status-progress">
-                            In Progress
-                        </span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <br>
-
-            <div class="grid-2">
-
-                <div class="detail-box">
-                    <strong>Vehicle Details</strong>
-                    <span>
-                        {{ booking.vehicle.brand }} {{ booking.vehicle.model }}
-                        ({{ booking.vehicle.year }})
-                    </span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Registration Number</strong>
-                    <span>{{ booking.vehicle.registration_number }}</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Service Type</strong>
-                    <span>{{ booking.service_type }}</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Current Status</strong>
-                    <span>{{ booking.get_status_display }}</span>
-                </div>
-
-                <div class="detail-box full-width">
-                    <strong>Issue Description</strong>
-                    <span>{{ booking.issue_description }}</span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Appointment Date</strong>
-                    <span>
-                        {% if booking.appointment_date %}
-                            📅 {{ booking.appointment_date }}
-                        {% else %}
-                            <span style="color: var(--warning-amber);">
-                                Not assigned yet
-                            </span>
-                        {% endif %}
-                    </span>
-                </div>
-
-                <div class="detail-box">
-                    <strong>Appointment Time</strong>
-                    <span>
-                        {% if booking.appointment_time %}
-                            ⏰ {{ booking.appointment_time }}
-                        {% else %}
-                            <span style="color: var(--warning-amber);">
-                                Not assigned yet
-                            </span>
-                        {% endif %}
-                    </span>
-                </div>
-
-                <div class="detail-box full-width" style="border-color: #bfdbfe;">
-                    <strong>Current Work Progress</strong>
-                    <span style="font-weight: 600; color: var(--primary-blue-dark);">
-                        {% if booking.current_work %}
-                            ⚡ {{ booking.current_work }}
-                        {% else %}
-                            <span style="color: var(--text-muted); font-weight: normal;">
-                                Not updated yet
-                            </span>
-                        {% endif %}
-                    </span>
-                </div>
-
-            </div>
-
-            <br>
-
-            <div class="form-section">
-                <h4>Assigned Staff Technician</h4>
-
-                {% if booking.staff %}
-
-                    <div class="grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-
-                        <div class="detail-box">
-                            <strong>Technician Name</strong>
-                            <span>
-                                {% if booking.staff.user.get_full_name %}
-                                    👤 {{ booking.staff.user.get_full_name }}
+                    <!-- Telemetry Data Grid -->
+                    <div class="suite-data-grid">
+                        <div class="suite-data-box">
+                            <span class="suite-data-label">Appointment Schedule</span>
+                            <span class="suite-data-val">
+                                {% if booking.appointment_date %}
+                                    📅 {{ booking.appointment_date|date:"D, d M Y" }} · {{ booking.appointment_time|default:"TBD" }}
                                 {% else %}
-                                    👤 {{ booking.staff.user.username }}
+                                    <span style="color: #fef08a; font-weight: 600;">Queue Reviewing Slot</span>
                                 {% endif %}
                             </span>
                         </div>
 
-                        <div class="detail-box">
-                            <strong>Designation</strong>
-                            <span>{{ booking.staff.designation }}</span>
+                        <div class="suite-data-box">
+                            <span class="suite-data-label">Assigned Technician</span>
+                            <span class="suite-data-val">
+                                {% if booking.staff %}
+                                    👨‍🔧 {{ booking.staff.user.get_full_name|default:booking.staff.user.username }}
+                                    <small style="display: block; color: var(--suite-text-sub); font-size: 11px; margin-top: 2px;">{{ booking.staff.designation }} · 📞 {{ booking.staff.phone }}</small>
+                                {% else %}
+                                    <span style="color: var(--suite-text-faint);">Assigning Senior Specialist...</span>
+                                {% endif %}
+                            </span>
                         </div>
 
-                        <div class="detail-box">
-                            <strong>Contact Phone</strong>
-                            <span>📞 {{ booking.staff.phone }}</span>
+                        <div class="suite-data-box is-highlight" style="grid-column: 1 / -1;">
+                            <span class="suite-data-label">Live Workshop Progress Broadcast</span>
+                            <span class="suite-data-val is-gold" style="font-size: 14.5px;">
+                                {% if booking.current_work %}
+                                    💬 “{{ booking.current_work }}”
+                                {% else %}
+                                    <span style="color: var(--suite-text-faint); font-weight: normal; font-style: italic;">Awaiting initial technician diagnostic notes.</span>
+                                {% endif %}
+                            </span>
                         </div>
 
+                        <div class="suite-data-box" style="grid-column: 1 / -1;">
+                            <span class="suite-data-label">Reported Symptoms / Client Directive</span>
+                            <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-sub); line-height: 1.5;">
+                                {{ booking.issue_description }}
+                            </p>
+                        </div>
                     </div>
 
-                {% else %}
+                    <!-- Action Deck (Cancellation if allowed) -->
+                    {% if booking.status == 'PENDING' or booking.status == 'CONFIRMED' %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px; margin-top: 12px; flex-wrap: wrap; gap: 12px;">
+                            <span style="font-size: 12px; color: var(--suite-text-faint);">
+                                ℹ️ Need to reschedule or cancel? You may release this slot prior to bay intake.
+                            </span>
+                            <form method="POST" action="{% url 'cancel_service_booking' booking.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="suite-btn" style="background: rgba(236,36,68,0.12); border-color: rgba(236,36,68,0.3); color: #fca5a5; padding: 8px 16px; font-size: 11px;">
+                                    Cancel Booking Request
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 8px;">
+                            <span style="font-size: 12px; color: #34d399; display: inline-flex; align-items: center; gap: 6px;">
+                                <span class="suite-pulse-dot" style="background: #34d399;"></span> Service work is active. Cancellation is locked to ensure bay continuity.
+                            </span>
+                        </div>
+                    {% endif %}
 
-                    <p style="color: var(--text-muted); font-size: 14px;">
-                        ⏳ Staff technician has not been assigned yet.
-                    </p>
-
-                {% endif %}
-            </div>
-
-            {% if booking.status == 'PENDING' %}
-
-                <div class="alert">
-                    Your booking is waiting for staff to assign an appointment.
-                </div>
-
-                <div class="form-section">
-                    <h4>Cancel Booking</h4>
-
-                    <p class="note">
-                        You can cancel this booking because the service has not started yet.
-                    </p>
-
-                    <form method="POST"
-                          action="{% url 'cancel_service_booking' booking.id %}">
-
-                        {% csrf_token %}
-
-                        <button type="submit" class="btn-red">
-                            Cancel Booking
-                        </button>
-
-                    </form>
-                </div>
-
-            {% elif booking.status == 'CONFIRMED' %}
-
-                <div class="success-box">
-                    Your appointment has been confirmed by staff.
-                </div>
-
-                <div class="form-section">
-                    <h4>Cancel Booking</h4>
-
-                    <p class="note">
-                        You can still cancel this booking because the service has not started yet.
-                    </p>
-
-                    <form method="POST"
-                          action="{% url 'cancel_service_booking' booking.id %}">
-
-                        {% csrf_token %}
-
-                        <button type="submit" class="btn-red">
-                            Cancel Booking
-                        </button>
-
-                    </form>
-                </div>
-
-            {% elif booking.status == 'IN_PROGRESS' %}
-
-                <div class="success-box">
-                    Your vehicle service is currently in progress. Cancellation is not available after service work starts.
-                </div>
-
-            {% endif %}
-
+                </article>
+            {% endfor %}
         </div>
+    {% else %}
+        <!-- Empty Orders Slate -->
+        <div class="suite-card" style="text-align: center; padding: 60px 24px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">🏎️</div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">All Vehicles Operating at Peak Health</h2>
+            <p style="font-size: 14px; color: var(--suite-text-sub); max-width: 520px; margin: 0 auto 28px auto; line-height: 1.6;">
+                You have no pending or active repair orders in our workshop pipeline. Whenever your vehicle requires preventive care, scheduled fluid flush, or mechanical inspection, our team is ready.
+            </p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
+                    <span>Book Workshop Service</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+                <a href="{% url 'service_history' %}" class="suite-btn suite-btn-ghost">
+                    <span>Inspect Past Records</span>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+        </div>
+    {% endif %}
 
-    {% endfor %}
-
-{% else %}
-
-    <div class="empty-box">
-        <h3>No Active Service Bookings</h3>
-
-        <p>
-            You do not have any pending, confirmed, or in-progress service bookings.
-            Completed and cancelled bookings are available in Service History.
-        </p>
-
-        <br>
-
-        <a href="{% url 'service_booking' %}" class="btn">
-            Book Your First Service
-        </a>
-
-        <a href="{% url 'service_history' %}" class="btn btn-gray">
-            View Service History
-        </a>
-    </div>
-
-{% endif %}
-
+</div>
 {% endblock %}

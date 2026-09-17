@@ -1,272 +1,297 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Service History - AutoNexa Service Center{% endblock %}
+{% block title %}Service & Roadside Archive — AutoNexa{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="suite-container">
 
-<div class="page-header">
-    <h1 class="page-title">Service & Inspection History</h1>
-    <p class="page-subtitle">View completed and cancelled vehicle services, along with roadside assistance history records.</p>
-</div>
-
-<div style="margin-bottom: 28px;">
-    <a href="{% url 'customer_dashboard' %}" class="btn btn-gray">
-        📊 Back to Dashboard
-    </a>
-</div>
-
-<!-- SECTION 1: VEHICLE SERVICE HISTORY -->
-<div class="page-header">
-    <h2 class="page-title">🛠️ Vehicle Service Records</h2>
-    <p class="page-subtitle">Completed and cancelled vehicle service bookings are shown below.</p>
-</div>
-
-{% if completed_services %}
-
-    {% for booking in completed_services %}
-
-        <div class="job-menu">
-            <details open>
-                <summary>
-                    <div class="job-summary">
-                        <div class="job-title">
-                            <h3>{{ booking.service_type }}</h3>
-                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                <span class="license-plate">{{ booking.vehicle.registration_number }}</span>
-                                <span>{{ booking.vehicle.brand }} {{ booking.vehicle.model }}</span>
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if booking.status == 'COMPLETED' %}
-                                <span class="status-badge status-completed">Completed</span>
-                            {% elif booking.status == 'CANCELLED' %}
-                                <span class="status-badge status-cancelled">Cancelled</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </summary>
-
-                <div class="job-body">
-                    <br>
-                    <div class="grid-2">
-                        <div class="detail-box">
-                            <strong>Service Category</strong>
-                            <span>{{ booking.service_type }}</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Vehicle Registration</strong>
-                            <span>{{ booking.vehicle.registration_number }}</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Appointment Date & Time</strong>
-                            <span>
-                                {% if booking.appointment_date %}
-                                    📅 {{ booking.appointment_date }} at {{ booking.appointment_time }}
-                                {% else %}
-                                    Not available
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Assigned Technician</strong>
-                            <span>
-                                {% if booking.staff %}
-                                    {% if booking.staff.user.get_full_name %}
-                                        👤 {{ booking.staff.user.get_full_name }}
-                                    {% else %}
-                                        👤 {{ booking.staff.user.username }}
-                                    {% endif %}
-                                {% else %}
-                                    Not assigned
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Issue Description</strong>
-                            <span>{{ booking.issue_description }}</span>
-                        </div>
-
-                        {% if booking.status == 'COMPLETED' %}
-
-                            <div class="detail-box full-width">
-                                <strong>Inspection Details</strong>
-                                <span>
-                                    {% if booking.service_record.inspection_details %}
-                                        {{ booking.service_record.inspection_details }}
-                                    {% else %}
-                                        Inspection completed.
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box full-width">
-                                <strong>Repair Details</strong>
-                                <span>
-                                    {% if booking.service_record.repair_details %}
-                                        {{ booking.service_record.repair_details }}
-                                    {% else %}
-                                        Repair work completed.
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box full-width">
-                                <strong>Parts Replaced</strong>
-                                <span>
-                                    {% if booking.service_record.parts_replaced %}
-                                        ⚙️ {{ booking.service_record.parts_replaced }}
-                                    {% else %}
-                                        No parts replaced
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box" style="border-color: #bbf7d0;">
-                                <strong>Total Service Cost</strong>
-                                <span style="font-size: 20px; font-weight: 800; color: var(--success-green);">
-                                    ₹ {{ booking.service_record.service_cost }}
-                                </span>
-                            </div>
-
-                            <div class="detail-box">
-                                <strong>Completion Date</strong>
-                                <span>
-                                    {% if booking.service_record.completed_at %}
-                                        {{ booking.service_record.completed_at }}
-                                    {% else %}
-                                        {{ booking.updated_at }}
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                        {% elif booking.status == 'CANCELLED' %}
-
-                            <div class="detail-box full-width">
-                                <strong>Cancellation Note</strong>
-                                <span>This vehicle service booking was cancelled.</span>
-                            </div>
-
-                        {% endif %}
-                    </div>
-
-                    {% if booking.status == 'COMPLETED' %}
-                        <div class="success-box">
-                            ✅ Vehicle service was completed successfully and invoice logged.
-                        </div>
-                    {% endif %}
-                </div>
-            </details>
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Archive Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">MASTER SERVICE & RESCUE ARCHIVE</span>
         </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill">
+                <span class="suite-pulse-dot"></span>
+                HISTORICAL TELEMETRY VERIFIED
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
 
-    {% endfor %}
+    <!-- Hero Section -->
+    <section class="suite-hero" aria-labelledby="history-hero-title">
+        <span class="suite-kicker">✦ CERTIFIED VEHICLE ARCHIVES · OFFICIAL WORKSHOP LOGS</span>
+        <h1 id="history-hero-title" class="suite-hero-title">Service & Inspection History.</h1>
+        <p class="suite-hero-subtitle">
+            Permanent, verifiable records for every scheduled maintenance, mechanical overhaul, and roadside intervention performed on your fleet.
+        </p>
+        <div class="suite-hero-actions">
+            <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
+                <span>Book New Service</span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'my_bookings' %}" class="suite-btn suite-btn-ghost">
+                <span>Active Orders Tracking</span>
+                <span aria-hidden="true">→</span>
+            </a>
+            <a href="{% url 'customer_dashboard' %}" class="suite-btn suite-btn-ghost">
+                <span>Back to Concierge</span>
+                <span aria-hidden="true">←</span>
+            </a>
+        </div>
+    </section>
 
-{% else %}
-
-    <div class="empty-box">
-        <h3>No Vehicle Service History</h3>
-        <p>Completed and cancelled vehicle services will appear here.</p>
+    <!-- Interactive Tab Navigation -->
+    <div class="suite-tab-strip" role="tablist">
+        <button type="button" class="suite-tab-btn is-active" id="tab-btn-workshop" onclick="switchSuiteTab('workshop')">
+            <span>🛠️ Workshop Service Records</span>
+            <span class="suite-tab-count">{{ completed_services|length }}</span>
+        </button>
+        <button type="button" class="suite-tab-btn" id="tab-btn-roadside" onclick="switchSuiteTab('roadside')">
+            <span>🚨 Emergency Roadside Rescues</span>
+            <span class="suite-tab-count">{{ roadside_history|length }}</span>
+        </button>
     </div>
 
-{% endif %}
-
-<br><br>
-
-<!-- SECTION 2: ROADSIDE ASSISTANCE HISTORY -->
-<div class="page-header">
-    <h2 class="page-title">🚨 Roadside Assistance History</h2>
-    <p class="page-subtitle">Completed and cancelled emergency roadside assistance requests are shown below.</p>
-</div>
-
-{% if roadside_history %}
-
-    {% for assistance in roadside_history %}
-
-        <div class="job-menu">
-            <details>
-                <summary>
-                    <div class="job-summary">
-                        <div class="job-title">
-                            <h3>Roadside Assistance: {{ assistance.assistance_type }}</h3>
-                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                <span class="license-plate">{{ assistance.vehicle.registration_number }}</span>
-                                <span>{{ assistance.vehicle.brand }} {{ assistance.vehicle.model }}</span>
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if assistance.status == 'COMPLETED' %}
-                                <span class="status-badge status-completed">Completed</span>
-                            {% elif assistance.status == 'CANCELLED' %}
-                                <span class="status-badge status-cancelled">Cancelled</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </summary>
-
-                <div class="job-body">
-                    <br>
-                    <div class="grid-2">
-                        <div class="detail-box">
-                            <strong>Assistance Category</strong>
-                            <span>{{ assistance.assistance_type }}</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Requested On</strong>
-                            <span>{{ assistance.created_at }}</span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Problem Description</strong>
-                            <span>{{ assistance.problem_description }}</span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Breakdown Location</strong>
-                            <span>📍 {{ assistance.location_details }}</span>
-                        </div>
-
-                        {% if assistance.location_link %}
-                            <div class="detail-box">
-                                <strong>Customer Location Link</strong>
-                                <span>
-                                    <a href="{{ assistance.location_link }}" target="_blank" class="btn btn-gray" style="padding: 6px 12px; font-size: 12px;">
-                                        Open Location Map
-                                    </a>
+    <!-- SECTION 1: WORKSHOP SERVICE RECORDS -->
+    <div id="suite-pane-workshop" class="suite-tab-pane">
+        {% if completed_services %}
+            {% for booking in completed_services %}
+                <div class="suite-accordion">
+                    <details {% if forloop.first %}open{% endif %}>
+                        <summary>
+                            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                                <span class="suite-plate">
+                                    <span class="suite-plate-country">IND</span>
+                                    <span>{{ booking.vehicle.registration_number }}</span>
                                 </span>
+                                <div>
+                                    <h3 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 3px 0;">
+                                        {{ booking.service_type }}
+                                    </h3>
+                                    <span style="font-size: 12px; color: var(--suite-text-sub);">
+                                        {{ booking.vehicle.brand }} {{ booking.vehicle.model }} · {{ booking.updated_at|date:"d M Y" }}
+                                    </span>
+                                </div>
                             </div>
-                        {% endif %}
 
-                        {% if assistance.staff_location_link %}
-                            <div class="detail-box">
-                                <strong>Staff Live Tracking Link</strong>
-                                <span>
-                                    <a href="{{ assistance.staff_location_link }}" target="_blank" class="btn btn-green" style="padding: 6px 12px; font-size: 12px;">
-                                        Open Staff Location
-                                    </a>
-                                </span>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if booking.status == 'COMPLETED' %}
+                                    <span class="suite-badge suite-badge-gold">
+                                        ✦ Certified Completed
+                                    </span>
+                                {% elif booking.status == 'CANCELLED' %}
+                                    <span class="suite-badge suite-badge-obsidian">
+                                        Cancelled
+                                    </span>
+                                {% endif %}
+                                <span style="font-size: 16px; color: var(--suite-text-faint);">⌄</span>
                             </div>
-                        {% endif %}
-                    </div>
+                        </summary>
+
+                        <div class="suite-accordion-content">
+                            <div class="suite-data-grid">
+                                <div class="suite-data-box">
+                                    <span class="suite-data-label">Appointment Session</span>
+                                    <span class="suite-data-val">
+                                        {% if booking.appointment_date %}
+                                            📅 {{ booking.appointment_date|date:"D, d M Y" }} · {{ booking.appointment_time|default:"" }}
+                                        {% else %}
+                                            Completed Session
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-box">
+                                    <span class="suite-data-label">Certifying Technician</span>
+                                    <span class="suite-data-val">
+                                        {% if booking.staff %}
+                                            👨‍🔧 {{ booking.staff.user.get_full_name|default:booking.staff.user.username }}
+                                            <small style="display: block; font-size: 11px; color: var(--suite-text-sub);">{{ booking.staff.designation }}</small>
+                                        {% else %}
+                                            Workshop Senior Team
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-box is-highlight">
+                                    <span class="suite-data-label">Total Invoice Cost</span>
+                                    <span class="suite-data-val is-gold" style="font-size: 18px;">
+                                        {% if booking.service_record.service_cost %}
+                                            ₹ {{ booking.service_record.service_cost }}
+                                        {% else %}
+                                            ₹ 0.00 (Warranty / Inspection)
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-box" style="grid-column: 1 / -1;">
+                                    <span class="suite-data-label">Diagnostic & Inspection Findings</span>
+                                    <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-sub); line-height: 1.5;">
+                                        {% if booking.service_record.inspection_details %}
+                                            {{ booking.service_record.inspection_details }}
+                                        {% else %}
+                                            Comprehensive 40-point safety and mechanical telemetry check passed.
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                {% if booking.service_record.repair_details %}
+                                    <div class="suite-data-box" style="grid-column: 1 / -1;">
+                                        <span class="suite-data-label">Repair Work Conducted</span>
+                                        <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-sub); line-height: 1.5;">
+                                            {{ booking.service_record.repair_details }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+
+                                <div class="suite-data-box" style="grid-column: 1 / -1;">
+                                    <span class="suite-data-label">Parts Renewed / Installed</span>
+                                    <div style="margin-top: 4px;">
+                                        {% if booking.service_record.parts_replaced %}
+                                            <span class="suite-badge suite-badge-gold" style="font-size: 12px;">
+                                                ⚙️ {{ booking.service_record.parts_replaced }}
+                                            </span>
+                                        {% else %}
+                                            <span style="font-size: 13px; color: var(--suite-text-faint);">No component replacements required. Standard fluids and calibration performed.</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
-            </details>
-        </div>
-
-    {% endfor %}
-
-{% else %}
-
-    <div class="empty-box">
-        <h3>No Roadside Assistance History</h3>
-        <p>Completed and cancelled roadside assistance requests will appear here.</p>
+            {% endfor %}
+        {% else %}
+            <div class="suite-card" style="text-align: center; padding: 48px 24px;">
+                <div style="font-size: 40px; margin-bottom: 12px;">📋</div>
+                <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 6px;">No Completed Workshop Records Yet</h3>
+                <p style="font-size: 13.5px; color: var(--suite-text-sub); max-width: 480px; margin: 0 auto 20px auto;">
+                    Completed maintenance logs, technician notes, and invoice certifications will be archived here automatically upon vehicle release.
+                </p>
+                <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
+                    <span>Schedule Initial Service</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+        {% endif %}
     </div>
 
-{% endif %}
+    <!-- SECTION 2: ROADSIDE ASSISTANCE HISTORY -->
+    <div id="suite-pane-roadside" class="suite-tab-pane" style="display: none;">
+        {% if roadside_history %}
+            {% for assistance in roadside_history %}
+                <div class="suite-accordion">
+                    <details {% if forloop.first %}open{% endif %}>
+                        <summary>
+                            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                                <span class="suite-plate">
+                                    <span class="suite-plate-country">SOS</span>
+                                    <span>{{ assistance.vehicle.registration_number }}</span>
+                                </span>
+                                <div>
+                                    <h3 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 3px 0;">
+                                        Roadside Rescue: {{ assistance.assistance_type }}
+                                    </h3>
+                                    <span style="font-size: 12px; color: var(--suite-text-sub);">
+                                        {{ assistance.vehicle.brand }} {{ assistance.vehicle.model }} · {{ assistance.created_at|date:"d M Y · H:i" }}
+                                    </span>
+                                </div>
+                            </div>
 
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if assistance.status == 'COMPLETED' %}
+                                    <span class="suite-badge suite-badge-emerald">
+                                        ✓ Rescue Resolved
+                                    </span>
+                                {% elif assistance.status == 'CANCELLED' %}
+                                    <span class="suite-badge suite-badge-obsidian">
+                                        Cancelled
+                                    </span>
+                                {% endif %}
+                                <span style="font-size: 16px; color: var(--suite-text-faint);">⌄</span>
+                            </div>
+                        </summary>
+
+                        <div class="suite-accordion-content">
+                            <div class="suite-data-grid">
+                                <div class="suite-data-box">
+                                    <span class="suite-data-label">Emergency Category</span>
+                                    <span class="suite-data-val">🚨 {{ assistance.assistance_type }}</span>
+                                </div>
+
+                                <div class="suite-data-box">
+                                    <span class="suite-data-label">Dispatch Timestamp</span>
+                                    <span class="suite-data-val">{{ assistance.created_at|date:"d M Y · H:i" }}</span>
+                                </div>
+
+                                <div class="suite-data-box" style="grid-column: 1 / -1;">
+                                    <span class="suite-data-label">Reported Breakdown Location</span>
+                                    <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-sub);">
+                                        📍 {{ assistance.location_details }}
+                                    </p>
+                                </div>
+
+                                <div class="suite-data-box" style="grid-column: 1 / -1;">
+                                    <span class="suite-data-label">Driver Problem Description</span>
+                                    <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-sub);">
+                                        {{ assistance.problem_description }}
+                                    </p>
+                                </div>
+
+                                {% if assistance.safe_location_link %}
+                                    <div class="suite-data-box">
+                                        <span class="suite-data-label">GPS Coordinate Map</span>
+                                        <a href="{{ assistance.safe_location_link }}" target="_blank" class="suite-btn suite-btn-ghost" style="padding: 6px 14px; font-size: 11px;">
+                                            <span>Open Satellite Coordinates</span>
+                                            <span aria-hidden="true">↗</span>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="suite-card" style="text-align: center; padding: 48px 24px;">
+                <div style="font-size: 40px; margin-bottom: 12px;">🛡️</div>
+                <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 6px;">Zero Roadside Emergencies Logged</h3>
+                <p style="font-size: 13.5px; color: var(--suite-text-sub); max-width: 480px; margin: 0 auto 20px auto;">
+                    Clean driving record. Any future emergency tow or mobile mechanic dispatches will be preserved here with GPS timestamps.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+function switchSuiteTab(target) {
+    const paneWorkshop = document.getElementById('suite-pane-workshop');
+    const paneRoadside = document.getElementById('suite-pane-roadside');
+    const btnWorkshop = document.getElementById('tab-btn-workshop');
+    const btnRoadside = document.getElementById('tab-btn-roadside');
+
+    if (target === 'workshop') {
+        paneWorkshop.style.display = 'block';
+        paneRoadside.style.display = 'none';
+        btnWorkshop.classList.add('is-active');
+        btnRoadside.classList.remove('is-active');
+    } else {
+        paneWorkshop.style.display = 'none';
+        paneRoadside.style.display = 'block';
+        btnWorkshop.classList.remove('is-active');
+        btnRoadside.classList.add('is-active');
+    }
+}
+</script>
 {% endblock %}

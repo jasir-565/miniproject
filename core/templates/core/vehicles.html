@@ -3,23 +3,65 @@
 
 {% block title %}My Vehicles - AutoNexa Service Center{% endblock %}
 
-{% block content %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
 
-<div class="page-header">
-    <h1 class="page-title">My Registered Vehicles</h1>
-    <p class="page-subtitle">Register personal vehicles for easy selection during service bookings and emergency roadside assistance dispatches.</p>
-</div>
+{% block content %}
+<div class="suite-container">
+
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Garage Fleet Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">PERSONAL GARAGE & FLEET COMMAND</span>
+        </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill">
+                <span class="suite-pulse-dot"></span>
+                GARAGE TELEMETRY ACTIVE
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
+
+    <div class="suite-hero">
+        <span class="suite-kicker">✦ PRIVATE OWNER VAULT · REGISTERED MOTOR FLEET</span>
+        <h1 class="suite-hero-title">Your Personal Garage.</h1>
+        <p class="suite-hero-subtitle">Every vehicle you own, kept in one clinical space. Access instant workshop booking, emergency roadside dispatch, and complete inspection history logs.</p>
+        <div class="suite-hero-actions">
+            <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
+                <span>Book Service For Fleet</span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            <a href="{% url 'my_bookings' %}" class="suite-btn suite-btn-ghost">
+                <span>Active Bookings</span>
+                <span aria-hidden="true">→</span>
+            </a>
+            <a href="{% url 'customer_dashboard' %}" class="suite-btn suite-btn-ghost">
+                <span>Back to Concierge</span>
+                <span aria-hidden="true">←</span>
+            </a>
+        </div>
+    </div>
+
+{% if error %}
+    <div class="alert alert-danger">
+         {{ error }}
+    </div>
+{% endif %}
 
 <div class="grid-2">
 
     <!-- ADD VEHICLE FORM -->
     <div class="form-box">
-        <h2>🚘 Register New Vehicle</h2>
+        <h2> Register New Vehicle</h2>
         <p class="page-subtitle" style="margin-bottom: 16px;">
             Enter your vehicle details correctly. Registration number should be unique.
         </p>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <label for="registration_number">Vehicle Registration Number</label>
@@ -66,15 +108,65 @@
                 placeholder="Example: 2021"
             >
 
+            <!-- OPTIONAL PHOTO SECTION -->
+            <label for="registration_photo" style="display: flex; align-items: center; justify-content: space-between;">
+                <span>Vehicle Photo <span class="optional-badge">Optional</span></span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--text-muted); text-transform: none;">Not compulsory</span>
+            </label>
+
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4;">
+                Add a photo only if you are interested. You can add, replace, or remove this photo at any time from your vehicle list.
+            </p>
+
+            <input
+                type="file"
+                name="photo"
+                id="registration_photo"
+                accept="image/png, image/jpeg, image/webp, image/jpg"
+                style="display: none;"
+                onchange="handleRegPhotoSelected(this)"
+            >
+
+            <div class="photo-upload-container" id="regPhotoDropzone" onclick="document.getElementById('registration_photo').click()">
+                <div class="photo-upload-prompt" id="regPhotoPrompt">
+                    <span class="upload-icon"></span>
+                    <span class="upload-title">Click to upload vehicle photo</span>
+                    <span class="upload-subtitle">Supports JPG, PNG, WEBP (Max 10 MB)</span>
+                </div>
+
+                <div class="photo-preview-wrap" id="regPhotoPreviewWrap" style="display: none;">
+                    <img id="regPhotoPreviewImg" class="photo-preview-img" src="#" alt="Selected vehicle photo preview">
+                    <p id="regPhotoFileInfo" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;"></p>
+                    <button type="button" class="photo-clear-btn" onclick="clearRegPhotoSelection(event)">
+                        ✕ Clear Photo
+                    </button>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-green" style="width: 100%; margin-top: 12px;">
-                ➕ Register Vehicle
+                 Register Vehicle
             </button>
         </form>
-    </div>
+    </div>    <!-- WHY REGISTER VEHICLES & 3D STUDIO SHOWCASE -->
+    <div class="card garage-intro">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+            <span class="eyebrow" style="margin-bottom: 0;">3D VEHICLE INSPECTION STUDIO</span>
+            <span class="dash-kicker is-gold" style="font-size: 8.5px; padding: 2px 8px;"><span class="gold-crown-icon">✦</span> SHOWCASE MODEL</span>
+        </div>
+        
+        {% include 'core/components/vehicle.html' with mode='showroom' %}
+        
+        <h2 style="margin-top: 14px;">A garage that goes with you.</h2>
 
-    <!-- WHY REGISTER VEHICLES -->
-    <div class="card">
-        <h2>Why Register Vehicles?</h2>
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Optional Vehicle Photos</strong>
+            <span>Upload a photo whenever you want! It helps service technicians recognize your car instantly during pickup or roadside SOS.</span>
+        </div>
+
+        <div class="detail-box" style="margin-bottom: 12px;">
+            <strong>Flexible Photo Management</strong>
+            <span>Any photo you add can be updated or deleted at any time according to your satisfaction with zero hassle.</span>
+        </div>
 
         <div class="detail-box" style="margin-bottom: 12px;">
             <strong>Service Booking</strong>
@@ -86,14 +178,9 @@
             <span>Quickly request emergency towing or breakdown support for any registered vehicle.</span>
         </div>
 
-        <div class="detail-box" style="margin-bottom: 12px;">
+        <div class="detail-box">
             <strong>Service History Records</strong>
             <span>All completed inspection reports, replacement parts, and invoices remain connected to the vehicle.</span>
-        </div>
-
-        <div class="detail-box">
-            <strong>Technician Accuracy</strong>
-            <span>Staff technicians get exact brand and model specs for replacement parts ordering.</span>
         </div>
     </div>
 
@@ -102,39 +189,132 @@
 <br><br>
 
 <div class="page-header">
-    <h2 class="page-title">Registered Fleet List</h2>
-    <p class="page-subtitle">Vehicles currently saved under your AutoNexa account.</p>
+    <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <span class="eyebrow">GARAGE TELEMETRY</span>
+            <h2 class="page-title" style="margin: 4px 0 6px;">Your Registered Fleet</h2>
+            <p class="page-subtitle">Every vehicle registered under your account. Instant service booking & roadside dispatch ready.</p>
+        </div>
+        <a href="#registration_number" class="dash-btn dash-btn-primary" style="padding: 9px 18px; font-size: 13px;">
+            <span>+ Add New Vehicle</span>
+        </a>
+    </div>
 </div>
 
 {% if vehicles %}
+    <div class="garage-list-tools"><label class="visually-hidden" for="garage-search">Search vehicles</label><input id="garage-search" type="search" placeholder="Find a registration, brand, or model…" data-garage-search><span id="garage-search-status" role="status">{{ vehicles|length }} vehicle{{ vehicles|length|pluralize }} in your garage</span></div>
 
     <div class="grid">
 
         {% for vehicle in vehicles %}
 
-            <div class="card" style="border-left: 5px solid var(--primary-blue);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <span class="license-plate">
-                        {{ vehicle.registration_number }}
-                    </span>
-                    <span class="status-badge status-confirmed">Registered</span>
-                </div>
-
-                <div class="grid-2" style="gap: 10px;">
-                    <div class="detail-box">
-                        <strong>Brand</strong>
-                        <span>{{ vehicle.brand }}</span>
+            <div class="card vehicle-executive-card" data-vehicle-card="{{ vehicle.registration_number }} {{ vehicle.brand }} {{ vehicle.model }}">
+                <div>
+                    <div class="vehicle-card-topbar">
+                        <span class="vehicle-serial-pill">✦ FLEET #0{{ forloop.counter }}</span>
+                        <span class="status-badge status-confirmed">Active In Garage</span>
                     </div>
 
-                    <div class="detail-box">
-                        <strong>Model</strong>
-                        <span>{{ vehicle.model }}</span>
+                    <div class="vehicle-card-headline">
+                        <h3 class="vehicle-model-heading">{{ vehicle.brand }} {{ vehicle.model }}</h3>
+                        <span class="license-plate">{{ vehicle.registration_number }}</span>
+                    </div>
+
+                    <!-- PHOTO DISPLAY SECTION -->
+                    {% if vehicle.photo %}
+                        <div class="vehicle-card-img-wrap" role="button" tabindex="0" data-lightbox-url="{{ vehicle.photo.url }}" data-caption="{{ vehicle.registration_number }} — {{ vehicle.brand }} {{ vehicle.model }}">
+                            <img
+                                src="{{ vehicle.photo.url }}"
+                                alt="{{ vehicle.registration_number }} photo"
+                                class="vehicle-card-img"
+                                loading="lazy"
+                            >
+                            <div class="vehicle-card-img-overlay">
+                                <span>🔍 View Photo</span>
+                                <span style="font-size: 11px; opacity: 0.9;">Click to enlarge</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="vehicle-card-schematic">
+                            <span class="schematic-glyph">🚗</span>
+                            <div class="schematic-body">
+                                <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
+                                <small>No photo uploaded (Optional)</small>
+                            </div>
+                            <button
+                                type="button"
+                                class="btn-action btn-action-green"
+                                data-photo-vehicle="{{ vehicle.id }}" data-registration="{{ vehicle.registration_number }}" data-vehicle-name="{{ vehicle.brand }} {{ vehicle.model }}" data-photo-url=""
+                            >
+                                + Add Photo
+                            </button>
+                        </div>
+                    {% endif %}
+
+                    <div class="vehicle-specs-grid">
+                        <div class="spec-cell">
+                            <span class="spec-label">MANUFACTURER</span>
+                            <strong class="spec-val">{{ vehicle.brand }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">MODEL</span>
+                            <strong class="spec-val">{{ vehicle.model }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">YEAR</span>
+                            <strong class="spec-val">{{ vehicle.year }}</strong>
+                        </div>
+                        <div class="spec-cell">
+                            <span class="spec-label">STATUS</span>
+                            <strong class="spec-val text-emerald">Verified ✦</strong>
+                        </div>
+                    </div>
+
+                    <!-- DIRECT SERVICE & SOS QUICKLINKS -->
+                    <div class="vehicle-card-quicklinks">
+                        <a href="{% url 'service_booking' %}?vehicle={{ vehicle.id }}" class="vehicle-quick-btn is-primary">
+                            <span>Book Service</span>
+                            <span aria-hidden="true">↗</span>
+                        </a>
+                        <a href="{% url 'roadside_assistance' %}?vehicle={{ vehicle.id }}" class="vehicle-quick-btn is-sos">
+                            <span>SOS Help</span>
+                            <span aria-hidden="true">⚡</span>
+                        </a>
                     </div>
                 </div>
 
-                <div class="detail-box" style="margin-top: 10px;">
-                    <strong>Manufacturing Year</strong>
-                    <span>{{ vehicle.year }}</span>
+                <!-- VEHICLE PHOTO ACTIONS -->
+                <div class="vehicle-card-actions">
+                    {% if vehicle.photo %}
+                        <button
+                            type="button"
+                            class="btn-action btn-action-blue"
+                            data-photo-vehicle="{{ vehicle.id }}" data-registration="{{ vehicle.registration_number }}" data-vehicle-name="{{ vehicle.brand }} {{ vehicle.model }}" data-photo-url="{{ vehicle.photo.url }}"
+                        >
+                            📷 Change Photo
+                        </button>
+
+                        <form
+                            method="POST"
+                            action="{% url 'delete_vehicle_photo' vehicle.id %}"
+                            onsubmit="return confirm('Remove this vehicle photo? The vehicle itself will remain registered.');"
+                            style="margin: 0;"
+                        >
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-action-red">
+                                ✕ Remove
+                            </button>
+                        </form>
+                    {% else %}
+                        <button
+                            type="button"
+                            class="btn-action btn-action-green"
+                            data-photo-vehicle="{{ vehicle.id }}" data-registration="{{ vehicle.registration_number }}" data-vehicle-name="{{ vehicle.brand }} {{ vehicle.model }}" data-photo-url=""
+                            style="width: 100%;"
+                        >
+                            📷 Upload Vehicle Photo
+                        </button>
+                    {% endif %}
                 </div>
             </div>
 
@@ -151,4 +331,230 @@
 
 {% endif %}
 
+<!-- PHOTO MANAGEMENT MODAL (ADD / UPDATE / DELETE) -->
+<div class="photo-modal-overlay" id="photoModal">
+    <div class="photo-modal-content">
+        <div class="photo-modal-header">
+            <h3 id="photoModalTitle"> Vehicle Photo</h3>
+            <button type="button" class="photo-modal-close" onclick="closePhotoModal()">&times;</button>
+        </div>
+
+        <div id="photoModalVehicleBadge" style="margin-bottom: 16px; padding: 10px 14px; background: var(--bg-subtle); border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <strong id="photoModalRegNo" class="license-plate" style="font-size: 13px;"></strong>
+                <span id="photoModalName" style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-left: 8px;"></span>
+            </div>
+        </div>
+
+        <!-- Current photo display if exists -->
+        <div id="photoModalCurrentWrap" style="display: none; margin-bottom: 16px; text-align: center;">
+            <p style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">Current Photo</p>
+            <img id="photoModalCurrentImg" src="#" alt="Current vehicle photo" style="max-height: 140px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover; max-width: 100%;">
+        </div>
+
+        <form id="photoModalForm" method="POST" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+
+            <label for="modal_photo_input" id="photoModalInputLabel">
+                Select New Photo
+            </label>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                Upload a clear image of your vehicle (JPG, PNG, or WebP format up to 10 MB).
+            </p>
+
+            <input
+                type="file"
+                name="photo"
+                id="modal_photo_input"
+                accept="image/png, image/jpeg, image/webp, image/jpg"
+                required
+                style="display: none;"
+                onchange="handleModalPhotoSelected(this)"
+            >
+
+            <div class="photo-upload-container" id="modalPhotoDropzone" onclick="document.getElementById('modal_photo_input').click()">
+                <div class="photo-upload-prompt" id="modalPhotoPrompt">
+                    <span class="upload-icon"></span>
+                    <span class="upload-title" id="modalPromptTitle">Choose Image File</span>
+                    <span class="upload-subtitle">Click to browse your device</span>
+                </div>
+
+                <div class="photo-preview-wrap" id="modalPhotoPreviewWrap" style="display: none;">
+                    <img id="modalPhotoPreviewImg" class="photo-preview-img" src="#" alt="New photo preview">
+                    <p id="modalPhotoFileInfo" style="font-size: 12px; color: var(--text-muted); margin-top: 6px;"></p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+                <button type="button" class="btn btn-gray" onclick="closePhotoModal()" style="padding: 10px 18px;">
+                    Cancel
+                </button>
+                <button type="submit" id="photoModalSubmitBtn" class="btn btn-green" style="padding: 10px 22px;">
+                     Save Photo
+                </button>
+            </div>
+        </form>
+
+        <!-- Separate Delete Form inside Modal if vehicle already has photo -->
+        <div id="photoModalDeleteSection" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border-color); text-align: center;">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                No longer want a photo for this vehicle? You can delete it anytime.
+            </p>
+            <form id="photoModalDeleteForm" method="POST" action="" onsubmit="return confirm('Are you sure you want to delete this vehicle photo?');">
+                {% csrf_token %}
+                <button type="submit" class="btn-action btn-action-red" style="padding: 8px 18px;">
+                     Delete Photo Completely
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- LIGHTBOX MODAL FOR FULL SCREEN IMAGE PREVIEW -->
+<div class="lightbox-overlay" id="lightboxModal" onclick="closeLightbox()">
+    <img id="lightboxImg" class="lightbox-img" src="#" alt="Full vehicle photo" onclick="event.stopPropagation()">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+    <button type="button" class="btn-action btn-action-red" style="margin-top: 14px;" onclick="closeLightbox()">
+        ✕ Close
+    </button>
+</div>
+
+<script>
+    document.querySelectorAll('[data-photo-vehicle]').forEach(button => {
+        button.addEventListener('click', () => {
+            const data = button.dataset;
+            openPhotoModal(data.photoVehicle, data.registration, data.vehicleName, data.photoUrl);
+        });
+    });
+    document.querySelectorAll('[data-lightbox-url]').forEach(element => {
+        const open = () => openLightbox(element.dataset.lightboxUrl, element.dataset.caption);
+        element.addEventListener('click', open);
+        element.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); }
+        });
+    });
+    // Registration form photo preview
+    function handleRegPhotoSelected(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size exceeds 10 MB limit. Please select a smaller photo.');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('regPhotoPreviewImg').src = e.target.result;
+            const sizeKB = (file.size / 1024).toFixed(1);
+            document.getElementById('regPhotoFileInfo').textContent = `${file.name} (${sizeKB} KB)`;
+            document.getElementById('regPhotoPrompt').style.display = 'none';
+            document.getElementById('regPhotoPreviewWrap').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearRegPhotoSelection(e) {
+        if (e) e.stopPropagation();
+        const input = document.getElementById('registration_photo');
+        input.value = '';
+        document.getElementById('regPhotoPreviewImg').src = '#';
+        document.getElementById('regPhotoPrompt').style.display = 'flex';
+        document.getElementById('regPhotoPreviewWrap').style.display = 'none';
+    }
+
+    // Modal Photo logic
+    function openPhotoModal(vehicleId, regNo, vehicleName, currentPhotoUrl) {
+        document.getElementById('photoModalRegNo').textContent = regNo;
+        document.getElementById('photoModalName').textContent = vehicleName;
+
+        const form = document.getElementById('photoModalForm');
+        form.action = `/vehicles/${vehicleId}/photo/update/`;
+
+        const deleteForm = document.getElementById('photoModalDeleteForm');
+        deleteForm.action = `/vehicles/${vehicleId}/photo/delete/`;
+
+        const currentWrap = document.getElementById('photoModalCurrentWrap');
+        const deleteSection = document.getElementById('photoModalDeleteSection');
+        const modalTitle = document.getElementById('photoModalTitle');
+        const submitBtn = document.getElementById('photoModalSubmitBtn');
+        const label = document.getElementById('photoModalInputLabel');
+
+        // Reset file input & preview
+        const input = document.getElementById('modal_photo_input');
+        input.value = '';
+        document.getElementById('modalPhotoPrompt').style.display = 'flex';
+        document.getElementById('modalPhotoPreviewWrap').style.display = 'none';
+
+        if (currentPhotoUrl) {
+            modalTitle.textContent = ' Update Vehicle Photo';
+            label.textContent = 'Select New Photo to Replace Existing';
+            submitBtn.textContent = ' Replace & Save Photo';
+            document.getElementById('photoModalCurrentImg').src = currentPhotoUrl;
+            currentWrap.style.display = 'block';
+            deleteSection.style.display = 'block';
+        } else {
+            modalTitle.textContent = ' Add Vehicle Photo';
+            label.textContent = 'Select Vehicle Photo';
+            submitBtn.textContent = ' Upload Photo';
+            currentWrap.style.display = 'none';
+            deleteSection.style.display = 'none';
+        }
+
+        document.getElementById('photoModal').classList.add('active');
+    }
+
+    function closePhotoModal() {
+        document.getElementById('photoModal').classList.remove('active');
+    }
+
+    function handleModalPhotoSelected(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size exceeds 10 MB limit. Please select a smaller photo.');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('modalPhotoPreviewImg').src = e.target.result;
+            const sizeKB = (file.size / 1024).toFixed(1);
+            document.getElementById('modalPhotoFileInfo').textContent = `${file.name} (${sizeKB} KB)`;
+            document.getElementById('modalPhotoPrompt').style.display = 'none';
+            document.getElementById('modalPhotoPreviewWrap').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Lightbox modal logic
+    function openLightbox(imgUrl, caption) {
+        document.getElementById('lightboxImg').src = imgUrl;
+        document.getElementById('lightboxCaption').textContent = caption;
+        document.getElementById('lightboxModal').classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxModal').classList.remove('active');
+    }
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePhotoModal();
+            closeLightbox();
+        }
+    });
+
+    // Close photo modal when clicking outside content
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePhotoModal();
+        }
+    });
+</script>
+</div>
 {% endblock %}

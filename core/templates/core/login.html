@@ -1,69 +1,120 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Login - AutoNexa Service Center{% endblock %}
+{% block title %}Sign In to Your Garage — AutoNexa Concierge{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="suite-container">
 
-<div class="auth-wrapper">
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Authentication Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">CLIENT GARAGE GATEWAY</span>
+        </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill">
+                <span class="suite-pulse-dot"></span>
+                SECURE AUTH GATEWAY
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
 
-    <div class="auth-card">
-
-        <h1>Sign In to AutoNexa</h1>
-
-        <p>
-            Enter your credentials to access your vehicle service account
-        </p>
-
-        {% if error %}
-            <div class="alert">
-                ⚠️ {{ error }}
+    <div class="suite-auth-grid">
+        <!-- Left Column: Showroom 3D Studio & Brand Ethos -->
+        <aside class="suite-auth-stage">
+            <span class="suite-kicker">✦ PRIVATE OWNER GARAGE PORTAL</span>
+            <h2 style="font-size: 32px; font-weight: 800; color: #ffffff; letter-spacing: -1px; margin: 12px 0 14px 0; line-height: 1.2;">
+                Command the road.<br><span style="color: #ffd24d; text-shadow: 0 0 16px rgba(255, 210, 77, 0.4);">We care for the rest.</span>
+            </h2>
+            
+            {% include 'core/components/vehicle.html' %}
+            
+            <div style="margin-top: 24px; display: grid; gap: 12px;">
+                <div class="suite-data-box">
+                    <span class="suite-data-label">Certified Service Telemetry</span>
+                    <span style="font-size: 13px; color: var(--suite-text-sub);">Real-time technician work notes, diagnostic inspections, and service archives.</span>
+                </div>
+                <div class="suite-data-box">
+                    <span class="suite-data-label">24/7 Rapid SOS Emergency Radar</span>
+                    <span style="font-size: 13px; color: var(--suite-text-sub);">1-click GPS breakdown dispatch with live approaching technician telemetry.</span>
+                </div>
             </div>
-        {% endif %}
+        </aside>
 
-        <form method="POST">
+        <!-- Right Column: Sign In Card -->
+        <div class="suite-auth-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <span class="suite-kicker" style="margin-bottom: 6px;">AUTHENTICATION · VERIFIED ACCESS</span>
+                    <h1 style="font-size: 26px; font-weight: 800; color: #ffffff; margin: 0;">Sign In to Garage.</h1>
+                </div>
+                <span class="suite-badge suite-badge-gold">✦ Secure Gateway</span>
+            </div>
 
-            {% csrf_token %}
+            {% if error %}
+                <div style="background: rgba(236,36,68,0.15); border: 1px solid rgba(236,36,68,0.4); color: #fca5a5; padding: 12px 16px; border-radius: var(--suite-radius-sm); margin-bottom: 20px; font-size: 13px;">
+                    ⚠️ {{ error }}
+                </div>
+            {% endif %}
 
-            <label for="username">
-                Username
-            </label>
+            <form method="POST">
+                {% csrf_token %}
 
-            <input
-                type="text"
-                name="username"
-                id="username"
-                required
-                placeholder="Enter your username"
-            >
+                <div class="suite-input-wrap">
+                    <label class="suite-input-label" for="username">Username</label>
+                    <input
+                        class="suite-input"
+                        type="text"
+                        name="username"
+                        id="username"
+                        autocomplete="username"
+                        required
+                        placeholder="Enter your username"
+                    >
+                </div>
 
-            <label for="password">
-                Password
-            </label>
+                <div class="suite-input-wrap">
+                    <label class="suite-input-label" for="password">Password</label>
+                    <input
+                        class="suite-input"
+                        type="password"
+                        name="password"
+                        id="password"
+                        autocomplete="current-password"
+                        required
+                        placeholder="Enter your password"
+                    >
+                </div>
 
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                placeholder="Enter your password"
-            >
+                <button type="submit" class="suite-btn suite-btn-gold" style="width: 100%; padding: 14px; font-size: 13px; margin-top: 14px;">
+                    <span>Access Personal Garage</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
 
-            <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">
-                Sign In
-            </button>
-
-        </form>
-
-        <p style="margin-top: 24px; text-align: center; color: var(--text-muted);">
-            Don't have an account yet?
-            <a href="{% url 'register' %}">
-                Create an account
-            </a>
-        </p>
-
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; color: var(--suite-text-sub);">
+                    Don't have an account yet?
+                    <a href="{% url 'register' %}" style="color: #ffd24d; font-weight: 700; text-decoration: none;">
+                        Activate Personal Garage ↗
+                    </a>
+                </p>
+                <p style="margin: 0; font-size: 12.5px; color: var(--suite-text-faint);">
+                    Workshop technician or service advisor?
+                    <a href="{% url 'staff_register' %}" style="color: #ec2444; font-weight: 700; text-decoration: none;">
+                        Technician Portal Onboarding ↗
+                    </a>
+                </p>
+            </div>
+        </div>
     </div>
 
 </div>
-
 {% endblock %}

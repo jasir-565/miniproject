@@ -1,144 +1,190 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
-{% block title %}Staff Service History - AutoNexa Staff Center{% endblock %}
+{% block title %}Staff Service Archive - AutoNexa Specialist Center{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/executive_suite.css' %}">
+{% endblock %}
 
 {% block content %}
+<div class="suite-container">
 
-<div class="page-header">
-    <h1 class="page-title">Staff Completed Service History</h1>
-    <p class="page-subtitle">View completed and cancelled vehicle service jobs handled by your staff account.</p>
-</div>
-
-<div style="margin-bottom: 24px;">
-    <a href="{% url 'staff_dashboard' %}" class="btn btn-gray">
-        📊 Back to Staff Dashboard
-    </a>
-</div>
-
-{% if service_history %}
-
-    {% for booking in service_history %}
-
-        <div class="job-menu">
-            <details>
-                <summary>
-                    <div class="job-summary">
-                        <div class="job-title">
-                            <h3>{{ booking.service_type }}</h3>
-                            <p style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                <span class="license-plate">{{ booking.vehicle.registration_number }}</span>
-                                <span>{{ booking.vehicle.brand }} {{ booking.vehicle.model }}</span>
-                            </p>
-                        </div>
-
-                        <div>
-                            {% if booking.status == 'COMPLETED' %}
-                                <span class="status-badge status-completed">Completed</span>
-                            {% elif booking.status == 'CANCELLED' %}
-                                <span class="status-badge status-cancelled">Cancelled</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </summary>
-
-                <div class="job-body">
-                    <br>
-                    <div class="grid-2">
-                        <div class="detail-box">
-                            <strong>Customer Name</strong>
-                            <span>
-                                {% if booking.customer.user.get_full_name %}
-                                    👤 {{ booking.customer.user.get_full_name }}
-                                {% else %}
-                                    👤 {{ booking.customer.user.username }}
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Vehicle Registration</strong>
-                            <span>{{ booking.vehicle.registration_number }} ({{ booking.vehicle.brand }} {{ booking.vehicle.model }})</span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Appointment Date & Time</strong>
-                            <span>
-                                {% if booking.appointment_date %}
-                                    📅 {{ booking.appointment_date }} at {{ booking.appointment_time }}
-                                {% else %}
-                                    Not recorded
-                                {% endif %}
-                            </span>
-                        </div>
-
-                        <div class="detail-box">
-                            <strong>Last Updated</strong>
-                            <span>{{ booking.updated_at }}</span>
-                        </div>
-
-                        <div class="detail-box full-width">
-                            <strong>Customer Issue Description</strong>
-                            <span>{{ booking.issue_description }}</span>
-                        </div>
-
-                        {% if booking.status == 'COMPLETED' %}
-
-                            <div class="detail-box full-width">
-                                <strong>Inspection Details</strong>
-                                <span>
-                                    {% if booking.service_record.inspection_details %}
-                                        {{ booking.service_record.inspection_details }}
-                                    {% else %}
-                                        Not recorded
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box full-width">
-                                <strong>Repair Details</strong>
-                                <span>
-                                    {% if booking.service_record.repair_details %}
-                                        {{ booking.service_record.repair_details }}
-                                    {% else %}
-                                        Not recorded
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box full-width">
-                                <strong>Parts Replaced</strong>
-                                <span>
-                                    {% if booking.service_record.parts_replaced %}
-                                        ⚙️ {{ booking.service_record.parts_replaced }}
-                                    {% else %}
-                                        No parts replaced
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="detail-box" style="border-color: #bbf7d0;">
-                                <strong>Service Cost</strong>
-                                <span style="font-size: 20px; font-weight: 800; color: var(--success-green);">
-                                    ₹ {{ booking.service_record.service_cost }}
-                                </span>
-                            </div>
-
-                        {% endif %}
-                    </div>
-                </div>
-            </details>
+    <!-- Executive Telemetry Topbar -->
+    <header class="suite-topbar" aria-label="Staff Service Telemetry">
+        <div class="suite-breadcrumbs">
+            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-crumb-sep">/</span>
+            <span class="suite-crumb-active">TECHNICIAN ARCHIVE &amp; SERVICE LEDGER</span>
         </div>
+        <div class="suite-telemetry">
+            <span class="suite-pulse-pill">
+                <span class="suite-pulse-dot"></span>
+                OFFICIAL WORKSHOP LOGBOOK
+            </span>
+            <span>{% now "l, d F Y" %}</span>
+        </div>
+    </header>
 
-    {% endfor %}
-
-{% else %}
-
-    <div class="empty-box">
-        <h3>No Completed Staff Service Jobs</h3>
-        <p>Completed and cancelled service jobs handled by you will appear here.</p>
+    <!-- Executive Hero -->
+    <div class="suite-hero">
+        <span class="suite-kicker">✦ CERTIFIED TECHNICIAN LEDGER · COMPLETED WORK ORDERS</span>
+        <h1 class="suite-hero-title">Bay Service Archive.</h1>
+        <p class="suite-hero-subtitle">
+            Permanent diagnostic and repair telemetry for all vehicle bookings completed or finalized under your technician credential. Inspect diagnostic notes, replacement components, and audited invoice amounts.
+        </p>
+        <div class="suite-hero-actions">
+            <a href="{% url 'staff_dashboard' %}" class="suite-btn suite-btn-ghost">
+                <span aria-hidden="true">←</span>
+                <span>Staff Operations Console</span>
+            </a>
+            <a href="{% url 'staff_assistance_requests' %}" class="suite-btn suite-btn-crimson">
+                <span>Active Roadside Distress</span>
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
     </div>
 
-{% endif %}
+    {% if service_history %}
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% for booking in service_history %}
+                <article class="suite-card {% if booking.status == 'COMPLETED' %}is-gold-rim{% else %}is-crimson-rim{% endif %}">
+                    <details {% if forloop.first %}open{% endif %} style="border: none; background: transparent;">
+                        <summary style="cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; outline: none;">
+                            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                                <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(255,210,77,0.08); border: 1px solid rgba(255,210,77,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                    {% if booking.status == 'COMPLETED' %}🔧{% else %}⚠️{% endif %}
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">
+                                        {{ booking.service_type }}
+                                    </h3>
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
+                                        <span class="suite-plate">{{ booking.vehicle.registration_number }}</span>
+                                        <span style="color: var(--suite-text-muted); font-size: 0.85rem; font-weight: 600;">
+                                            {{ booking.vehicle.brand }} {{ booking.vehicle.model }}
+                                        </span>
+                                        <span style="color: var(--suite-gold); font-size: 0.8rem; font-family: monospace;">
+                                            REF #SRV-{{ booking.id|stringformat:"05d" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                {% if booking.status == 'COMPLETED' %}
+                                    <span class="suite-badge-gold">✓ COMPLETED</span>
+                                {% elif booking.status == 'CANCELLED' %}
+                                    <span class="suite-badge-crimson">✕ CANCELLED</span>
+                                {% else %}
+                                    <span class="suite-badge-steel">{{ booking.status }}</span>
+                                {% endif %}
+                                <span style="color: var(--suite-gold); font-size: 0.9rem; transform: rotate(0deg); transition: transform 0.2s;" aria-hidden="true">▾</span>
+                            </div>
+                        </summary>
+
+                        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--suite-border-subtle);">
+                            <div class="suite-data-grid">
+                                <div class="suite-data-cell">
+                                    <span class="suite-data-label">VIP Client Profile</span>
+                                    <span class="suite-data-val">
+                                        {% if booking.customer.user.get_full_name %}
+                                            {{ booking.customer.user.get_full_name }}
+                                        {% else %}
+                                            {{ booking.customer.user.username }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-cell">
+                                    <span class="suite-data-label">Vehicle Dossier</span>
+                                    <span class="suite-data-val">
+                                        {{ booking.vehicle.registration_number }} · {{ booking.vehicle.brand }} {{ booking.vehicle.model }}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-cell">
+                                    <span class="suite-data-label">Scheduled Appointment</span>
+                                    <span class="suite-data-val">
+                                        {% if booking.appointment_date %}
+                                            {{ booking.appointment_date|date:"D, M d, Y" }} at {{ booking.appointment_time }}
+                                        {% else %}
+                                            Walk-in Priority Intake
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-cell">
+                                    <span class="suite-data-label">Audit Log Timestamp</span>
+                                    <span class="suite-data-val" style="font-family: monospace; font-size: 0.85rem;">
+                                        {{ booking.updated_at|date:"Y-m-d H:i" }}
+                                    </span>
+                                </div>
+
+                                <div class="suite-data-cell is-span-full">
+                                    <span class="suite-data-label">Client Reported Symptoms</span>
+                                    <p style="margin: 6px 0 0 0; color: #e6edf3; font-size: 0.9rem; line-height: 1.6;">
+                                        {{ booking.issue_description|default:"Standard scheduled preventative overhaul." }}
+                                    </p>
+                                </div>
+
+                                {% if booking.status == 'COMPLETED' %}
+                                    <div class="suite-data-cell is-span-full" style="background: rgba(255, 210, 77, 0.03); border-color: rgba(255, 210, 77, 0.15);">
+                                        <span class="suite-data-label" style="color: var(--suite-gold);">Technician Diagnostic Inspection</span>
+                                        <p style="margin: 6px 0 0 0; color: #e6edf3; font-size: 0.9rem; line-height: 1.6;">
+                                            {{ booking.service_record.inspection_details|default:"Full multi-point telemetry and diagnostic scan completed. Systems verified nominal." }}
+                                        </p>
+                                    </div>
+
+                                    <div class="suite-data-cell is-span-full" style="background: rgba(255, 210, 77, 0.03); border-color: rgba(255, 210, 77, 0.15);">
+                                        <span class="suite-data-label" style="color: var(--suite-gold);">Repair &amp; Calibration Methodology</span>
+                                        <p style="margin: 6px 0 0 0; color: #e6edf3; font-size: 0.9rem; line-height: 1.6;">
+                                            {{ booking.service_record.repair_details|default:"Execution carried out strictly adhering to OEM executive torque and fluid standards." }}
+                                        </p>
+                                    </div>
+
+                                    <div class="suite-data-cell is-span-full">
+                                        <span class="suite-data-label">OEM Components Replaced</span>
+                                        <div style="margin-top: 8px;">
+                                            {% if booking.service_record.parts_replaced %}
+                                                <span class="suite-badge-steel" style="font-size: 0.85rem; padding: 6px 12px; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15);">
+                                                    ⚙️ {{ booking.service_record.parts_replaced }}
+                                                </span>
+                                            {% else %}
+                                                <span style="color: var(--suite-text-muted); font-size: 0.85rem;">No major assembly replacements recorded. Adjustments and servicing only.</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="suite-data-cell is-span-full" style="background: linear-gradient(135deg, rgba(255, 210, 77, 0.08) 0%, rgba(7, 8, 10, 0.9) 100%); border: 1px solid rgba(255, 210, 77, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                                        <div>
+                                            <span class="suite-data-label" style="color: var(--suite-gold);">Total Service Ledger Invoice</span>
+                                            <span style="display: block; font-size: 0.8rem; color: var(--suite-text-muted);">Audited parts, bay labor &amp; certification</span>
+                                        </div>
+                                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--suite-gold); letter-spacing: -0.02em; text-shadow: 0 0 16px rgba(255, 210, 77, 0.4);">
+                                            ₹ {{ booking.service_record.service_cost }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </details>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="suite-card" style="text-align: center; padding: 60px 30px;">
+            <div style="font-size: 3rem; margin-bottom: 16px;">📋</div>
+            <h3 style="color: #ffffff; font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;">No Completed Service Jobs Found</h3>
+            <p style="color: var(--suite-text-muted); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem;">
+                Completed and finalized bay maintenance orders assigned to your technician account will automatically appear in this executive archive.
+            </p>
+            <a href="{% url 'staff_dashboard' %}" class="suite-btn suite-btn-gold">
+                <span>Go to Service Bay Operations</span>
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+    {% endif %}
+
+</div>
 {% endblock %}

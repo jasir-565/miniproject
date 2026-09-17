@@ -1,0 +1,670 @@
+/* ==========================================================================
+   AUTONEXA EXECUTIVE SUITE DESIGN SYSTEM
+   Palette: Obsidian Black (#07080a), Signature Crimson (#ec2444), Radiant 24K Gold (#ffd24d)
+   ========================================================================== */
+
+:root {
+    --suite-bg: #07080a;
+    --suite-surface: #0e1117;
+    --suite-surface-card: linear-gradient(145deg, #131720 0%, #0b0d12 100%);
+    --suite-surface-hover: linear-gradient(145deg, #181d29 0%, #0e1118 100%);
+    --suite-border: rgba(255, 255, 255, 0.08);
+    --suite-border-strong: rgba(255, 255, 255, 0.16);
+    --suite-gold: #ffd24d;
+    --suite-gold-dim: #c99716;
+    --suite-gold-bg: rgba(255, 210, 77, 0.1);
+    --suite-gold-border: rgba(255, 210, 77, 0.35);
+    --suite-gold-foil: linear-gradient(135deg, #fff2b2 0%, #f5c518 45%, #b3820e 100%);
+    --suite-gold-glow: 0 0 24px rgba(255, 210, 77, 0.4);
+    --suite-crimson: #ec2444;
+    --suite-crimson-bg: rgba(236, 36, 68, 0.12);
+    --suite-crimson-border: rgba(236, 36, 68, 0.4);
+    --suite-crimson-foil: linear-gradient(135deg, #ff3d5c 0%, #dc1e3e 55%, #940f25 100%);
+    --suite-crimson-glow: 0 0 24px rgba(236, 36, 68, 0.45);
+    --suite-emerald: #10b981;
+    --suite-emerald-bg: rgba(16, 185, 129, 0.12);
+    --suite-text-main: #f8fafc;
+    --suite-text-sub: #94a3b8;
+    --suite-text-faint: #64748b;
+    --suite-radius-sm: 8px;
+    --suite-radius-md: 14px;
+    --suite-radius-lg: 20px;
+    --suite-radius-pill: 9999px;
+    --suite-shadow-card: 0 16px 40px -12px rgba(0, 0, 0, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   1. EXECUTIVE TELEMETRY TOPBAR & BREADCRUMBS
+   ========================================================================== */
+.suite-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(17, 21, 29, 0.85) 0%, rgba(10, 12, 17, 0.95) 100%);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-md);
+    margin-bottom: 32px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,0.5);
+}
+
+.suite-breadcrumbs {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    font-weight: 700;
+}
+
+.suite-brand-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: 800;
+}
+
+.suite-crumb-sep {
+    color: var(--suite-text-faint);
+    opacity: 0.6;
+}
+
+.suite-crumb-active {
+    color: var(--suite-text-main);
+    letter-spacing: 1.5px;
+}
+
+.suite-telemetry {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--suite-text-sub);
+}
+
+.suite-pulse-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: var(--suite-radius-pill);
+    color: #34d399;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.suite-pulse-pill.is-emergency {
+    background: var(--suite-crimson-bg);
+    border-color: var(--suite-crimson-border);
+    color: #fca5a5;
+    box-shadow: var(--suite-crimson-glow);
+}
+
+.suite-pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    animation: suitePulse 1.8s infinite;
+}
+
+@keyframes suitePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.4; }
+}
+
+/* ==========================================================================
+   2. LUXURY 3D EXECUTIVE HERO & HEADERS
+   ========================================================================== */
+.suite-hero {
+    position: relative;
+    background: radial-gradient(circle at 90% 15%, rgba(255, 210, 77, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 10% 85%, rgba(236, 36, 68, 0.08) 0%, transparent 55%),
+                var(--suite-surface-card);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-lg);
+    padding: 36px 40px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    box-shadow: var(--suite-shadow-card);
+}
+
+.suite-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--suite-gold-foil);
+    box-shadow: 0 0 16px rgba(255, 210, 77, 0.5);
+}
+
+.suite-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(255, 210, 77, 0.22) 0%, rgba(20, 16, 8, 0.85) 100%);
+    border: 1px solid var(--suite-gold-border);
+    padding: 4px 12px;
+    border-radius: var(--suite-radius-pill);
+    color: #fef08a;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    margin-bottom: 14px;
+    box-shadow: 0 0 14px rgba(255, 210, 77, 0.2);
+}
+
+.suite-hero-title {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    color: var(--suite-text-main);
+    margin: 0 0 10px 0;
+    line-height: 1.15;
+}
+
+.suite-hero-subtitle {
+    font-size: 14px;
+    color: var(--suite-text-sub);
+    max-width: 680px;
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.suite-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   3. 3D LUXURY CARDS & ORDER DOCKETS
+   ========================================================================== */
+.suite-card {
+    position: relative;
+    background: var(--suite-surface-card);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-md);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--suite-shadow-card);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    overflow: hidden;
+}
+
+.suite-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 210, 77, 0.08);
+}
+
+.suite-card.is-gold-rim {
+    border-color: var(--suite-gold-border);
+}
+
+.suite-card.is-gold-rim::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--suite-gold-foil);
+    box-shadow: 0 0 12px rgba(255, 210, 77, 0.5);
+}
+
+.suite-card.is-crimson-rim {
+    border-color: var(--suite-crimson-border);
+}
+
+.suite-card.is-crimson-rim::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--suite-crimson-foil);
+    box-shadow: 0 0 12px rgba(236, 36, 68, 0.5);
+}
+
+/* ==========================================================================
+   4. SERVICE PIPELINE VISUAL TRACK (MY BOOKINGS & HISTORY)
+   ========================================================================== */
+.suite-pipeline {
+    margin: 22px 0 16px 0;
+    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--suite-radius-sm);
+}
+
+.suite-pipeline-track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+    gap: 12px;
+}
+
+.suite-step {
+    position: relative;
+    text-align: center;
+    padding: 8px 4px;
+}
+
+.suite-step-bullet {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin: 0 auto 8px auto;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    background: #1c212c;
+    color: var(--suite-text-faint);
+    border: 1px solid var(--suite-border);
+    transition: all 0.3s ease;
+}
+
+.suite-step.is-done .suite-step-bullet {
+    background: var(--suite-gold-foil);
+    color: #07080a;
+    border-color: #ffe082;
+    box-shadow: 0 0 14px rgba(255, 210, 77, 0.5);
+}
+
+.suite-step.is-active .suite-step-bullet {
+    background: var(--suite-crimson-foil);
+    color: #ffffff;
+    border-color: #ff8599;
+    box-shadow: 0 0 16px rgba(236, 36, 68, 0.6);
+    animation: suitePulse 1.8s infinite;
+}
+
+.suite-step-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--suite-text-faint);
+    text-transform: uppercase;
+}
+
+.suite-step.is-done .suite-step-label {
+    color: #fef08a;
+}
+
+.suite-step.is-active .suite-step-label {
+    color: #ffa4b2;
+}
+
+/* ==========================================================================
+   5. EMBOSSED LICENSE PLATE & FLEET BADGES
+   ========================================================================== */
+.suite-plate {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    color: #ffffff;
+    background: #0d0f14;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #333a47;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.4);
+}
+
+.suite-plate-country {
+    color: var(--suite-gold);
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.suite-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: var(--suite-radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+}
+
+.suite-badge-gold {
+    background: rgba(255, 210, 77, 0.12);
+    border: 1px solid var(--suite-gold-border);
+    color: #fef08a;
+    box-shadow: 0 0 12px rgba(255, 210, 77, 0.2);
+}
+
+.suite-badge-crimson {
+    background: var(--suite-crimson-bg);
+    border: 1px solid var(--suite-crimson-border);
+    color: #fca5a5;
+    box-shadow: 0 0 12px rgba(236, 36, 68, 0.2);
+}
+
+.suite-badge-emerald {
+    background: var(--suite-emerald-bg);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+.suite-badge-obsidian {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--suite-border);
+    color: var(--suite-text-sub);
+}
+
+/* ==========================================================================
+   6. LUXURY DETAIL DATA GRIDS & INSPECTION MATRICES
+   ========================================================================== */
+.suite-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 18px 0;
+}
+
+.suite-data-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--suite-radius-sm);
+    padding: 14px 16px;
+}
+
+.suite-data-box.is-highlight {
+    border-color: var(--suite-gold-border);
+    background: linear-gradient(135deg, rgba(255, 210, 77, 0.08) 0%, rgba(0,0,0,0.4) 100%);
+}
+
+.suite-data-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--suite-text-faint);
+    margin-bottom: 6px;
+}
+
+.suite-data-val {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--suite-text-main);
+}
+
+.suite-data-val.is-gold {
+    color: #fef08a;
+    text-shadow: 0 0 12px rgba(255, 210, 77, 0.4);
+}
+
+/* ==========================================================================
+   7. INTERACTIVE BUTTONS & TABS
+   ========================================================================== */
+.suite-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 22px;
+    border-radius: var(--suite-radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.suite-btn-gold {
+    background: var(--suite-gold-foil);
+    color: #07080a !important;
+    border-color: #ffd24d;
+    box-shadow: 0 4px 16px rgba(255, 210, 77, 0.35);
+}
+
+.suite-btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255, 210, 77, 0.55);
+}
+
+.suite-btn-crimson {
+    background: var(--suite-crimson-foil);
+    color: #ffffff !important;
+    border-color: #ff3d5c;
+    box-shadow: 0 4px 16px rgba(236, 36, 68, 0.35);
+}
+
+.suite-btn-crimson:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(236, 36, 68, 0.55);
+}
+
+.suite-btn-ghost {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--suite-text-main) !important;
+    border-color: var(--suite-border);
+}
+
+.suite-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Tab filter strip (for Notifications & History) */
+.suite-tab-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.suite-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-pill);
+    color: var(--suite-text-sub);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.suite-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--suite-text-main);
+}
+
+.suite-tab-btn.is-active {
+    background: var(--suite-gold-bg);
+    border-color: var(--suite-gold-border);
+    color: #fef08a;
+    box-shadow: 0 0 14px rgba(255, 210, 77, 0.2);
+}
+
+.suite-tab-count {
+    padding: 2px 7px;
+    border-radius: var(--suite-radius-pill);
+    font-size: 9.5px;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   8. NOTIFICATION ALERTS CARDS
+   ========================================================================== */
+.suite-alert-card {
+    position: relative;
+    background: var(--suite-surface-card);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-md);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--suite-shadow-card);
+    transition: all 0.25s ease;
+}
+
+.suite-alert-card.is-unread {
+    border-color: var(--suite-crimson-border);
+    background: linear-gradient(145deg, rgba(236, 36, 68, 0.08) 0%, rgba(11, 13, 18, 0.95) 100%);
+    box-shadow: 0 8px 24px -6px rgba(236, 36, 68, 0.25);
+}
+
+.suite-alert-card.is-unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--suite-crimson-foil);
+    box-shadow: 0 0 10px rgba(236, 36, 68, 0.6);
+}
+
+/* ==========================================================================
+   9. AUTH & REGISTRATION SUITE LAYOUT (VIP GARAGE & TECHNICIAN)
+   ========================================================================== */
+.suite-auth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 40px;
+    align-items: center;
+    max-width: 1180px;
+    margin: 20px auto 48px auto;
+}
+
+@media (max-width: 900px) {
+    .suite-auth-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.suite-auth-stage {
+    position: relative;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 210, 77, 0.12) 0%, transparent 70%),
+                var(--suite-surface-card);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-lg);
+    padding: 36px;
+    box-shadow: var(--suite-shadow-card);
+}
+
+.suite-auth-stage::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--suite-gold-foil);
+}
+
+.suite-auth-card {
+    background: var(--suite-surface-card);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-lg);
+    padding: 36px 40px;
+    box-shadow: var(--suite-shadow-card);
+    position: relative;
+}
+
+.suite-auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--suite-crimson-foil);
+}
+
+.suite-input-wrap {
+    margin-bottom: 18px;
+}
+
+.suite-input-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--suite-text-sub);
+    margin-bottom: 7px;
+}
+
+.suite-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-sm);
+    padding: 13px 16px;
+    font-size: 13px;
+    color: var(--suite-text-main);
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+}
+
+.suite-input:focus {
+    outline: none;
+    border-color: var(--suite-gold);
+    box-shadow: 0 0 16px rgba(255, 210, 77, 0.25);
+    background: rgba(0, 0, 0, 0.65);
+}
+
+/* ==========================================================================
+   10. DETAILS / ACCORDION POLISH FOR MASTER ARCHIVES
+   ========================================================================== */
+.suite-accordion {
+    border: 1px solid var(--suite-border);
+    border-radius: var(--suite-radius-md);
+    background: var(--suite-surface-card);
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: var(--suite-shadow-card);
+    transition: border-color 0.25s ease;
+}
+
+.suite-accordion:hover {
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+.suite-accordion summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.suite-accordion summary::-webkit-details-marker {
+    display: none;
+}
+
+.suite-accordion-content {
+    padding: 0 24px 24px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}

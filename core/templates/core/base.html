@@ -1,128 +1,83 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AutoNexa - Vehicle Service Center{% endblock %}</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#0b0c0e"><meta name="color-scheme" content="dark">
+<title>{% block title %}AutoNexa — Care for the road ahead{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'core/style.css' %}"><link rel="stylesheet" href="{% static 'core/atelier.css' %}">
+<script src="{% static 'core/cockpit.js' %}"></script><script src="{% static 'core/atelier.js' %}" defer></script>
+<script src="{% static 'core/three.min.js' %}"></script>
+<script>if (typeof THREE === 'undefined') { document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\\/script>'); }</script>
+<script src="{% static 'core/pajero_3d.js' %}" defer></script>
+{% block extra_head %}{% endblock %}
+<link rel="stylesheet" href="{% static 'core/theme.css' %}">
+<link rel="stylesheet" href="{% static 'core/brand.css' %}">
+<style>
+/* AUTO NEXA Core Brand Styling - Guaranteed High Specificity */
+.brand-auto,
+.brand-auto *,
+span.brand-auto,
+.wordmark .brand-auto,
+.wordmark.brand-auto,
+.dash-brand-tag .brand-auto,
+.dash-kicker .brand-auto,
+.crumb-root .brand-auto,
+.cinema-name .nome-auto,
+.cinema-name .nome-auto .nome-letter,
+.footer-logo .brand-auto {
+    color: #ffd24d !important;
+    -webkit-text-fill-color: #ffd24d !important;
+    text-shadow: 0 0 16px rgba(255, 210, 77, 0.6), 0 0 32px rgba(212, 175, 55, 0.35) !important;
+}
 
-    <link rel="stylesheet" href="{% static 'core/style.css' %}">
-    <script src="{% static 'core/cockpit.js' %}" defer></script>
+.brand-nexa,
+.brand-nexa *,
+span.brand-nexa,
+.wordmark .brand-nexa,
+.dash-brand-tag .brand-nexa,
+.dash-kicker .brand-nexa,
+.crumb-root .brand-nexa,
+.cinema-name .nome-nexa,
+.cinema-name .nome-nexa .nome-letter,
+.footer-logo .brand-nexa {
+    color: #ec2444 !important;
+    -webkit-text-fill-color: #ec2444 !important;
+    text-shadow: 0 0 14px rgba(236, 36, 68, 0.45) !important;
+}
+
+.brand-symbol {
+    color: #ffd24d !important;
+    -webkit-text-fill-color: #ffd24d !important;
+}
+
+.brand-symbol > span {
+    color: #ec2444 !important;
+    -webkit-text-fill-color: #ec2444 !important;
+}
+</style>
 </head>
-
-<body>
-
-    <!-- TOP INFORMATION UTILITY BAR -->
-    <div class="top-bar">
-        <div class="top-bar-item">
-            <span>📞 24/7 Roadside Emergency Dispatch:</span>
-            <strong>1800-AUTO-NEXA (1800-2886-6392)</strong>
-        </div>
-
-        <div class="top-bar-item">
-            <span>⏰ Service Hours:</span>
-            <strong>Mon – Sat: 8:00 AM – 8:00 PM</strong>
-        </div>
-
-        <div class="top-bar-item">
-            <span>📍 AutoNexa Certified Service Center Portal</span>
-        </div>
-    </div>
-
-    <!-- MAIN NAVBAR -->
-    <header class="main-navbar">
-        <a href="{% url 'home' %}" class="brand-wrapper">
-            <div class="brand-icon">🚗</div>
-            <div class="brand-title">
-                <h1>AutoNexa</h1>
-                <p>Vehicle Service Center</p>
-            </div>
-        </a>
-
-        <!-- NAVIGATION LINKS -->
-        <nav class="nav-links">
-            {% if user.is_authenticated %}
-                {% if user.staffprofile %}
-                    <a href="{% url 'staff_dashboard' %}" class="nav-item">
-                        📊 Staff Dashboard
-                    </a>
-                    <a href="{% url 'staff_assistance_requests' %}" class="nav-item nav-sos">
-                        🚨 Roadside Requests
-                    </a>
-                    <a href="{% url 'staff_service_history' %}" class="nav-item">
-                        📜 Service Logs
-                    </a>
-                    <a href="{% url 'staff_assistance_history' %}" class="nav-item">
-                        🛡️ Assistance History
-                    </a>
-                {% else %}
-                    <a href="{% url 'customer_dashboard' %}" class="nav-item">
-                        📊 Dashboard
-                    </a>
-                    <a href="{% url 'vehicles' %}" class="nav-item">
-                        🚘 My Vehicles
-                    </a>
-                    <a href="{% url 'service_booking' %}" class="nav-item">
-                        🛠️ Book Service
-                    </a>
-                    <a href="{% url 'my_bookings' %}" class="nav-item">
-                        ⏳ My Bookings
-                    </a>
-                    <a href="{% url 'service_history' %}" class="nav-item">
-                        📜 Service History
-                    </a>
-                    <a href="{% url 'roadside_assistance' %}" class="nav-item nav-sos">
-                        🚨 Emergency Assistance
-                    </a>
-                    <a href="{% url 'notifications' %}" class="nav-item">
-                        🔔 Alerts
-                    </a>
-                {% endif %}
-            {% else %}
-                <a href="{% url 'home' %}" class="nav-item">Home</a>
-                <a href="{% url 'login' %}" class="nav-item">Login</a>
-                <a href="{% url 'register' %}" class="nav-item">Register</a>
-            {% endif %}
-        </nav>
-
-        <!-- USER ACCOUNT & AUTH -->
-        <div class="user-badge">
-            {% if user.is_authenticated %}
-                <span class="user-name">
-                    👤 
-                    {% if user.first_name %}
-                        {{ user.first_name }}
-                    {% else %}
-                        {{ user.username }}
-                    {% endif %}
-                </span>
-                <a href="{% url 'logout' %}" class="btn btn-red" style="padding: 6px 14px; font-size: 12px;">
-                    Logout
-                </a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn" style="padding: 6px 16px; font-size: 12px;">
-                    Login
-                </a>
-            {% endif %}
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="container">
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <!-- MAIN FOOTER -->
-    <footer class="main-footer">
-        <div>
-            <strong>AutoNexa Vehicle Service & Roadside Assistance Portal</strong> &copy; 2026. All Rights Reserved.
-        </div>
-        <div>
-            Certified Maintenance & Multi-Point Vehicle Diagnostics
-        </div>
-    </footer>
-
-</body>
-</html>
+<body data-page="{{ request.resolver_match.url_name }}">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-header">
+<a href="{% url 'home' %}" class="wordmark brand-auto" aria-label="AutoNexa home"><span class="brand-symbol" aria-hidden="true" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important;">a<span style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important;">n</span></span><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important; font-weight: 800; letter-spacing: -0.5px;">AUTO</span><span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.4) !important; font-weight: 800; letter-spacing: -0.5px;">NEXA</span><small style="color: #94a3b8 !important;">MOTOR CARE</small></a>
+<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">Menu <span aria-hidden="true">☰</span></button>
+<nav id="primary-navigation" class="primary-nav" aria-label="Main navigation">
+{% if user.is_authenticated %}{% if user.staff_profile %}
+<a href="{% url 'staff_dashboard' %}">Workshop</a><a href="{% url 'staff_assistance_requests' %}">Roadside Requests</a><a href="{% url 'staff_service_history' %}">Service Logs</a><a href="{% url 'staff_assistance_history' %}">Assistance History</a>
+{% else %}
+<a href="{% url 'customer_dashboard' %}">Overview</a><a href="{% url 'vehicles' %}">My garage</a><a href="{% url 'my_bookings' %}">Bookings</a><a href="{% url 'service_history' %}">History</a><a href="{% url 'roadside_assistance' %}">Roadside help <span class="nav-dot" aria-hidden="true"></span></a>
+{% endif %}{% else %}
+<a href="{% url 'home' %}">The workshop</a><a href="{% url 'home' %}#services">Our services</a><a href="{% url 'roadside_assistance' %}">Roadside help <span class="nav-dot" aria-hidden="true"></span></a>
+{% endif %}</nav>
+<div class="header-actions">
+{% if user.is_authenticated %}
+{% if user.customer_profile and not user.staff_profile %}<a class="icon-button" href="{% url 'notifications' %}" aria-label="Notifications">{% include 'core/components/icon.html' with name='bell' %}</a>{% endif %}
+<details class="account-menu"><summary aria-label="Account menu"><span class="avatar">{{ user.username|first|upper }}</span><span class="account-name">{{ user.first_name|default:user.username }}</span><span aria-hidden="true">⌄</span></summary><div class="account-popover"><span>Signed in as <strong>{{ user.username }}</strong></span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="text-button">Sign out <span aria-hidden="true">↗</span></button></form></div></details>
+{% else %}<a href="{% url 'login' %}" class="sign-in">Sign in</a><a href="{% url 'register' %}" class="btn header-cta">Your garage <span aria-hidden="true">↗</span></a>{% endif %}
+</div></header>
+<main class="container" id="main-content">
+{% if messages %}<div class="messages-container" role="status">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+{% block content %}{% endblock %}
+</main>
+<footer class="site-footer"><a class="footer-logo brand-auto" href="{% url 'home' %}"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; font-weight: 700;">AUTO</span><span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; font-weight: 700;">NEXA</span><span>®</span></a><p>A little care. A longer journey.</p><span>Vehicle service & roadside assistance</span><small>© {% now 'Y' %} <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important;">Auto</span><span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important;">Nexa</span></small></footer>
+</body></html>

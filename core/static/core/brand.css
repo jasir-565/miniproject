@@ -1,0 +1,46 @@
+/* Shared two-color wordmark for every visible AutoNexa title.
+   AUTO is styled in premium metallic gold; NEXA is styled in signature crimson. */
+.brand-auto,
+.wordmark.brand-auto,
+.footer-logo.brand-auto,
+.wordmark.brand-auto .brand-symbol,
+.cinema-name .nome-auto {
+    color: #ffd24d !important;
+    -webkit-text-fill-color: #ffd24d !important;
+    text-shadow: 0 0 16px rgba(255, 210, 77, 0.6), 0 0 32px rgba(212, 175, 55, 0.35) !important;
+}
+
+.brand-symbol {
+    color: #ffd24d !important;
+    -webkit-text-fill-color: #ffd24d !important;
+}
+
+.brand-symbol > span {
+    color: #ec2444 !important;
+}
+
+.brand-nexa,
+.wordmark > .brand-nexa,
+.footer-logo > .brand-nexa,
+.cinema-name .nome-nexa {
+    color: #ec2444 !important;
+    font-size: inherit;
+    vertical-align: baseline;
+    text-shadow: 0 0 14px rgba(236, 36, 68, 0.35);
+}
+
+.wordmark small {
+    color: #94a3b8 !important;
+}
+
+.footer-logo > span:last-child {
+    color: #94a3b8 !important;
+}
+
+#site-name .brand-auto {
+    color: #ffd24d !important;
+}
+
+#site-name .brand-nexa {
+    color: #ec2444 !important;
+}
