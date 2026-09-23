@@ -1,0 +1,9 @@
+{% extends 'core/base.html' %}
+{% block title %}Your estimates — AutoNexa{% endblock %}
+{% block content %}
+<header class="product-heading"><span class="eyebrow">SERVICE ESTIMATES</span><h1>Your estimated bills</h1><p>Review every charge and approve the work before your service begins.</p><div class="product-actions"><a href="{% url 'my_bookings' %}">← Your bookings</a><span class="estimate-status">{{ pending_count }} awaiting approval</span></div></header>
+<div class="booking-list">
+{% for estimate in estimates %}<article class="product-panel booking-card"><div class="booking-card-heading"><div><span class="eyebrow">BOOKING #{{ estimate.booking_id }} · VERSION {{ estimate.revision }}</span><h2>{{ estimate.booking.service_type }}</h2><p>{{ estimate.booking.vehicle.brand }} {{ estimate.booking.vehicle.model }} · {{ estimate.booking.vehicle.registration_number }}</p></div><span class="estimate-status">{% if estimate.booking.status == 'CANCELLED' %}Booking cancelled{% else %}{{ estimate.get_status_display }}{% endif %}</span></div><div class="booking-card-footer"><span class="estimate-amount">₹{{ estimate.total|floatformat:2 }}</span><a class="btn" href="{% url 'estimate_detail' estimate.booking_id %}">View full bill →</a></div></article>
+{% empty %}<section class="product-panel"><h2>No estimates yet</h2><p>Once your technician prepares a bill, it will appear here. You will also receive a notification.</p><a class="record-link" href="{% url 'my_bookings' %}">View your bookings →</a></section>{% endfor %}
+</div>{% include 'core/components/pagination.html' with page=estimates %}
+{% endblock %}

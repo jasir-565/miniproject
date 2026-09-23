@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}{% load static %}
+{% block title %}Prepare estimate — AutoNexa{% endblock %}
+{% block extra_head %}<script src="{% static 'core/product.js' %}" defer></script>{% endblock %}
+{% block content %}
+<div class="product-heading"><span class="eyebrow">WORK ORDER / {{ booking.id|stringformat:'04d' }}</span><h1>Prepare an estimate.</h1><p>{{ booking.vehicle }} · {{ booking.service_type }}</p><a href="{% url 'booking_detail' booking.id %}">← Back to service</a></div>
+<form method="post" class="product-panel" id="estimate-form">{% csrf_token %}{{ formset.management_form }}{{ formset.non_form_errors }}<p>Include all labour and parts. Sending a revision replaces any earlier approval. Work can begin once the customer approves this version.</p><div id="estimate-lines">{% for line in formset %}<fieldset class="estimate-line"><legend>Item {{ forloop.counter }}</legend>{{ line.as_p }}</fieldset>{% endfor %}</div><template id="estimate-line-template"><fieldset class="estimate-line"><legend>Additional item</legend>{{ formset.empty_form.as_p }}</fieldset></template><button type="button" class="btn btn-gray" id="add-estimate-line" hidden>Add another item +</button><p class="estimate-preview" id="estimate-preview" aria-live="polite"></p>{{ form.as_p }}<button class="btn" type="submit">Send estimate for approval ↗</button></form>
+{% endblock %}

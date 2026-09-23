@@ -32,6 +32,8 @@ db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+node_modules/
+test-results/
 
 # Virtual Environment
 venv/

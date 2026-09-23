@@ -49,6 +49,10 @@ if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured('Set DJANGO_ALLOWED_HOSTS for production.')
 
 SECURE_SSL_REDIRECT = not DEBUG
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in setting('DJANGO_CSRF_TRUSTED_ORIGINS').split(',') if origin.strip()]
+# Enable only behind a trusted proxy that overwrites this header.
+if setting('DJANGO_TRUST_PROXY', 'false').lower() == 'true':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
@@ -138,7 +142,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = setting('DJANGO_TIME_ZONE', 'Asia/Kolkata')
+WORKSHOP_OPEN = setting('WORKSHOP_OPEN', '09:00')
+WORKSHOP_CLOSE = setting('WORKSHOP_CLOSE', '18:00')
+WORKSHOP_DAYS = [int(day) for day in setting('WORKSHOP_DAYS', '0,1,2,3,4,5,6').split(',')]
 
 USE_I18N = True
 
@@ -158,4 +165,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = setting('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = setting('EMAIL_HOST')
+EMAIL_PORT = int(setting('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = setting('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_HOST_USER = setting('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = setting('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = setting('DEFAULT_FROM_EMAIL', 'AutoNexa <noreply@localhost>')
+EMAIL_TIMEOUT = 10
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'customer_dashboard'
+LOGGING = {'version': 1, 'disable_existing_loggers': False, 'handlers': {'console': {'class': 'logging.StreamHandler'}}, 'loggers': {'django.request': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False}}}

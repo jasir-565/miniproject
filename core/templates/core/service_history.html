@@ -13,7 +13,7 @@
     <!-- Executive Telemetry Topbar -->
     <header class="suite-topbar" aria-label="Archive Telemetry">
         <div class="suite-breadcrumbs">
-            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
             <span class="suite-crumb-sep">/</span>
             <span class="suite-crumb-active">MASTER SERVICE & RESCUE ARCHIVE</span>
         </div>
@@ -75,7 +75,7 @@
                                 </span>
                                 <div>
                                     <h3 style="font-size: 17px; font-weight: 800; color: #ffffff; margin: 0 0 3px 0;">
-                                        {{ booking.service_type }}
+                                        <a href="{% url 'booking_detail' booking.id %}">{{ booking.service_type }}</a>
                                     </h3>
                                     <span style="font-size: 12px; color: var(--suite-text-sub);">
                                         {{ booking.vehicle.brand }} {{ booking.vehicle.model }} · {{ booking.updated_at|date:"d M Y" }}
@@ -175,7 +175,7 @@
                 <div style="font-size: 40px; margin-bottom: 12px;">📋</div>
                 <h3 style="font-size: 18px; color: #ffffff; margin-bottom: 6px;">No Completed Workshop Records Yet</h3>
                 <p style="font-size: 13.5px; color: var(--suite-text-sub); max-width: 480px; margin: 0 auto 20px auto;">
-                    Completed maintenance logs, technician notes, and invoice certifications will be archived here automatically upon vehicle release.
+                    Completed maintenance logs, technician notes, and service receipts will be archived here automatically upon vehicle release.
                 </p>
                 <a href="{% url 'service_booking' %}" class="suite-btn suite-btn-gold">
                     <span>Schedule Initial Service</span>
@@ -294,4 +294,7 @@ function switchSuiteTab(target) {
     }
 }
 </script>
+
+{% include 'core/components/pagination.html' with page=completed_services %}
+{% include 'core/components/pagination.html' with page=roadside_history %}
 {% endblock %}

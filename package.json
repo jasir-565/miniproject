@@ -1,0 +1,6 @@
+{
+  "name": "autonexa-browser-checks",
+  "private": true,
+  "scripts": {"test:browser": "node tools/browser_checks.cjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}

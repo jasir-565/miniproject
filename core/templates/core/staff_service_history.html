@@ -13,7 +13,7 @@
     <!-- Executive Telemetry Topbar -->
     <header class="suite-topbar" aria-label="Staff Service Telemetry">
         <div class="suite-breadcrumbs">
-            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
             <span class="suite-crumb-sep">/</span>
             <span class="suite-crumb-active">TECHNICIAN ARCHIVE &amp; SERVICE LEDGER</span>
         </div>
@@ -31,7 +31,7 @@
         <span class="suite-kicker">✦ CERTIFIED TECHNICIAN LEDGER · COMPLETED WORK ORDERS</span>
         <h1 class="suite-hero-title">Bay Service Archive.</h1>
         <p class="suite-hero-subtitle">
-            Permanent diagnostic and repair telemetry for all vehicle bookings completed or finalized under your technician credential. Inspect diagnostic notes, replacement components, and audited invoice amounts.
+            Review completed jobs assigned to you, including inspection notes, replaced parts and recorded service charges.
         </p>
         <div class="suite-hero-actions">
             <a href="{% url 'staff_dashboard' %}" class="suite-btn suite-btn-ghost">
@@ -57,7 +57,7 @@
                                 </div>
                                 <div>
                                     <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">
-                                        {{ booking.service_type }}
+                                        <a href="{% url 'booking_detail' booking.id %}">{{ booking.service_type }}</a>
                                     </h3>
                                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
                                         <span class="suite-plate">{{ booking.vehicle.registration_number }}</span>
@@ -159,7 +159,7 @@
                                     <div class="suite-data-cell is-span-full" style="background: linear-gradient(135deg, rgba(255, 210, 77, 0.08) 0%, rgba(7, 8, 10, 0.9) 100%); border: 1px solid rgba(255, 210, 77, 0.35); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
                                         <div>
                                             <span class="suite-data-label" style="color: var(--suite-gold);">Total Service Ledger Invoice</span>
-                                            <span style="display: block; font-size: 0.8rem; color: var(--suite-text-muted);">Audited parts, bay labor &amp; certification</span>
+                                            <span style="display: block; font-size: 0.8rem; color: var(--suite-text-muted);">Recorded parts and labour charges</span>
                                         </div>
                                         <div style="font-size: 1.75rem; font-weight: 800; color: var(--suite-gold); letter-spacing: -0.02em; text-shadow: 0 0 16px rgba(255, 210, 77, 0.4);">
                                             ₹ {{ booking.service_record.service_cost }}
@@ -187,4 +187,6 @@
     {% endif %}
 
 </div>
+
+{% include 'core/components/pagination.html' with page=service_history %}
 {% endblock %}

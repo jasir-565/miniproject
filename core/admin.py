@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.html import format_html
 from .models import (
+    StaffShift, StaffTimeOff, ServiceEvent, Estimate, EstimateLine, Invoice, InvoiceLine,
     CustomerProfile,
     StaffProfile,
     Vehicle,
@@ -33,8 +34,18 @@ class StaffProfileAdmin(admin.ModelAdmin):
         'phone',
         'designation',
     )
-    readonly_fields = ('created_at', 'approved_at', 'approved_by')
+    readonly_fields = ('created_at', 'approved_at', 'approved_by', 'is_approved')
     actions = ['approve_selected_staff', 'reject_selected_staff']
+
+    def save_model(self, request, obj, form, change):
+        obj.is_approved = obj.status == 'APPROVED'
+        if obj.is_approved and not obj.approved_at:
+            obj.approved_at = timezone.now()
+            obj.approved_by = request.user
+        if not obj.is_approved:
+            obj.approved_at = None
+            obj.approved_by = None
+        super().save_model(request, obj, form, change)
 
     @admin.display(description='Full Name')
     def get_full_name(self, obj):
@@ -79,7 +90,7 @@ class StaffProfileAdmin(admin.ModelAdmin):
     def reject_selected_staff(self, request, queryset):
         updated = queryset.update(
             is_approved=False,
-            status='REJECTED'
+            status='REJECTED', approved_at=None, approved_by=None,
         )
         self.message_user(request, f"{updated} staff profile(s) marked as rejected.")
 
@@ -90,3 +101,44 @@ admin.site.register(ServiceBooking)
 admin.site.register(ServiceRecord)
 admin.site.register(AssistanceRequest)
 admin.site.register(Notification)
+
+
+@admin.register(StaffShift)
+class StaffShiftAdmin(admin.ModelAdmin):
+    list_display = ('staff', 'weekday', 'starts_at', 'ends_at')
+    list_filter = ('staff', 'weekday')
+
+
+@admin.register(StaffTimeOff)
+class StaffTimeOffAdmin(admin.ModelAdmin):
+    list_display = ('staff', 'starts_at', 'ends_at', 'reason')
+    list_filter = ('staff',)
+
+
+class AuditAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ServiceEvent)
+class ServiceEventAdmin(AuditAdmin):
+    list_display = ('booking', 'title', 'actor', 'created_at')
+    list_select_related = ('booking', 'actor')
+
+
+@admin.register(Estimate)
+class EstimateAdmin(AuditAdmin):
+    list_display = ('booking', 'revision', 'status', 'created_at')
+    list_filter = ('status',)
+
+
+@admin.register(Invoice)
+class InvoiceAdmin(AuditAdmin):
+    list_display = ('number', 'customer_name', 'vehicle_label', 'total', 'issued_at')
+    search_fields = ('customer_name', 'vehicle_label')

@@ -13,7 +13,7 @@
     <!-- Executive Telemetry Topbar -->
     <header class="suite-topbar" aria-label="Notifications Telemetry">
         <div class="suite-breadcrumbs">
-            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
             <span class="suite-crumb-sep">/</span>
             <span class="suite-crumb-active">SYSTEM TELEMETRY & ALERTS DESK</span>
         </div>
@@ -99,7 +99,7 @@
                     <!-- Message Body -->
                     <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: var(--suite-radius-sm); padding: 14px 16px; margin: 10px 0 14px 0;">
                         <p style="margin: 0; font-size: 13.5px; color: var(--suite-text-main); line-height: 1.55;">
-                            {{ notification.message }}
+                            {{ notification.message }}<br><a class="record-link" href="{{ notification.get_absolute_url }}">Open related request →</a>{% if notification.booking_id %} · <a class="record-link" href="{% url 'estimate_detail' notification.booking_id %}">View estimated bill →</a>{% endif %}
                         </p>
                     </div>
 
@@ -153,4 +153,6 @@ function filterNotifs(mode) {
     });
 }
 </script>
+
+{% include 'core/components/pagination.html' with page=notifications %}
 {% endblock %}

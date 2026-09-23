@@ -1,5 +1,7 @@
 # AutoNexa project review
 
+**September 19 product update:** The accepted implementation now includes approved-staff enforcement, service timelines, versioned customer estimates, immutable itemized receipts, duration/shift/leave-aware scheduling, profile and password recovery pages, linked notifications, focused controllers, pagination, shared brand styling, demo data and CI. See [architecture](docs/ARCHITECTURE.md), [demo](docs/DEMO.md), and [deployment](docs/DEPLOYMENT.md). Local verification: 30 Django tests passed; one MySQL-only concurrency test skipped locally and configured in CI; 3 JavaScript tests and desktop/mobile browser checks passed. The original findings below are historical.
+
 Reviewed September 14, 2026 against the current working tree, including existing uncommitted changes.
 
 **Follow-up implementation:** The findings below describe the original review snapshot. The subsequent fix includes appointment/navigation/count corrections, state guards, transactional assignment/completion, restricted tracking access, GPS validation and lifecycle handling, safe popup/photo text handling, password/cost/image/URL validation, environment-based production configuration, and regression tests. See `core/tests.py`, `core/static/core/cockpit.test.cjs`, and the README for checks and deployment instructions. Broader product ideas and the stated MySQL/device-testing limitations remain relevant.

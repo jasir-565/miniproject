@@ -1,0 +1,74 @@
+/* Scoped to the service intake section; no shared navigation or page styles. */
+.service-intake {
+    --dash-surface: #14171c;
+    --dash-border: #ffffff16;
+    --dash-text-sub: #b2b8c2;
+    --dash-text-muted: #929ba9;
+    --dash-radius-lg: 14px;
+    --dash-radius-sm: 8px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 12px 0 40px;
+}
+.service-intake *, .service-intake *::before, .service-intake *::after { box-sizing: border-box; }
+.service-intake .dash-topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; padding:0 0 22px; margin-bottom:30px; border-bottom:1px solid var(--dash-border); }
+.service-intake .dash-breadcrumbs, .service-intake .dash-telemetry, .service-intake .telemetry-pill { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:10px; letter-spacing:1px; color:var(--dash-text-sub); line-height:1.6; }
+.service-intake .telemetry-pill { padding:7px 10px; border:1px solid var(--dash-border); border-radius:20px; }
+.service-intake .pulse-beacon { width:6px; height:6px; border-radius:50%; background:#6ccca4; }
+.service-intake .telemetry-date:empty { display:none; }
+.service-intake .page-header { margin-bottom:32px !important; }
+.service-intake .page-header .eyebrow { display:block; color:#d5b779; font-size:10px; letter-spacing:1.7px; }
+.service-intake .page-title { font-size:clamp(27px,3vw,40px); line-height:1.2; letter-spacing:-1px; margin:12px 0 !important; }
+.service-intake .page-subtitle { color:var(--dash-text-sub); font-size:14px; line-height:1.7; }
+.service-intake .booking-concierge-container { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:28px; align-items:start; }
+.service-intake .booking-steps-column { display:grid; gap:24px; min-width:0; }
+.service-intake .booking-step-block, .service-intake .booking-summary-slate { min-width:0; padding:26px; background:var(--dash-surface); border:1px solid var(--dash-border); border-radius:14px; }
+.service-intake .step-block-header { display:grid; grid-template-columns:34px minmax(0,1fr); column-gap:12px; row-gap:5px; align-items:center; padding-bottom:20px; margin-bottom:20px; border-bottom:1px solid var(--dash-border); }
+.service-intake .step-number-badge { grid-row:1 / 3; display:grid; place-items:center; width:34px; height:34px; border-radius:9px; border:1px solid #d5b77955; background:#d5b7790f; color:#e2c68f; font-size:11px; font-weight:600; }
+.service-intake .step-block-title { margin:0; font-size:17px; font-weight:600; line-height:1.4; }
+.service-intake .step-block-desc { grid-column:2; font-size:12px; line-height:1.5; color:var(--dash-text-sub); }
+.service-intake .vehicle-selector-chips, .service-intake .service-type-grid { display:none; }
+.service-intake.is-interactive .vehicle-selector-chips, .service-intake.is-interactive .service-type-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.service-intake.is-interactive select.visually-hidden, .service-intake label.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+.service-intake .vehicle-choice-chip, .service-intake .service-type-card { position:relative; min-width:0; padding:18px; border:1px solid #ffffff22; border-radius:10px; background:#ffffff02; cursor:pointer; text-align:left; transition:border-color .15s,background .15s; }
+.service-intake .vehicle-choice-chip { display:flex; flex-direction:column; gap:9px; }
+.service-intake .vehicle-choice-chip.is-selected, .service-intake .service-type-card.is-selected { border-color:#d5b779; background:#d5b7790c; }
+.service-intake .vehicle-choice-chip:hover, .service-intake .service-type-card:hover { border-color:#d5b77999; background:#d5b77910; }
+.service-intake [role=radio]:focus-visible, .service-intake button:focus-visible, .service-intake a:focus-visible { outline:2px solid #efd398; outline-offset:4px; }
+.service-intake .vehicle-chip-reg { font-size:13px; font-weight:700; letter-spacing:.5px; overflow-wrap:anywhere; }
+.service-intake .vehicle-chip-name { font-size:13px; color:var(--dash-text-sub); overflow-wrap:anywhere; }
+.service-intake .service-type-card { display:flex; flex-direction:column; gap:16px; min-height:164px; }
+.service-intake .service-card-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.service-intake .service-card-icon { font-size:23px; line-height:1; }
+.service-intake .service-card-time { font-size:10px; letter-spacing:.6px; color:var(--dash-text-sub); background:#ffffff07; padding:5px 8px; border-radius:5px; white-space:nowrap; }
+.service-intake .service-card-title { font-size:14px; font-weight:600; margin:0 0 8px; line-height:1.4; }
+.service-intake .service-card-desc { margin:0; font-size:12px; line-height:1.65; color:var(--dash-text-sub); }
+.service-intake .symptom-chips-wrap { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.service-intake .symptom-chip { border:1px solid #ffffff22; border-radius:7px; padding:9px 11px; background:#ffffff04; color:var(--dash-text-sub); font-size:11px; line-height:1.5; text-align:left; cursor:pointer; }
+.service-intake .symptom-chip:hover { border-color:#d5b779; color:#ead29f; }
+.service-intake textarea { min-height:130px; padding:15px; resize:vertical; border:1px solid #ffffff29; border-radius:8px; background:#0e1115; color:#f3f4f6; }
+.service-intake .booking-summary-slate { position:sticky; top:110px; padding:24px; }
+.service-intake .summary-slate-header { padding-bottom:20px; border-bottom:1px solid var(--dash-border); margin-bottom:6px; }
+.service-intake .dash-kicker { color:#d5b779; letter-spacing:1px; }
+.service-intake .summary-slate-header h3 { margin:10px 0 0; font-size:21px; font-weight:600; }
+.service-intake .summary-item-row { display:grid; grid-template-columns:minmax(0,1fr); gap:7px; padding:16px 0; border-bottom:1px solid var(--dash-border); }
+.service-intake .summary-item-label { color:var(--dash-text-muted); font-size:10px; letter-spacing:1px; }
+.service-intake .summary-item-val { font-size:13px; font-weight:500; line-height:1.6; overflow-wrap:anywhere; }
+.service-intake .dash-btn { display:inline-flex; justify-content:center; align-items:center; gap:10px; border-radius:8px; padding:13px 18px; text-decoration:none; font-size:13px; font-weight:600; cursor:pointer; line-height:1.5; }
+.service-intake .dash-btn-primary { background:#d51f3d; border:1px solid #d51f3d; color:#fff; }
+.service-intake .dash-btn-primary:hover { background:#b91833; }
+@media (max-width:1000px) {
+    .service-intake .booking-concierge-container { grid-template-columns:minmax(0,1fr); }
+    .service-intake .booking-summary-slate { position:static; }
+    .service-intake .summary-item-row { grid-template-columns:minmax(120px,1fr) minmax(0,2fr); gap:20px; align-items:start; }
+}
+@media (max-width:560px) {
+    .service-intake { padding-top:8px; }
+    .service-intake .dash-breadcrumbs { font-size:9px; letter-spacing:.5px; }
+    .service-intake .dash-telemetry { display:none; }
+    .service-intake .booking-step-block, .service-intake .booking-summary-slate { padding:20px; }
+    .service-intake .step-block-title { font-size:15px; }
+    .service-intake.is-interactive .vehicle-selector-chips, .service-intake.is-interactive .service-type-grid { grid-template-columns:minmax(0,1fr); }
+    .service-intake .service-type-card { min-height:0; }
+    .service-intake .summary-item-row { grid-template-columns:minmax(0,1fr); gap:6px; }
+}

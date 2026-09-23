@@ -24,6 +24,7 @@
 .footer-logo > .brand-nexa,
 .cinema-name .nome-nexa {
     color: #ec2444 !important;
+    -webkit-text-fill-color: #ec2444 !important;
     font-size: inherit;
     vertical-align: baseline;
     text-shadow: 0 0 14px rgba(236, 36, 68, 0.35);
@@ -44,3 +45,14 @@
 #site-name .brand-nexa {
     color: #ec2444 !important;
 }
+
+.wordmark > .brand-auto, .wordmark > .brand-nexa {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+.footer-logo > .brand-auto, .footer-logo > .brand-nexa {
+    font-size: inherit;
+    font-weight: 700;
+    letter-spacing: inherit;
+}
+.cinema-name .nome-letter { color: inherit; -webkit-text-fill-color: inherit; }

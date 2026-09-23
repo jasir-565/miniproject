@@ -13,7 +13,7 @@
     <!-- Executive Telemetry Topbar -->
     <header class="suite-topbar" aria-label="Bookings Telemetry">
         <div class="suite-breadcrumbs">
-            <span class="suite-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 14px rgba(255, 210, 77, 0.5) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="suite-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
             <span class="suite-crumb-sep">/</span>
             <span class="suite-crumb-active">WORKSHOP ORDERS & REPAIR PIPELINE</span>
         </div>
@@ -63,7 +63,7 @@
                                     <span class="suite-plate-country">IND</span>
                                     <span>{{ booking.vehicle.registration_number }}</span>
                                 </span>
-                                <h2 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0;">{{ booking.service_type }}</h2>
+                                <h2 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0;"><a href="{% url 'booking_detail' booking.id %}">{{ booking.service_type }}</a></h2>
                             </div>
                             <p style="font-size: 13px; color: var(--suite-text-sub); margin: 0;">
                                 {{ booking.vehicle.brand }} {{ booking.vehicle.model }} ({{ booking.vehicle.year }}) · Docket #ORD-{{ booking.id }}
@@ -184,7 +184,7 @@
         <!-- Empty Orders Slate -->
         <div class="suite-card" style="text-align: center; padding: 60px 24px;">
             <div style="font-size: 48px; margin-bottom: 16px;">🏎️</div>
-            <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">All Vehicles Operating at Peak Health</h2>
+            <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin-bottom: 8px;">No active service bookings</h2>
             <p style="font-size: 14px; color: var(--suite-text-sub); max-width: 520px; margin: 0 auto 28px auto; line-height: 1.6;">
                 You have no pending or active repair orders in our workshop pipeline. Whenever your vehicle requires preventive care, scheduled fluid flush, or mechanical inspection, our team is ready.
             </p>
@@ -202,4 +202,5 @@
     {% endif %}
 
 </div>
+{% include 'core/components/pagination.html' with page=bookings %}
 {% endblock %}

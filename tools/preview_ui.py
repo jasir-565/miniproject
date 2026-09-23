@@ -41,10 +41,10 @@ if __name__ == '__main__':
     from core.models import CustomerProfile, StaffProfile, Vehicle, ServiceBooking, Notification
     call_command('migrate', verbosity=0)
     customer = CustomerProfile.objects.create(user=User.objects.create_user('preview_customer', first_name='Alex'), phone='0000000000')
-    staff = StaffProfile.objects.create(user=User.objects.create_user('preview_staff', first_name='Sam'), phone='0000000000', designation='Technician')
+    staff = StaffProfile.objects.create(user=User.objects.create_user('preview_staff', first_name='Sam'), phone='0000000000', designation='Technician', is_approved=True, status='APPROVED')
     vehicle = Vehicle.objects.create(customer=customer, registration_number='KL 07 AB 2024', brand='Volkswagen', model='Polo', year=2022)
     Vehicle.objects.create(customer=customer, registration_number='KL 07 CD 1986', brand='Honda', model='City', year=2024)
     ServiceBooking.objects.create(customer=customer, vehicle=vehicle, staff=staff, service_type='General Service', issue_description='Routine inspection and engine oil change.', status='CONFIRMED', appointment_date=(timezone.now()+timedelta(days=2)).date(), appointment_time='10:30')
     Notification.objects.create(customer=customer, title='Your appointment is confirmed', message='Your vehicle is booked in for a general service.', notification_type='SERVICE')
     print('Synthetic in-memory UI preview. Stop this process to discard all preview data.')
-    call_command('runserver', '127.0.0.1:8765', use_reloader=False)
+    call_command('runserver', os.environ.get('PREVIEW_ADDRESS', '127.0.0.1:8765'), use_reloader=False)

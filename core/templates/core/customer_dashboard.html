@@ -13,12 +13,12 @@
     <!-- Executive Telemetry Topbar -->
     <header class="dash-topbar" aria-label="System status">
         <div class="dash-breadcrumbs">
-            <span class="dash-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+            <span class="dash-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
             <span class="dash-crumb-sep">/</span>
             <span class="dash-crumb-active">CUSTOMER GARAGE & SERVICE DESK</span>
         </div>
         <div class="dash-meta-strip">
-            <span class="dash-live-pulse"><i class="pulse-dot"></i> WORKSHOP LIVE</span>
+            <span class="dash-live-pulse"><i class="pulse-dot"></i> YOUR SERVICE DESK</span>
             <span class="dash-date">{% now "l, d F Y" %}</span>
         </div>
     </header>
@@ -32,10 +32,10 @@
         </div>
 
         <div class="dash-hero-content">
-            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> GOLD CONCIERGE · GARAGE ACCESS</span>
+            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span> GOLD CONCIERGE · GARAGE ACCESS</span>
             <h1 id="dash-welcome-title">Welcome back, <span class="text-highlight is-gold">{{ user.first_name|default:user.username }}</span>.</h1>
             <p class="dash-hero-subtitle">
-                Your garage is connected. Track active workshop orders, review completed inspection records, and dispatch roadside assistance 24/7.
+                Your garage is connected. Track active workshop orders, review completed inspection records, and request roadside assistance.
             </p>
             <div class="dash-hero-actions">
                 <a href="{% url 'service_booking' %}" class="dash-btn dash-btn-primary">
@@ -54,14 +54,14 @@
         </div>
         <div class="dash-hero-stats-panel" aria-label="Operational status">
             <div class="hero-stat-cell is-gold-accent">
-                <span class="stat-cell-label">VEHICLE HEALTH</span>
-                <strong class="stat-cell-value text-gold">VERIFIED ✦</strong>
-                <small class="stat-cell-note">All systems normal</small>
+                <span class="stat-cell-label">REGISTERED VEHICLES</span>
+                <strong class="stat-cell-value text-gold">{{ vehicles_count|stringformat:'02d' }}</strong>
+                <small class="stat-cell-note">In your garage</small>
             </div>
             <div class="hero-stat-cell">
-                <span class="stat-cell-label">WORKSHOP STATUS</span>
-                <strong class="stat-cell-value">ONLINE</strong>
-                <small class="stat-cell-note">Ready for bookings</small>
+                <span class="stat-cell-label">ACTIVE BOOKINGS</span>
+                <strong class="stat-cell-value">{{ active_bookings_count|stringformat:'02d' }}</strong>
+                <small class="stat-cell-note">Awaiting or undergoing service</small>
             </div>
         </div>
     </section>
@@ -108,12 +108,12 @@
     <!-- Main Dual-Core Operational Hub -->
     <div class="dash-dual-grid">
 
-        <!-- LEFT COLUMN: Featured Vehicle & Garage Telemetry -->
+        <!-- LEFT COLUMN: Featured Vehicle & Your vehicle -->
         <section class="dash-panel vehicle-telemetry-panel" aria-labelledby="featured-vehicle-heading">
             <div class="panel-header">
                 <div>
                     <span class="panel-kicker">01 / PRIMARY VEHICLE</span>
-                    <h2 class="panel-title" id="featured-vehicle-heading">Garage Telemetry</h2>
+                    <h2 class="panel-title" id="featured-vehicle-heading">Your vehicle</h2>
                 </div>
                 {% if featured_vehicle %}
                     <a href="{% url 'vehicles' %}" class="panel-action-link">All Vehicles ({{ vehicles_count }}) ↗</a>
@@ -159,7 +159,7 @@
                         </div>
                         <div class="spec-cell">
                             <span class="spec-label">RECORD STATUS</span>
-                            <strong class="spec-val text-emerald">SYNCHRONIZED</strong>
+                            <strong class="spec-val text-emerald">REGISTERED</strong>
                         </div>
                     </div>
 
@@ -267,8 +267,8 @@
                     {% if next_booking.current_work %}
                         <div class="journey-technician-docket">
                             <div class="docket-header">
-                                <span class="docket-badge">👨‍🔧 LIVE TECHNICIAN DISPATCH</span>
-                                <span class="docket-time">Updated recently</span>
+                                <span class="docket-badge">👨‍🔧 LATEST TECHNICIAN NOTE</span>
+                                <span class="docket-time">{{ next_booking.updated_at|date:'j M, g:i A' }}</span>
                             </div>
                             <p class="docket-body">"{{ next_booking.current_work }}"</p>
                         </div>
@@ -279,7 +279,7 @@
                         <span class="journey-vehicle-pill">
                             <span>Vehicle:</span> {{ next_booking.vehicle.registration_number }}
                         </span>
-                        <a href="{% url 'my_bookings' %}" class="dash-btn dash-btn-sm dash-btn-secondary">
+                        <a href="{% url 'booking_detail' next_booking.id %}" class="dash-btn dash-btn-sm dash-btn-secondary">
                             <span>Manage Booking Details</span>
                             <span aria-hidden="true">→</span>
                         </a>
@@ -289,7 +289,7 @@
                 <div class="empty-journey-card">
                     <div class="empty-icon-wrap">🛠️</div>
                     <h3>No service orders currently active</h3>
-                    <p>All your vehicles are in top order. When you're ready for routine fluid changes, seasonal diagnostics, or mechanical tune-ups, book an appointment in seconds.</p>
+                    <p>Your active appointments will appear here. Request a service when you need maintenance or repairs.</p>
                     <div class="empty-actions-row">
                         <a href="{% url 'service_booking' %}" class="dash-btn dash-btn-primary">Schedule A Workshop Visit ↗</a>
                         <a href="{% url 'service_history' %}" class="dash-btn dash-btn-secondary">Review Past Records →</a>
@@ -302,18 +302,18 @@
 
     <!-- 24/7 Roadside Recovery Fleet & Highway Runway Telemetry -->
     <section class="roadside-runway-wrap" style="margin-bottom: 24px;" aria-label="Highway Rescue Patrol Telemetry">
-        {% include 'core/components/road_runway.html' with runway_id='customer' runway_title='24/7 HIGHWAY RESCUE PATROL · LIVE DISPATCH TELEMETRY' runway_subtitle='Active mobile recovery & tow units cruising metro quadrants with 25-minute response SLA' %}
+        {% include 'core/components/road_runway.html' with runway_id='customer' runway_title='THE OPEN ROAD · AN INTERACTIVE ILLUSTRATION' runway_subtitle='Decorative animation. Track assigned help through your roadside request.' %}
     </section>
 
     <!-- Rapid Roadside Concierge SOS Dock -->
-    <section class="dash-roadside-dock" aria-label="24/7 Roadside Assistance">
+    <section class="dash-roadside-dock" aria-label="Roadside Assistance">
         <div class="roadside-dock-copy">
             <div class="roadside-badge-row">
-                <span class="roadside-live-badge"><i class="pulse-dot-crimson"></i> 24/7 LIVE EMERGENCY DESK</span>
-                <span class="roadside-sla-tag">Average dispatch: Under 25 mins</span>
+                <span class="roadside-live-badge"><i class="pulse-dot-crimson"></i> ROADSIDE ASSISTANCE</span>
+                <span class="roadside-sla-tag">Availability confirmed after assignment</span>
             </div>
             <h3>Encountered a breakdown, flat tyre, or dead battery?</h3>
-            <p>Our rapid-response mobile service vans are equipped with GPS dispatch. Share your live coordinates for immediate on-site roadside rescue.</p>
+            <p>Share your location and the help you need. Follow assignment and available technician location updates from your request.</p>
         </div>
         <div class="roadside-dock-actions">
             <a href="{% url 'roadside_assistance' %}" class="dash-btn dash-btn-crimson">

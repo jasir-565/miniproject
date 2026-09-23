@@ -1,5 +1,9 @@
 # Vehicle Service & Roadside Assistance Management System
 
+The professional workflow update adds approved-staff enforcement, timestamped service timelines, versioned estimates with customer approval, itemized printable receipts, duration-aware scheduling, account recovery, linked notifications and paginated lists.
+
+See [architecture](docs/ARCHITECTURE.md), [demo walkthrough](docs/DEMO.md), and [setup and deployment](docs/DEPLOYMENT.md). Apply the new database migration with `python manage.py migrate` before running the updated application.
+
 A full-stack Django web application designed for managing vehicle servicing, real-time service tracking, and emergency roadside assistance dispatches.
 
 ## 🚀 Features

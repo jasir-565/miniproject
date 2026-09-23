@@ -1,7 +1,24 @@
 from django.urls import path
 from . import views
+from . import portal
+from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
 urlpatterns = [
+    path('account/', portal.account_settings, name='account_settings'),
+    path('account/password/', auth_views.PasswordChangeView.as_view(template_name='core/account_form.html', success_url=reverse_lazy('password_change_done')), name='password_change'),
+    path('account/password/done/', auth_views.PasswordChangeDoneView.as_view(template_name='core/account_form.html', extra_context={'message': 'Your password has been changed.'}), name='password_change_done'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='core/account_form.html', email_template_name='core/password_reset_email.txt', subject_template_name='core/password_reset_subject.txt'), name='password_reset'),
+    path('password-reset/sent/', auth_views.PasswordResetDoneView.as_view(template_name='core/account_form.html', extra_context={'message': 'If an active account matches that email, a password reset link has been sent. Check your inbox.'}), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='core/account_form.html'), name='password_reset_confirm'),
+    path('reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='core/account_form.html', extra_context={'message': 'Your password has been reset. You can now sign in.'}), name='password_reset_complete'),
+    path('bookings/<int:booking_id>/', portal.booking_detail, name='booking_detail'),
+    path('bookings/<int:booking_id>/estimate/', portal.estimate_create, name='estimate_create'),
+    path('estimates/', portal.customer_estimates, name='customer_estimates'),
+    path('bookings/<int:booking_id>/estimated-bill/', portal.estimate_detail, name='estimate_detail'),
+    path('estimates/<int:estimate_id>/decision/', portal.estimate_decide, name='estimate_decide'),
+    path('bookings/<int:booking_id>/receipt/', portal.invoice_detail, name='invoice_detail'),
+    path('staff/schedule/', portal.schedule, name='staff_schedule'),
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('staff/register/', views.staff_register, name='staff_register'),

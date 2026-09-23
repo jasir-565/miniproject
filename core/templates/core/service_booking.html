@@ -3,12 +3,17 @@
 
 {% block title %}Book Vehicle Service - AutoNexa Workshop Concierge{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'core/service_booking.css' %}">
+{% endblock %}
+
 {% block content %}
+<div class="service-intake">
 
 <!-- Executive Telemetry Topbar -->
 <div class="dash-topbar" role="navigation" aria-label="Breadcrumb and telemetry">
     <div class="dash-breadcrumbs">
-        <span class="crumb-root"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span></span>
+        <span class="crumb-root"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span></span>
         <span class="crumb-separator" aria-hidden="true">/</span>
         <span class="crumb-active">WORKSHOP INTAKE CONCIERGE</span>
     </div>
@@ -24,7 +29,7 @@
 <div class="page-header" style="margin-bottom: 28px;">
     <span class="eyebrow">STEP-BY-STEP INTAKE PROTOCOL</span>
     <h1 class="page-title" style="margin: 6px 0 8px;">Precision Workshop Intake</h1>
-    <p class="page-subtitle">Schedule certified technical diagnostics, maintenance, and repairs for your registered vehicles.</p>
+    <p class="page-subtitle">Request diagnostics, maintenance, and repairs for your registered vehicles.</p>
 </div>
 
 {% if error %}
@@ -60,7 +65,7 @@
                                     data-model="{{ vehicle.model }}"
                                     data-reg="{{ vehicle.registration_number }}"
                                     data-year="{{ vehicle.year }}"
-                                    {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}selected{% endif %}>
+                                    {% if request.POST.vehicle == vehicle.id|stringformat:'s' or not request.POST and request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.POST and not request.GET.vehicle %}selected{% endif %}>
                                 {{ vehicle.registration_number }} — {{ vehicle.brand }} {{ vehicle.model }}
                             </option>
                         {% endfor %}
@@ -69,11 +74,11 @@
                     <!-- Interactive Vehicle Choice Chips -->
                     <div class="vehicle-selector-chips" role="radiogroup" aria-label="Select a vehicle">
                         {% for vehicle in vehicles %}
-                            <div class="vehicle-choice-chip {% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}is-selected{% endif %}"
+                            <div class="vehicle-choice-chip {% if request.POST.vehicle == vehicle.id|stringformat:'s' or not request.POST and request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.POST and not request.GET.vehicle %}is-selected{% endif %}"
                                  data-vehicle-chip="{{ vehicle.id }}"
                                  role="radio"
                                  tabindex="0"
-                                 aria-checked="{% if request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.GET.vehicle %}true{% else %}false{% endif %}">
+                                 aria-checked="{% if request.POST.vehicle == vehicle.id|stringformat:'s' or not request.POST and request.GET.vehicle == vehicle.id|stringformat:'s' or forloop.first and not request.POST and not request.GET.vehicle %}true{% else %}false{% endif %}">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <span class="vehicle-chip-reg">{{ vehicle.registration_number }}</span>
                                     <span class="status-badge status-confirmed" style="font-size: 9.5px; padding: 2px 7px;">{{ vehicle.year }}</span>
@@ -95,14 +100,14 @@
                     <!-- Hidden native select for standard browser validation and POST data -->
                     <select name="service_type" id="service_type" class="visually-hidden" required>
                         <option value="">-- Select Service Type --</option>
-                        <option value="General Service" selected>General Service & Maintenance</option>
-                        <option value="Oil Change">Engine Oil & Filter Change</option>
-                        <option value="Brake Service">Brake Inspection & Replacement</option>
-                        <option value="Engine Service">Engine Diagnostic & Tuning</option>
-                        <option value="AC Service">Climate Control / AC Repair</option>
-                        <option value="Tyre Service">Tire Alignment & Balancing</option>
-                        <option value="Battery Service">Battery Diagnostic & Replacement</option>
-                        <option value="Other">Other Repairs & Custom Work</option>
+                        <option value="General Service" {% if not request.POST.service_type or request.POST.service_type == "General Service" %}selected{% endif %}>General Service & Maintenance</option>
+                        <option value="Oil Change" {% if request.POST.service_type == "Oil Change" %}selected{% endif %}>Engine Oil & Filter Change</option>
+                        <option value="Brake Service" {% if request.POST.service_type == "Brake Service" %}selected{% endif %}>Brake Inspection & Replacement</option>
+                        <option value="Engine Service" {% if request.POST.service_type == "Engine Service" %}selected{% endif %}>Engine Diagnostic & Tuning</option>
+                        <option value="AC Service" {% if request.POST.service_type == "AC Service" %}selected{% endif %}>Climate Control / AC Repair</option>
+                        <option value="Tyre Service" {% if request.POST.service_type == "Tyre Service" %}selected{% endif %}>Tire Alignment & Balancing</option>
+                        <option value="Battery Service" {% if request.POST.service_type == "Battery Service" %}selected{% endif %}>Battery Diagnostic & Replacement</option>
+                        <option value="Other" {% if request.POST.service_type == "Other" %}selected{% endif %}>Other Repairs & Custom Work</option>
                     </select>
 
                     <!-- Interactive Service Category Grid -->
@@ -114,7 +119,7 @@
                             </div>
                             <div>
                                 <h3 class="service-card-title">General Service</h3>
-                                <p class="service-card-desc">Comprehensive 40-point inspection, fluids, filters, and safety certification.</p>
+                                <p class="service-card-desc">Inspection of fluids, filters, and key components. Confirm the scope with your technician.</p>
                             </div>
                         </div>
 
@@ -125,7 +130,7 @@
                             </div>
                             <div>
                                 <h3 class="service-card-title">Oil & Filter</h3>
-                                <p class="service-card-desc">High-performance synthetic oil flush, OEM filter, and seal inspection.</p>
+                                <p class="service-card-desc">Engine oil and filter service, with parts and pricing confirmed in your estimate.</p>
                             </div>
                         </div>
 
@@ -226,9 +231,9 @@
                         id="issue_description"
                         rows="4"
                         placeholder="Detail symptoms, warning lights, strange vibrations, noises, or custom instructions for the technician..."
-                        required
+                        required minlength="10"
                         style="width: 100%; font-size: 13px; line-height: 1.6;"
-                    ></textarea>
+                    >{{ request.POST.issue_description }}</textarea>
                 </section>
 
             </div>
@@ -301,11 +306,15 @@
 
 {% endif %}
 
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const vehicleSelect = document.getElementById('vehicle');
     const serviceSelect = document.getElementById('service_type');
     const issueTextarea = document.getElementById('issue_description');
+    if (!vehicleSelect || !serviceSelect) return;
+    document.querySelector('.service-intake').classList.add('is-interactive');
 
     const summaryVehicleName = document.getElementById('summary-vehicle-name');
     const summaryVehicleReg = document.getElementById('summary-vehicle-reg');
@@ -350,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const active = c === chip;
                 c.classList.toggle('is-selected', active);
                 c.setAttribute('aria-checked', active);
+                c.tabIndex = active ? 0 : -1;
             });
             updateSummary();
         });
@@ -364,8 +374,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 const active = c === card;
                 c.classList.toggle('is-selected', active);
                 c.setAttribute('aria-checked', active);
+                c.tabIndex = active ? 0 : -1;
             });
             updateSummary();
+        });
+    });
+
+    // Match mouse selection with standard radio-group keyboard navigation.
+    document.querySelectorAll('.vehicle-selector-chips, .service-type-grid').forEach(group => {
+        const cards = Array.from(group.querySelectorAll('[role="radio"]'));
+        group.addEventListener('keydown', event => {
+            const index = cards.indexOf(document.activeElement);
+            if (index < 0) return;
+            let target = index;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') target = (index + 1) % cards.length;
+            else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') target = (index - 1 + cards.length) % cards.length;
+            else if (event.key !== ' ' && event.key !== 'Enter') return;
+            event.preventDefault();
+            cards[target].focus();
+            cards[target].click();
         });
     });
 
@@ -383,6 +410,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    document.querySelectorAll('[data-service-card]').forEach(card => {
+        const active = serviceSelect && card.dataset.serviceCard === serviceSelect.value;
+        card.classList.toggle('is-selected', active);
+        card.setAttribute('aria-checked', active);
+    });
+    document.querySelectorAll('[role="radio"]').forEach(card => { card.tabIndex = card.getAttribute('aria-checked') === 'true' ? 0 : -1; });
     updateSummary();
 });
 </script>

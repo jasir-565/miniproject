@@ -13,7 +13,7 @@
     <!-- Workshop Telemetry Topbar -->
     <header class="dash-topbar" aria-label="Workshop telemetry">
         <div class="dash-breadcrumbs">
-            <span class="dash-brand-tag"><span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> WORKSHOP</span>
+            <span class="dash-brand-tag"><span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span> WORKSHOP</span>
             <span class="dash-crumb-sep">/</span>
             <span class="dash-crumb-active">SERVICE PIPELINE & JOB DISPATCH</span>
         </div>
@@ -33,14 +33,14 @@
         </div>
 
         <div class="dash-hero-content">
-            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto" style="color: #ffd24d !important; -webkit-text-fill-color: #ffd24d !important; text-shadow: 0 0 16px rgba(255, 210, 77, 0.6) !important;">AUTO</span> <span class="brand-nexa" style="color: #ec2444 !important; -webkit-text-fill-color: #ec2444 !important; text-shadow: 0 0 14px rgba(236, 36, 68, 0.5) !important;">NEXA</span> MASTER WORKSHOP · ACTIVE BAY TELEMETRY</span>
+            <span class="dash-kicker is-gold"><span class="gold-crown-icon">✦</span> <span class="brand-auto">AUTO</span> <span class="brand-nexa">NEXA</span> MASTER WORKSHOP · ACTIVE BAY TELEMETRY</span>
             <h1 id="staff-hero-title">Service Bay <span class="text-highlight is-gold">Operations</span>.</h1>
             <p class="dash-hero-subtitle">
-                Manage assigned repair orders, assign customer appointment slots, broadcast live repair progress notes, and certify completed records.
+                Plan appointments, prepare customer estimates, record repair progress, and issue itemized service receipts.
             </p>
             <div class="dash-hero-actions">
                 <a href="#active-jobs" class="dash-btn dash-btn-primary">
-                    <span>Jump to Active Orders ({{ bookings|length }})</span>
+                    <span>Jump to Active Orders ({{ bookings.paginator.count }})</span>
                     <span class="btn-arrow" aria-hidden="true">↓</span>
                 </a>
                 <a href="{% url 'staff_assistance_requests' %}" class="dash-btn dash-btn-crimson">
@@ -84,7 +84,7 @@
             <div class="kpi-body">
                 <span class="kpi-label">Assigned Work Orders</span>
                 <div class="kpi-number-row">
-                    <strong class="kpi-value text-gold">{{ bookings|length|stringformat:'02d' }}</strong>
+                    <strong class="kpi-value text-gold">{{ bookings.paginator.count|stringformat:'02d' }}</strong>
                     <span class="kpi-trend" style="color: #fbf5b7;">Total Assigned</span>
                 </div>
             </div>
@@ -159,7 +159,7 @@
                 type="text"
                 id="staff-search-input"
                 class="staff-search-box"
-                placeholder="Filter by WO#, registration plate (e.g. KL33), customer name, or service type..."
+                placeholder="Filter this page by work order, registration, customer, or service..."
                 aria-label="Filter active work orders"
             >
             <span class="search-counter" id="staff-search-count">{{ bookings|length }} orders</span>
@@ -203,7 +203,7 @@
     <section class="work-orders-container" aria-label="Assigned work orders list">
         {% if bookings %}
             {% for booking in bookings %}
-                <article class="work-order-card job-menu" data-job-status="{{ booking.status }}" data-order-ref="{{ booking.id|stringformat:'04d' }}" data-search-haystack="{{ booking.id }} {{ booking.service_type }} {{ booking.vehicle.registration_number }} {{ booking.vehicle.brand }} {{ booking.vehicle.model }} {{ booking.customer.user.get_full_name }} {{ booking.customer.user.username }}">
+                <article class="work-order-card job-menu" data-job-status="{{ booking.status }}" data-order-ref="{{ booking.id|stringformat:'04d' }}" data-search-haystack="{{ booking.id }} <a href="{% url 'booking_detail' booking.id %}">{{ booking.service_type }}</a> {{ booking.vehicle.registration_number }} {{ booking.vehicle.brand }} {{ booking.vehicle.model }} {{ booking.customer.user.get_full_name }} {{ booking.customer.user.username }}">
                     <details open>
                         <summary class="order-card-summary">
                             <div class="order-summary-left">
@@ -211,7 +211,7 @@
                                     <span class="order-tag">#WO-{{ booking.id|stringformat:'04d' }}</span>
                                     <span class="order-date">Intake: {{ booking.created_at|date:'M d, Y · g:i A'|default:'Active' }}</span>
                                 </div>
-                                <h3 class="order-service-title">{{ booking.service_type }}</h3>
+                                <h3 class="order-service-title"><a href="{% url 'booking_detail' booking.id %}">{{ booking.service_type }}</a></h3>
                                 <div class="order-vehicle-strip">
                                     <span class="license-plate-badge">{{ booking.vehicle.registration_number }}</span>
                                     <span class="vehicle-name-label">{{ booking.vehicle.brand }} {{ booking.vehicle.model }} ({{ booking.vehicle.year }})</span>
@@ -303,7 +303,7 @@
                                 </div>
 
                                 <div class="telemetry-cell full-width">
-                                    <span class="cell-label">LIVE BROADCAST WORK NOTE</span>
+                                    <span class="cell-label">LATEST WORK NOTE</span>
                                     <div class="live-work-display">
                                         {% if booking.current_work %}
                                             <span class="work-pulse-dot"></span>
@@ -353,7 +353,7 @@
                                                 >
                                             </div>
 
-                                            <div class="form-field-btn-wrap">
+                                            <div class="form-field-group"><label for="duration_{{ booking.id }}">Duration (minutes)</label><input type="number" id="duration_{{ booking.id }}" name="duration_minutes" min="15" max="480" value="{{ booking.duration_minutes }}" required></div><div class="form-field-btn-wrap">
                                                 <button type="submit" class="dash-btn dash-btn-primary">
                                                     <span>Confirm Appointment Slot</span>
                                                     <span aria-hidden="true">✓</span>
@@ -372,7 +372,7 @@
                                             <span class="console-icon">⚙️</span>
                                             <div>
                                                 <h4>Update Workshop Status & Broadcast Note</h4>
-                                                <p>Broadcast updates to customer's live dashboard while vehicle is being serviced.</p>
+                                                <p>Add a timestamped note to the customer’s service timeline.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -404,7 +404,7 @@
 
                                             <div class="form-field-btn-wrap">
                                                 <button type="submit" class="dash-btn dash-btn-secondary">
-                                                    <span>Broadcast Work Note</span>
+                                                    <span>Save Work Note</span>
                                                     <span aria-hidden="true">📡</span>
                                                 </button>
                                             </div>
@@ -519,8 +519,10 @@
 
     <!-- 24/7 Fleet Highway Patrol & Roadside Telemetry Monitor -->
     <section class="staff-runway-wrap" style="margin-top: 32px;" aria-label="Highway Patrol & Tow Fleet Telemetry">
-        {% include 'core/components/road_runway.html' with runway_id='staff' runway_title='HIGHWAY PATROL & RAPID TOW FLEET TELEMETRY' runway_subtitle='Real-time mobile recovery units on 24/7 standby across all workshop dispatch zones' %}
+        {% include 'core/components/road_runway.html' with runway_id='staff' runway_title='THE OPEN ROAD · AN INTERACTIVE ILLUSTRATION' runway_subtitle='Decorative animation. Use the roadside queue to manage real requests.' %}
     </section>
 
 </div>
+
+{% include 'core/components/pagination.html' with page=bookings %}
 {% endblock %}

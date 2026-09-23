@@ -1,0 +1,48 @@
+name: Application checks
+on: [push, pull_request]
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev build-essential pkg-config
+      - run: pip install -r requirements.txt
+      - run: python manage.py test --settings=config.test_settings
+      - run: python manage.py makemigrations --check --dry-run --settings=config.test_settings
+      - run: node --test core/static/core/cockpit.test.cjs
+      - run: npm install --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: python tools/preview_ui.py > /tmp/autonexa-preview.log 2>&1 &
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-screenshots
+          path: test-results/
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-password
+          MYSQL_DATABASE: autonexa_ci
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping -h localhost -pci-only-password" --health-interval=10s --health-timeout=5s --health-retries=10
+    env:
+      MYSQL_TEST_PASSWORD: ci-only-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: sudo apt-get update && sudo apt-get install -y default-libmysqlclient-dev build-essential pkg-config
+      - run: pip install -r requirements.txt
+      - run: python manage.py test --settings=config.mysql_test_settings --noinput
